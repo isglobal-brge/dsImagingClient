@@ -11,18 +11,22 @@ ds.radiomics(
   feature.classes = c("firstorder", "shape", "glcm", "glrlm", "glszm", "gldm", "ngtdm"),
   bin.width = 25,
   normalize = FALSE,
+  on.error = c("exclude", "stop"),
   newobj = "radiomics.features",
   datasources = NULL
 )
 }
 \arguments{
-\item{collection.resource}{Character string. The name of the DataSHIELD Vault
-Collection resource (as defined in Opal). This resource should point to a
-dsVault collection containing the medical images.}
+\item{collection.resource}{Character string or named list. The name of the
+DataSHIELD Vault Collection resource (as defined in Opal). Can be either:
+\itemize{
+\item A single character string (same resource name for all servers)
+\item A named list with server names as keys and resource names as values
+(e.g., \code{list(server1 = "proj.images", server2 = "other.images")})
+}}
 
-\item{hpc.resource}{Character string. The name of the HPC Unit resource
-(as defined in Opal). This resource should point to a dsHPC unit for
-processing.}
+\item{hpc.resource}{Character string or named list. The name of the HPC Unit
+resource (as defined in Opal). Same format as collection.resource.}
 
 \item{lungmask.model}{Character. Lungmask model to use. Options: "R231" (default),
 "R231CovidWeb", "LTRCLobes", "LTRCLobes_R231".}
@@ -34,6 +38,12 @@ Default extracts all.}
 \item{bin.width}{Numeric. Bin width for intensity discretization (default: 25).}
 
 \item{normalize}{Logical. Normalize image before feature extraction (default: FALSE).}
+
+\item{on.error}{Character. How to handle failed jobs:
+\itemize{
+\item "exclude" (default): Skip failed images, return partial results
+\item "stop": Stop with error if any image fails
+}}
 
 \item{newobj}{Character. Name for the output object on the server (default:
 "radiomics.features"). This object stays on the server.}
@@ -68,12 +78,14 @@ library(DSOpal)
 builder <- DSI::newDSLoginBuilder()
 builder$append(server = "study1",
                url = "https://opal.example.org",
-               user = "user", password = "password",
-               resource = "project.collection_resource")
+               user = "user", password = "password")
+builder$append(server = "study2",
+               url = "https://opal2.example.org",
+               user = "user", password = "password")
 logindata <- builder$build()
 conns <- DSI::datashield.login(logins = logindata)
 
-# Extract radiomic features (stored in 'features' on server)
+# Option 1: Same resource name for all servers
 ds.radiomics(
   collection.resource = "project.ct_images",
   hpc.resource = "project.hpc_cluster",
@@ -82,8 +94,20 @@ ds.radiomics(
   datasources = conns
 )
 
-# The features data frame is now available on the server as 'features'
-# Use dsBaseClient functions to work with it
+# Option 2: Different resource names per server
+ds.radiomics(
+  collection.resource = list(
+    study1 = "radiology.chest_ct",
+    study2 = "imaging.lung_scans"
+  ),
+  hpc.resource = list(
+    study1 = "compute.hpc",
+    study2 = "infra.cluster"
+  ),
+  feature.classes = c("firstorder", "shape"),
+  newobj = "features",
+  datasources = conns
+)
 
 DSI::datashield.logout(conns)
 }

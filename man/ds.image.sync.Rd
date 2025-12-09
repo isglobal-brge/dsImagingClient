@@ -4,51 +4,41 @@
 \alias{ds.image.sync}
 \title{Sync Vault Images to HPC Storage}
 \usage{
-ds.image.sync(
-  collection.resource,
-  hpc.resource,
-  newobj = "image.sync",
-  datasources = NULL
-)
+ds.image.sync(collection.resource, hpc.resource, datasources = NULL)
 }
 \arguments{
-\item{collection.resource}{Character string. The name of the DataSHIELD Vault
-Collection resource (as defined in Opal). This resource should point to a
-dsVault collection containing the medical images.}
+\item{collection.resource}{Character string or named list. The name of the
+DataSHIELD Vault Collection resource (as defined in Opal). Can be either:
+\itemize{
+\item A single character string (same resource name for all servers)
+\item A named list with server names as keys and resource names as values
+}}
 
-\item{hpc.resource}{Character string. The name of the HPC Unit resource
-(as defined in Opal). This resource should point to a dsHPC unit for
-processing and storage.}
-
-\item{newobj}{Character. Name for the output object on the server (default:
-"image.sync"). This object stays on the server and is used by subsequent
-functions like ds.lungmask().}
+\item{hpc.resource}{Character string or named list. The name of the HPC Unit
+resource (as defined in Opal). Same format as collection.resource.}
 
 \item{datasources}{A list of DSConnection-class objects (default: NULL uses
 all connections).}
 }
 \value{
-Invisibly returns NULL. Prints a success message to the console.
-The actual sync results (including file hashes) remain on the server for
-disclosure control - they are NOT returned to the client.
+A list (per server) with aggregate sync status:
+\itemize{
+\item total: Total files in vault
+\item existing: Files already in HPC
+\item uploaded: Files uploaded this run
+\item failed: Files that failed to upload
+\item success: TRUE if no failures
+}
 }
 \description{
 Client-side function to synchronize medical images from a DataSHIELD Vault
-Collection (dsVault) to HPC storage. This is the first step in a manual
-workflow before running any processing pipelines.
+Collection (dsVault) to HPC storage. Returns aggregate sync status for
+disclosure control - no individual file information is returned.
 }
 \details{
-This is an ASSIGN function - results stay on the server and are not returned
-to the client. This ensures disclosure control of individual file information.
-
-Use this function when you want manual control over the workflow:
-\enumerate{
-\item ds.image.sync() - Sync images to HPC
-\item ds.lungmask() - Run lung segmentation
-\item (future) ds.pyradiomics() - Extract radiomic features
-}
-
-For automatic full-pipeline processing, use ds.radiomics() instead.
+This is an AGGREGATE function - it returns only safe aggregate counts to
+the client. Individual file names and hashes stay on the server for
+disclosure control.
 
 The collection.resource should be configured in Opal pointing to a dsVault
 DSVaultCollection. The hpc.resource should point to a dsHPC HPC Unit.
@@ -58,20 +48,29 @@ DSVaultCollection. The hpc.resource should point to a dsHPC HPC Unit.
 # Connect to Opal
 conns <- DSI::datashield.login(...)
 
-# Step 1: Sync images to HPC
-ds.image.sync(
+# Option 1: Same resource name for all servers
+status <- ds.image.sync(
   collection.resource = "project.vault_images",
   hpc.resource = "project.hpc_cluster",
-  newobj = "synced",
   datasources = conns
 )
 
-# Step 2: Run lungmask on synced images
-ds.lungmask(
-  sync.object = "synced",
-  hpc.resource = "project.hpc_cluster",
-  newobj = "masks",
+# Option 2: Different resource names per server
+status <- ds.image.sync(
+  collection.resource = list(
+    study1 = "radiology.images",
+    study2 = "imaging.ct_scans"
+  ),
+  hpc.resource = list(
+    study1 = "compute.hpc",
+    study2 = "infra.cluster"
+  ),
   datasources = conns
 )
+
+# Check status
+status$study1$total     # Total files
+status$study1$uploaded  # Files uploaded
+status$study1$success   # TRUE if all succeeded
 }
 }
