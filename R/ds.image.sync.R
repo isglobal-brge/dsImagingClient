@@ -4,12 +4,12 @@
 #' Collection (dsVault) to HPC storage. Returns aggregate sync status for
 #' disclosure control - no individual file information is returned.
 #'
-#' @param collection.resource Character string. The name of the DataSHIELD Vault
-#'   Collection resource (as defined in Opal). This resource should point to a
-#'   dsVault collection containing the medical images.
-#' @param hpc.resource Character string. The name of the HPC Unit resource
-#'   (as defined in Opal). This resource should point to a dsHPC unit for
-#'   processing and storage.
+#' @param collection.resource Character string or named list. The name of the
+#'   DataSHIELD Vault Collection resource (as defined in Opal). Can be either:
+#'   - A single character string (same resource name for all servers)
+#'   - A named list with server names as keys and resource names as values
+#' @param hpc.resource Character string or named list. The name of the HPC Unit
+#'   resource (as defined in Opal). Same format as collection.resource.
 #' @param datasources A list of DSConnection-class objects (default: NULL uses
 #'   all connections).
 #'
@@ -35,10 +35,23 @@
 #' # Connect to Opal
 #' conns <- DSI::datashield.login(...)
 #'
-#' # Sync images to HPC
+#' # Option 1: Same resource name for all servers
 #' status <- ds.image.sync(
 #'   collection.resource = "project.vault_images",
 #'   hpc.resource = "project.hpc_cluster",
+#'   datasources = conns
+#' )
+#'
+#' # Option 2: Different resource names per server
+#' status <- ds.image.sync(
+#'   collection.resource = list(
+#'     study1 = "radiology.images",
+#'     study2 = "imaging.ct_scans"
+#'   ),
+#'   hpc.resource = list(
+#'     study1 = "compute.hpc",
+#'     study2 = "infra.cluster"
+#'   ),
 #'   datasources = conns
 #' )
 #'
@@ -61,31 +74,21 @@ ds.image.sync <- function(collection.resource,
          call. = FALSE)
   }
 
-  # Validate inputs
-  if (missing(collection.resource) || !is.character(collection.resource)) {
-    stop("collection.resource must be a character string", call. = FALSE)
-  }
-
-  if (missing(hpc.resource) || !is.character(hpc.resource)) {
-    stop("hpc.resource must be a character string", call. = FALSE)
-  }
+  # Validate inputs (supports both string and named list)
+  .validateResourceParam(collection.resource, "collection.resource")
+  .validateResourceParam(hpc.resource, "hpc.resource")
 
   # Generate temporary symbol names
   collection.symbol <- .generateSymbol("collection")
   hpc.symbol <- .generateSymbol("hpc")
 
-  # Assign resources
+  # Assign resources (per-server if named list)
   message("Assigning resources...")
-  DSI::datashield.assign.resource(
-    conns = datasources,
-    symbol = collection.symbol,
-    resource = collection.resource
+  .assignResourcePerServer(
+    datasources, collection.symbol, collection.resource, "collection.resource"
   )
-
-  DSI::datashield.assign.resource(
-    conns = datasources,
-    symbol = hpc.symbol,
-    resource = hpc.resource
+  .assignResourcePerServer(
+    datasources, hpc.symbol, hpc.resource, "hpc.resource"
   )
 
   # Resolve resources
