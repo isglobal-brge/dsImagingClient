@@ -5,67 +5,83 @@
 \title{Run Lungmask Segmentation}
 \usage{
 ds.lungmask(
+  collection.resource,
   hpc.resource,
-  sync.object = "image.sync",
   model = "R231",
   force.cpu = TRUE,
-  wait = TRUE,
   timeout = 600,
-  newobj = "lungmask.results",
   datasources = NULL
 )
 }
 \arguments{
-\item{hpc.resource}{Character string. The name of the HPC Unit resource
-(as defined in Opal). This resource should point to a dsHPC unit for
-processing.}
+\item{collection.resource}{Character string or named list. The name of the
+DataSHIELD Vault Collection resource (as defined in Opal). Can be either:
+\itemize{
+\item A single character string (same resource name for all servers)
+\item A named list with server names as keys and resource names as values
+}}
 
-\item{sync.object}{Character. Name of the server-side object from ds.image.sync()
-(default: "image.sync"). This object contains the image references needed
-for processing.}
+\item{hpc.resource}{Character string or named list. The name of the HPC Unit
+resource (as defined in Opal). Same format as collection.resource.}
 
 \item{model}{Character. Lungmask model to use. Options: "R231" (default),
 "R231CovidWeb", "LTRCLobes", "LTRCLobes_R231".}
 
 \item{force.cpu}{Logical. Force CPU execution (default: TRUE).}
 
-\item{wait}{Logical. If TRUE (default), wait for all jobs to complete.
-If FALSE, return immediately after job submission.}
-
-\item{timeout}{Numeric. Maximum wait time in seconds when wait=TRUE (default: 600).}
-
-\item{newobj}{Character. Name for the output object on the server (default:
-"lungmask.results"). This object stays on the server.}
+\item{timeout}{Numeric. Maximum wait time in seconds (default: 600).}
 
 \item{datasources}{A list of DSConnection-class objects.}
 }
 \value{
-Invisibly returns NULL. Prints a success message to the console.
-The actual results (mask references) remain on the server for disclosure
-control - they are NOT returned to the client.
+A list (per server) with aggregate status:
+\itemize{
+\item total: Total images processed
+\item completed: Successfully processed
+\item failed: Failed to process
+\item success: TRUE if no failures
+}
 }
 \description{
 Client-side function to run lung segmentation on medical images using
-lungmask. Images must already be synced to HPC storage (use ds.image.sync first).
+lungmask. Returns aggregate status for disclosure control - no individual
+file or hash information is returned.
 }
 \details{
-This is an ASSIGN function - results stay on the server and are not returned
-to the client. This ensures disclosure control of individual file information.
+This is an AGGREGATE function - it returns only safe aggregate counts to
+the client. Individual file names, hashes, and mask results stay on the
+server for disclosure control.
 
-The hpc.resource should be configured in Opal pointing to a dsHPC HPC Unit.
+The function internally syncs images to HPC if needed before running
+lungmask segmentation.
 }
 \examples{
 \dontrun{
-# After syncing images
-ds.image.sync(collection.resource = "project.vault", hpc.resource = "project.hpc")
-
-# Run lungmask on all synced images
-ds.lungmask(
+# Option 1: Same resource name for all servers
+status <- ds.lungmask(
+  collection.resource = "project.vault",
   hpc.resource = "project.hpc",
-  sync.object = "image.sync",
   model = "R231",
-  newobj = "masks",
   datasources = conns
 )
+
+# Option 2: Different resource names per server
+status <- ds.lungmask(
+  collection.resource = list(
+    study1 = "radiology.images",
+    study2 = "imaging.ct_scans"
+  ),
+  hpc.resource = list(
+    study1 = "compute.hpc",
+    study2 = "infra.cluster"
+  ),
+  model = "R231",
+  datasources = conns
+)
+
+# Check status
+status$study1$total      # Total images
+status$study1$completed  # Successful
+status$study1$success    # TRUE if all succeeded
 }
 }
