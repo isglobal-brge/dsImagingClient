@@ -12,7 +12,6 @@
 #'   resource (as defined in Opal). Same format as collection.resource.
 #' @param model Character. Lungmask model to use. Options: "R231" (default),
 #'   "R231CovidWeb", "LTRCLobes", "LTRCLobes_R231".
-#' @param force.cpu Logical. Force CPU execution (default: TRUE).
 #' @param timeout Numeric. Maximum wait time in seconds (default: 600).
 #' @param datasources A list of DSConnection-class objects.
 #'
@@ -28,7 +27,8 @@
 #' server for disclosure control.
 #'
 #' The function internally syncs images to HPC if needed before running
-#' lungmask segmentation.
+#' lungmask segmentation. GPU acceleration is used automatically if available
+#' on the HPC server.
 #'
 #' @export
 #'
@@ -64,7 +64,6 @@
 ds.lungmask <- function(collection.resource,
                         hpc.resource,
                         model = "R231",
-                        force.cpu = TRUE,
                         timeout = 600,
                         datasources = NULL) {
 
@@ -125,7 +124,6 @@ ds.lungmask <- function(collection.resource,
     "collection = ", collection.resolved, ", ",
     "hpc_unit = ", hpc.resolved, ", ",
     "model = '", model, "', ",
-    "force_cpu = ", ifelse(force.cpu, "TRUE", "FALSE"), ", ",
     "timeout = ", timeout,
     ")"
   )
