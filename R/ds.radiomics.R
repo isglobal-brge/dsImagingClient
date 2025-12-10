@@ -109,6 +109,26 @@ ds.radiomics <- function(collection.resource,
   .validateResourceParam(collection.resource, "collection.resource")
   .validateResourceParam(hpc.resource, "hpc.resource")
 
+ # Validate and sanitize lungmask.model (whitelist)
+  valid.models <- c("R231", "R231CovidWeb", "LTRCLobes", "LTRCLobes_R231")
+  if (!lungmask.model %in% valid.models) {
+    stop(sprintf("Invalid lungmask.model '%s'. Must be one of: %s",
+                 lungmask.model, paste(valid.models, collapse = ", ")),
+         call. = FALSE)
+  }
+
+  # Validate and sanitize feature.classes (whitelist + sort for determinism)
+  valid.classes <- c("firstorder", "shape", "glcm", "glrlm", "glszm", "gldm", "ngtdm")
+  invalid.classes <- setdiff(feature.classes, valid.classes)
+  if (length(invalid.classes) > 0) {
+    stop(sprintf("Invalid feature.classes: %s. Valid options: %s",
+                 paste(invalid.classes, collapse = ", "),
+                 paste(valid.classes, collapse = ", ")),
+         call. = FALSE)
+  }
+  # Sort alphabetically for determinism
+  feature.classes <- sort(unique(feature.classes))
+
   # Generate temporary symbol names for resources
   collection.symbol <- .generateSymbol("collection")
   hpc.symbol <- .generateSymbol("hpc")
@@ -144,16 +164,16 @@ ds.radiomics <- function(collection.resource,
   # Step 5: Call RadiomicsDS on the server
   message("Extracting radiomic features (this may take a while)...")
 
-  # Convert feature.classes to comma-separated string
-  feature.classes.str <- paste(feature.classes, collapse = ",")
+  # Build feature_classes as R vector literal c("a", "b", ...) - already validated and sorted
+  feature.classes.literal <- paste0("c(", paste0("'", feature.classes, "'", collapse = ", "), ")")
 
-  # Build the server call
+  # Build the server call - pass feature_classes as vector, not string
   cally <- paste0(
     "RadiomicsDS(",
     "collection = ", collection.resolved.symbol, ", ",
     "hpc_unit = ", hpc.resolved.symbol, ", ",
     "lungmask_model = '", lungmask.model, "', ",
-    "feature_classes = '", feature.classes.str, "', ",
+    "feature_classes = ", feature.classes.literal, ", ",
     "bin_width = ", bin.width, ", ",
     "normalize = ", ifelse(normalize, "TRUE", "FALSE"), ", ",
     "on_error = '", on.error, "', ",
