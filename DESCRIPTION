@@ -15,7 +15,8 @@ Encoding: UTF-8
 Depends:
     R (>= 4.1.0)
 Imports:
-    DSI
+    DSI,
+    dsImaging
 Suggests:
     testthat (>= 3.0.0),
     DSLite,
