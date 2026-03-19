@@ -1,21 +1,12 @@
 Package: dsImagingClient
-Title: DataSHIELD Client for Medical Imaging Analysis
+Title: 
 Version: 0.1.0
 Authors@R:
     c(person("David", "Sarrat González", , "david.sarrat@isglobal.org", role = c("aut", "cre")),
       person("Xavier", "Escribà-Montagut", , "xavier.escriba@isglobal.org", role = c("aut")),
       person("Juan R", "González", , "juanr.gonzalez@isglobal.org", role = c("aut")))
-Description: Client-side functions for distributed medical imaging analysis
-    using DataSHIELD infrastructure. Provides functions to extract radiomic
-    features from medical images stored in vault resources, processed via HPC.
-    Works in conjunction with the server-side dsImaging package.
+Description: 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Imports:
-    DSI (>= 1.3.0)
-Suggests:
-    DSOpal,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
