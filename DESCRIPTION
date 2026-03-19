@@ -1,12 +1,25 @@
 Package: dsImagingClient
-Title: 
+Type: Package
+Title: DataSHIELD Client for Medical Imaging Datasets
 Version: 0.1.0
 Authors@R:
-    c(person("David", "Sarrat González", , "david.sarrat@isglobal.org", role = c("aut", "cre")),
-      person("Xavier", "Escribà-Montagut", , "xavier.escriba@isglobal.org", role = c("aut")),
-      person("Juan R", "González", , "juanr.gonzalez@isglobal.org", role = c("aut")))
-Description: 
+    c(person("David", "Sarrat Gonz\u00e1lez", , "david.sarrat@isglobal.org", role = c("aut", "cre")),
+      person("Xavier", "Escrib\u00e0-Montagut", , "xavier.escriba@isglobal.org", role = c("aut")),
+      person("Juan R", "Gonz\u00e1lez", , "juanr.gonzalez@isglobal.org", role = c("aut")))
+Description: Client-side DataSHIELD package for managing medical imaging
+    datasets on remote servers. Provides functions to initialize imaging
+    handles, list available datasets, query metadata, validate datasets,
+    and list assets via DataSHIELD aggregate and assign methods.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Depends:
+    R (>= 4.1.0)
+Imports:
+    DSI
+Suggests:
+    testthat (>= 3.0.0),
+    DSLite,
+    withr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Config/testthat/edition: 3
