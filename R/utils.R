@@ -2,6 +2,19 @@
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+#' Compute a derivation hash (client-side copy)
+#'
+#' Identical to dsImaging::compute_derivation_hash but avoids pulling
+#' the full dsImaging dependency (arrow, aws.s3, DBI, etc.) into the
+#' client installation.
+#' @keywords internal
+.compute_derivation_hash <- function(...) {
+  params <- list(...)
+  params <- params[order(names(params))]
+  blob <- jsonlite::toJSON(params, auto_unbox = TRUE, digits = 10)
+  digest::digest(blob, algo = "sha256", serialize = FALSE)
+}
+
 #' Resilient datashield.aggregate that tolerates per-server failures
 #'
 #' @param conns DSI connections object.
