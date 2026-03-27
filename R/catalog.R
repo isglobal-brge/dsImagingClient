@@ -77,7 +77,7 @@ ds.imaging.lineage <- function(conns, asset_id) {
 #' @return Named list of per-server results with $exists and $asset_id.
 #' @export
 ds.imaging.check_exists <- function(conns, dataset_id, ...) {
-  hash <- dsImaging::compute_derivation_hash(dataset_id = dataset_id, ...)
+  hash <- .compute_derivation_hash(dataset_id = dataset_id, ...)
   .ds_safe_aggregate(conns,
     expr = call("imagingDeduplicateDS", dataset_id, hash))
 }
