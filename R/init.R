@@ -11,25 +11,24 @@
 #'   (default \code{"imaging"}).
 #' @return Named list of per-server results (invisible).
 #' @export
-ds.imaging.init <- function(conns, resource, symbol = "imaging") {
-  res_symbol <- paste0(symbol, "_res")
+ds.imaging.init <- function(conns, resource, symbol = "img") {
+  # NOTE: symbol defaults to "img" so the server-side handle key
+  #   imaging_<symbol>  matches the symbols searched by
+  #   imagingGetManifestDS / .resolve_ds in dsRadiomics
+  #   ("img", "img_res", "imaging", "res").
+  #
+  # datashield.assign.resource() already returns a fully-initialised
+  # ResourceClient (resourcer::newResourceClient is invoked server-side
+  # by Opal). The earlier intermediate as.resource.client step was a
+  # no-op leftover and is dropped.
+  DSI::datashield.assign.resource(conns, symbol = symbol, resource = resource)
 
-  # Assign the resource on each server
-  DSI::datashield.assign.resource(conns, symbol = res_symbol,
-                                   resource = resource)
-
-  # Resolve the resource to a ResourceClient
-  DSI::datashield.assign.expr(
-    conns,
-    symbol = res_symbol,
-    expr = call("as.resource.client", as.name(res_symbol))
-  )
-
-  # Create imaging handle
+  # Build the imaging handle from the assigned resource. imagingInitDS
+  # takes the SYMBOL NAME (string), not the object itself.
   DSI::datashield.assign.expr(
     conns,
     symbol = symbol,
-    expr = call("imagingInitDS", res_symbol)
+    expr = call("imagingInitDS", symbol)
   )
 
   invisible(TRUE)
