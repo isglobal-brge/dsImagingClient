@@ -79,8 +79,9 @@ cohort that passed CT + `GTV-1` mask conversion: 422 real patients split across
 three simulated Opal/Rock sites (`142`, `143`, and `137` rows after loading the
 published feature assets with metadata). All three collection assets were
 published through `dsImagingClient`, and a federated `ds.glmSLMA()` analysis ran
-successfully with three valid studies. See `RESULTS.md` for the observed
-numbers.
+successfully with three valid studies. Federated feature means matched a local
+central PyRadiomics baseline over the same 422 patients to floating-point
+tolerance. See `RESULTS.md` for the observed numbers.
 
 The collection status returned by `process_collection()` applies DataSHIELD
 metadata bucketing and may show `128` instead of the exact per-site count. Use

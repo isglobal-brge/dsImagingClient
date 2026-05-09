@@ -53,20 +53,27 @@ columns are clinical/sample metadata joined by `sample_id`.
 
 Federated feature means:
 
-| server | feature | federated mean |
-|---|---|---:|
-| `opal1` | `original_firstorder_Energy` | 912743691.507042 |
-| `opal2` | `original_firstorder_Energy` | 924557312.867133 |
-| `opal3` | `original_firstorder_Energy` | 1186055557.30657 |
-| `opal1` | `original_shape_Compactness1` | 0.0258847932464428 |
-| `opal2` | `original_shape_Compactness1` | 0.0268293770986911 |
-| `opal3` | `original_shape_Compactness1` | 0.0263166107584965 |
-| `opal1` | `original_glrlm_RunLengthNonUniformity` | 12430.8791801311 |
-| `opal2` | `original_glrlm_RunLengthNonUniformity` | 13151.8800546352 |
-| `opal3` | `original_glrlm_RunLengthNonUniformity` | 14466.9012668664 |
-| `opal1` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 9307.55647427235 |
-| `opal2` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 10245.5239331547 |
-| `opal3` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 11379.0070861031 |
+The local central PyRadiomics baseline was generated after the federated run
+from the same 422 NIfTI images and masks. Federated and central site-level means
+match to floating-point tolerance:
+
+| server | feature | federated mean | central mean | abs diff |
+|---|---|---:|---:|---:|
+| `opal1` | `original_firstorder_Energy` | 912743691.507042 | 912743691.507043 | 5.96e-07 |
+| `opal1` | `original_glrlm_RunLengthNonUniformity` | 12430.8791801311 | 12430.8791801311 | 4.37e-11 |
+| `opal1` | `original_shape_Compactness1` | 0.0258847932464428 | 0.0258847932464428 | 2.43e-17 |
+| `opal1` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 9307.55647427235 | 9307.55647427235 | 1.82e-12 |
+| `opal2` | `original_firstorder_Energy` | 924557312.867133 | 924557312.867133 | 1.19e-07 |
+| `opal2` | `original_glrlm_RunLengthNonUniformity` | 13151.8800546352 | 13151.8800546352 | 1.64e-11 |
+| `opal2` | `original_shape_Compactness1` | 0.0268293770986911 | 0.0268293770986911 | 1.39e-17 |
+| `opal2` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 10245.5239331547 | 10245.5239331547 | 4.91e-11 |
+| `opal3` | `original_firstorder_Energy` | 1186055557.30657 | 1186055557.30657 | 9.54e-07 |
+| `opal3` | `original_glrlm_RunLengthNonUniformity` | 14466.9012668664 | 14466.9012668664 | 1.82e-11 |
+| `opal3` | `original_shape_Compactness1` | 0.0263166107584965 | 0.0263166107584965 | 4.86e-17 |
+| `opal3` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 11379.0070861031 | 11379.0070861031 | 7.28e-12 |
+
+Maximum absolute difference: `9.54e-07`. Maximum relative difference:
+`4.79e-15`.
 
 Clinical metadata checks:
 
@@ -92,11 +99,6 @@ Fixed-effect pooled estimates from `ds.glmSLMA()`:
 | `wavelet.HLH_glrlm_RunLengthNonUniformity` | -1.184013e-04 | 7.716003e-05 |
 | `age` | -9.693862e-03 | 1.150634e-02 |
 | `gender_male` | -1.464250e-01 | 2.446642e-01 |
-
-No central PyRadiomics baseline CSV was present for this full-cohort run, so the
-final verification records federated summaries and the federated GLM result.
-The 9-patient smoke run previously validated federated-vs-central feature means
-to floating-point tolerance.
 
 Notes:
 
