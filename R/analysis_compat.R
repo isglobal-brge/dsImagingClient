@@ -130,6 +130,20 @@ ds.radiomics.collection_status <- function(conns, generation_id) {
   ds.imaging.radiomics.collection_status(conns, generation_id)
 }
 
+#' @rdname ds.imaging.radiomics.collection_recover
+#' @export
+ds.radiomics.collection_recover <- function(conns, generation_id) {
+  ds.imaging.radiomics.collection_recover(conns, generation_id)
+}
+
+#' @rdname ds.imaging.radiomics.collection_cancel
+#' @export
+ds.radiomics.collection_cancel <- function(conns, generation_id, admin_key,
+                                           reason = "Cancelled by admin") {
+  ds.imaging.radiomics.collection_cancel(conns, generation_id, admin_key,
+    reason)
+}
+
 #' @rdname ds.imaging.radiomics.collection_publish
 #' @export
 ds.radiomics.collection_publish <- function(conns, generation_id, dataset_id,

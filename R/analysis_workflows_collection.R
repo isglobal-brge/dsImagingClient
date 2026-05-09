@@ -208,6 +208,51 @@ ds.imaging.radiomics.collection_status <- function(conns, generation_id) {
   result
 }
 
+#' Recover a running collection generation
+#'
+#' Reconciles server-side job state, requeues stale claimed items left by an
+#' interrupted submitter, and nudges the server-side drip-feed loop.
+#'
+#' @param conns DSI connections object.
+#' @param generation_id Character; the generation_id.
+#' @return Named list with progress info.
+#' @export
+ds.imaging.radiomics.collection_recover <- function(conns, generation_id) {
+  status <- .ds_safe_aggregate(conns, "imagingRadiomicsRecoverCollectionDS",
+    .ds_encode(generation_id))
+  srv <- names(status)[1]
+  result <- status[[srv]]
+  if (is.null(result))
+    stop("Could not recover generation ", generation_id, call. = FALSE)
+  result
+}
+
+#' Cancel a running collection generation (admin only)
+#'
+#' Requires the server-side `dsjobs.admin_key` option. This cancels dsJobs
+#' belonging to the generation and marks unfinished generation items as skipped.
+#'
+#' @param conns DSI connections object.
+#' @param generation_id Character; the generation_id.
+#' @param admin_key Character; admin key matching `dsjobs.admin_key`.
+#' @param reason Character; cancellation reason.
+#' @return Named list with cancellation counts.
+#' @export
+ds.imaging.radiomics.collection_cancel <- function(conns, generation_id,
+                                                   admin_key,
+                                                   reason = "Cancelled by admin") {
+  key_enc <- .ds_encode(list(.admin_key = admin_key))
+  out <- .ds_safe_aggregate(conns, "imagingRadiomicsCancelCollectionDS",
+    .ds_encode(generation_id),
+    key_enc,
+    .ds_encode(reason))
+  srv <- names(out)[1]
+  result <- out[[srv]]
+  if (is.null(result))
+    stop("Could not cancel generation ", generation_id, call. = FALSE)
+  result
+}
+
 #' Publish a completed collection generation
 #'
 #' Call this after a fire-and-forget run completes to create the
