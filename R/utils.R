@@ -15,20 +15,45 @@
   digest::digest(blob, algo = "sha256", serialize = FALSE)
 }
 
+#' Encode R objects as URL-safe B64 JSON for DataSHIELD transport
+#'
+#' @keywords internal
+.ds_encode <- function(x) {
+  json <- as.character(jsonlite::toJSON(x, auto_unbox = TRUE, null = "null"))
+  b64 <- gsub("[\r\n]", "", jsonlite::base64_enc(charToRaw(json)))
+  b64 <- gsub("\\+", "-", b64)
+  b64 <- gsub("/", "_", b64)
+  b64 <- gsub("=+$", "", b64)
+  paste0("B64:", b64)
+}
+
 #' Resilient datashield.aggregate that tolerates per-server failures
 #'
 #' @param conns DSI connections object.
-#' @param expr The call expression to evaluate.
+#' @param expr A call expression, or a method name with arguments in `...`.
+#' @param ... Arguments used when `expr` is a method name.
 #' @return Named list of results.
 #' @keywords internal
-.ds_safe_aggregate <- function(conns, expr) {
-  server_names <- names(conns)
+.ds_safe_aggregate <- function(conns, expr, ...) {
+  if (is.character(expr)) {
+    expr <- as.call(c(list(as.name(expr)), list(...)))
+  }
+
+  server_names <- if (inherits(conns, "DSConnection")) "default" else names(conns)
   results <- list()
   errors <- list()
   for (srv in server_names) {
     tryCatch({
-      res <- DSI::datashield.aggregate(conns[srv], expr = expr)
-      results[[srv]] <- res[[srv]]
+      res <- DSI::datashield.aggregate(
+        if (srv == "default") conns else conns[srv],
+        expr = expr)
+      results[[srv]] <- if (srv == "default") {
+        res
+      } else if (is.list(res) && srv %in% names(res)) {
+        res[[srv]]
+      } else {
+        res
+      }
     }, error = function(e) {
       errors[[srv]] <<- e$message
     })

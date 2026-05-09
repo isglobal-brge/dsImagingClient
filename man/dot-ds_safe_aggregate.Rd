@@ -4,12 +4,14 @@
 \alias{.ds_safe_aggregate}
 \title{Resilient datashield.aggregate that tolerates per-server failures}
 \usage{
-.ds_safe_aggregate(conns, expr)
+.ds_safe_aggregate(conns, expr, ...)
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{expr}{The call expression to evaluate.}
+\item{expr}{A call expression, or a method name with arguments in \code{...}.}
+
+\item{...}{Arguments used when \code{expr} is a method name.}
 }
 \value{
 Named list of results.
