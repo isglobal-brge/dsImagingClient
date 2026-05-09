@@ -88,9 +88,9 @@ under <code>inst/demos/lung1_federated_study</code>.</p>
 <span><span class="va">run_script</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo_dir</span>, <span class="st">"run_lung1_datashield.R"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>prepare_script <span class="op">=</span> <span class="va">prepare_script</span>, run_script <span class="op">=</span> <span class="va">run_script</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                                                                                                                                     prepare_script </span></span>
-<span><span class="co">#&gt; "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpWKHQe1/temp_libpath1224216675c04/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" </span></span>
+<span><span class="co">#&gt; "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpwUm40P/temp_libpath14d5528ec5697/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" </span></span>
 <span><span class="co">#&gt;                                                                                                                                                         run_script </span></span>
-<span><span class="co">#&gt; "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpWKHQe1/temp_libpath1224216675c04/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"</span></span></code></pre></div>
+<span><span class="co">#&gt; "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpwUm40P/temp_libpath14d5528ec5697/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"</span></span></code></pre></div>
 <p>Prepare the full public cohort:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">python3</span> inst/demos/lung1_federated_study/prepare_lung1_study.py <span class="dt">\</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">--workdir</span> /tmp/dsimaging_lung1_full <span class="dt">\</span></span>
@@ -173,8 +173,27 @@ split across three sites by stable patient hash.</p>
 </tr>
 </tbody>
 </table>
-<p>Published collection assets:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">site_counts</span>,</span>
+<span>                  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">site</span>, y <span class="op">=</span> <span class="va">metadata_rows</span>, fill <span class="op">=</span> <span class="va">site</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.65</span>, show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">metadata_rows</span><span class="op">)</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="st">"Simulated site"</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">"Patients with CT + GTV-1 mask + metadata"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Full LUNG1 cohort split across three DataSHIELD sites"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">site_counts</span><span class="op">$</span><span class="va">metadata_rows</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.12</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">site_counts</span><span class="op">$</span><span class="va">metadata_rows</span>, names.arg <span class="op">=</span> <span class="va">site_counts</span><span class="op">$</span><span class="va">site</span>,</span>
+<span>          ylab <span class="op">=</span> <span class="st">"Patients"</span>, xlab <span class="op">=</span> <span class="st">"Simulated site"</span>,</span>
+<span>          main <span class="op">=</span> <span class="st">"Full LUNG1 cohort split"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="lung1-federated-radiomics_files/figure-html/cohort-plot-1.png" class="r-plt" alt="Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142, 143, and 137 patients." width="672"></p>
+<p>Published collection assets:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">assets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  opal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span><span class="op">)</span>,</span>
 <span>  dataset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lung1_full_site_a"</span>, <span class="st">"lung1_full_site_b"</span>, <span class="st">"lung1_full_site_c"</span><span class="op">)</span>,</span>
@@ -223,7 +242,7 @@ split across three sites by stable patient hash.</p>
 <p>After
 <code>ds.imaging.radiomics.load_features(..., include_metadata = TRUE)</code>,
 the server-side analysis tables had these dimensions:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loaded_dims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span>, <span class="st">"combined"</span><span class="op">)</span>,</span>
 <span>  dimensions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"142 x 20"</span>, <span class="st">"143 x 20"</span>, <span class="st">"137 x 20"</span>, <span class="st">"422 x 20"</span><span class="op">)</span></span>
@@ -261,7 +280,7 @@ the server-side analysis tables had these dimensions:</p>
 signature profile to <code>sample_id</code> plus four radiomics
 features. The remaining loaded columns are clinical metadata joined by
 <code>sample_id</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
 <span>  <span class="va">comparison</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"server"</span>, <span class="st">"feature"</span>, <span class="st">"federated"</span>, <span class="st">"central"</span>,</span>
 <span>                 <span class="st">"abs_diff_fmt"</span>, <span class="st">"rel_diff_fmt"</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -385,6 +404,54 @@ features. The remaining loaded columns are clinical metadata joined by
 </tr>
 </tbody>
 </table>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison</span>,</span>
+<span>                  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">central</span>, y <span class="op">=</span> <span class="va">federated</span>, color <span class="op">=</span> <span class="va">server</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_abline</a></span><span class="op">(</span>slope <span class="op">=</span> <span class="fl">1</span>, intercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>                         color <span class="op">=</span> <span class="st">"grey45"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">feature_label</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="st">"Central PyRadiomics mean"</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">"Federated DataSHIELD mean"</span>,</span>
+<span>      color <span class="op">=</span> <span class="st">"Server"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Federated radiomics reproduces the central baseline"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">central</span>, <span class="va">comparison</span><span class="op">$</span><span class="va">federated</span>,</span>
+<span>       xlab <span class="op">=</span> <span class="st">"Central PyRadiomics mean"</span>,</span>
+<span>       ylab <span class="op">=</span> <span class="st">"Federated DataSHIELD mean"</span>,</span>
+<span>       main <span class="op">=</span> <span class="st">"Federated versus central radiomics means"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey45"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png" class="r-plt" alt="Faceted scatter plot comparing central PyRadiomics feature means with federated DataSHIELD means; all points lie on the identity line." width="768"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plot_errors</span> <span class="op">&lt;-</span> <span class="va">comparison</span></span>
+<span><span class="va">plot_errors</span><span class="op">$</span><span class="va">abs_diff_floor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">plot_errors</span><span class="op">$</span><span class="va">abs_diff</span>, <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_errors</span>,</span>
+<span>                  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">feature_label</span>, y <span class="op">=</span> <span class="va">abs_diff_floor</span>,</span>
+<span>                               fill <span class="op">=</span> <span class="va">server</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>position <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.75</span><span class="op">)</span>,</span>
+<span>                      width <span class="op">=</span> <span class="fl">0.68</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">"Absolute difference, log10 scale"</span>,</span>
+<span>      fill <span class="op">=</span> <span class="st">"Server"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Numerical drift stays at floating-point tolerance"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/dotchart.html" class="external-link">dotchart</a></span><span class="op">(</span><span class="va">plot_errors</span><span class="op">$</span><span class="va">abs_diff_floor</span>, labels <span class="op">=</span> <span class="va">plot_errors</span><span class="op">$</span><span class="va">feature_label</span>,</span>
+<span>           xlab <span class="op">=</span> <span class="st">"Absolute difference"</span>,</span>
+<span>           main <span class="op">=</span> <span class="st">"Federated-central absolute differences"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="lung1-federated-radiomics_files/figure-html/absolute-error-plot-1.png" class="r-plt" alt="Grouped bar chart on a log scale showing very small absolute differences between federated and central feature means." width="768"></p>
 <p>Maximum absolute difference: 9.537e-07. Maximum relative difference:
 4.794e-15.</p>
 </div>
@@ -393,7 +460,7 @@ features. The remaining loaded columns are clinical metadata joined by
 </h2>
 <p>Clinical metadata were joined to the radiomics feature table on the
 server side before analysis.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clinical</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean survival_time_days"</span>, <span class="st">"mean os_2yr_alive"</span><span class="op">)</span>,</span>
 <span>  opal1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000.6197</span>, <span class="fl">0.4184397</span><span class="op">)</span>,</span>
@@ -423,8 +490,31 @@ server side before analysis.</p>
 </tr>
 </tbody>
 </table>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">clinical_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">clinical</span><span class="op">$</span><span class="va">metric</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  server <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clinical</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">clinical</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">clinical_long</span>,</span>
+<span>                  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">server</span>, y <span class="op">=</span> <span class="va">value</span>, fill <span class="op">=</span> <span class="va">server</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.65</span>, show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">metric</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="st">"Server"</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">"Federated site mean"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Clinical metadata remain available after server-side joining"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">clinical</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>          beside <span class="op">=</span> <span class="cn">TRUE</span>, legend.text <span class="op">=</span> <span class="va">clinical</span><span class="op">$</span><span class="va">metric</span>,</span>
+<span>          ylab <span class="op">=</span> <span class="st">"Site mean"</span>, main <span class="op">=</span> <span class="st">"Clinical metadata site means"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="lung1-federated-radiomics_files/figure-html/clinical-plot-1.png" class="r-plt" alt="Faceted bar chart of site-level means for survival time and two-year overall survival status." width="672"></p>
 <p>A federated <code>ds.glmSLMA()</code> model was fit with:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">glm_formula</span> <span class="op">&lt;-</span> <span class="va">os_2yr_alive</span> <span class="op">~</span> <span class="va">original_firstorder_Energy</span> <span class="op">+</span></span>
 <span>  <span class="va">original_shape_Compactness1</span> <span class="op">+</span></span>
 <span>  <span class="va">original_glrlm_RunLengthNonUniformity</span> <span class="op">+</span></span>
@@ -437,7 +527,7 @@ server side before analysis.</p>
 <p>The run produced <code>num.valid.studies = 3</code>;
 <code>&lt;new.glm.obj&gt;</code> was created and validated in all data
 sources.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">glm_fe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"(Intercept)"</span>, <span class="st">"original_firstorder_Energy"</span>,</span>
 <span>           <span class="st">"original_shape_Compactness1"</span>,</span>
@@ -496,6 +586,30 @@ sources.</p>
 </tr>
 </tbody>
 </table>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">glm_plot</span> <span class="op">&lt;-</span> <span class="va">glm_fe</span></span>
+<span><span class="va">glm_plot</span><span class="op">$</span><span class="va">z_score</span> <span class="op">&lt;-</span> <span class="va">glm_plot</span><span class="op">$</span><span class="va">pooled.FE</span> <span class="op">/</span> <span class="va">glm_plot</span><span class="op">$</span><span class="va">se.FE</span></span>
+<span><span class="va">glm_plot</span><span class="op">$</span><span class="va">term</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">glm_plot</span><span class="op">$</span><span class="va">term</span>,</span>
+<span>                        levels <span class="op">=</span> <span class="va">glm_plot</span><span class="op">$</span><span class="va">term</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">glm_plot</span><span class="op">$</span><span class="va">z_score</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">glm_plot</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">term</span>, y <span class="op">=</span> <span class="va">z_score</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>,</span>
+<span>                        color <span class="op">=</span> <span class="st">"grey45"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"#3b6ea8"</span>, width <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">"Fixed-effect coefficient / standard error"</span>,</span>
+<span>      title <span class="op">=</span> <span class="st">"Federated GLM coefficient signal"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/dotchart.html" class="external-link">dotchart</a></span><span class="op">(</span><span class="va">glm_plot</span><span class="op">$</span><span class="va">z_score</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">glm_plot</span><span class="op">$</span><span class="va">term</span><span class="op">)</span>,</span>
+<span>           xlab <span class="op">=</span> <span class="st">"Coefficient / standard error"</span>,</span>
+<span>           main <span class="op">=</span> <span class="st">"Federated GLM coefficient signal"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey45"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="lung1-federated-radiomics_files/figure-html/glm-z-plot-1.png" class="r-plt" alt="Horizontal bar chart of fixed-effect coefficient divided by standard error for each federated GLM term, with dashed reference lines at plus or minus 1.96." width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="operational-notes">Operational Notes<a class="anchor" aria-label="anchor" href="#operational-notes"></a>
