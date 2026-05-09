@@ -30,7 +30,7 @@
 #' @param visibility Character; asset visibility (default "global").
 #' @return Named list with generation_id, asset_id (if completed), summary.
 #' @export
-ds.imaging.radiomics.process_collection <- function(conns, dataset_id,
+ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
                                              segmenter,
                                              profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
                                              batch_size = 10L,
@@ -55,7 +55,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id,
   }
 
   # --- Step 1: Scan collection ---
-  message("Scanning collection: ", dataset_id)
+  message("Scanning collection: ", dataset_id %||% "<handle dataset>")
   scan <- .ds_safe_aggregate(conns, "imagingRadiomicsScanCollectionDS",
     .ds_encode(dataset_id),
     .ds_encode(segmenter),
@@ -75,12 +75,14 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id,
       action = "reused",
       asset_id = result$asset_id,
       generation_id = NULL,
+      dataset_id = result$dataset_id %||% dataset_id,
       total = result$total,
       done = result$done,
       pending = 0L
     ))
   }
 
+  dataset_id <- result$dataset_id %||% dataset_id
   generation_id <- result$generation_id
   pending_ids <- result$pending_ids
   fingerprints <- result$fingerprints
@@ -124,6 +126,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id,
     return(list(
       action = "kicked_off",
       generation_id = generation_id,
+      dataset_id = dataset_id,
       total = total,
       submitted = length(first_batch),
       pending = length(pending_ids) - length(first_batch)
@@ -170,6 +173,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id,
       return(list(
         action = "timeout",
         generation_id = generation_id,
+        dataset_id = dataset_id,
         total = total,
         completed = completed,
         failed = failed,
@@ -216,7 +220,7 @@ ds.imaging.radiomics.collection_status <- function(conns, generation_id) {
 #' @return Named list with asset_id and summary.
 #' @export
 ds.imaging.radiomics.collection_publish <- function(conns, generation_id,
-                                             dataset_id,
+                                             dataset_id = NULL,
                                              allow_partial = FALSE) {
   .publish_collection(conns, generation_id, dataset_id, allow_partial)
 }
@@ -258,6 +262,7 @@ ds.imaging.radiomics.collection_publish <- function(conns, generation_id,
   list(
     action = "completed",
     generation_id = generation_id,
+    dataset_id = dataset_id,
     asset_id = result$asset_id,
     total = result$total,
     completed = result$completed,

@@ -20,7 +20,7 @@ ds.radiomics.process_collection(
 
 ds.imaging.radiomics.process_collection(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   segmenter,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
   batch_size = 10L,
