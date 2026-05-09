@@ -2,51 +2,107 @@
 
 Run date: 2026-05-09
 
-Dataset: TCIA NSCLC-Radiomics/LUNG1, 9 real patients, `GTV-1` RTSTRUCT masks,
-partitioned by stable patient hash into 3 simulated sites.
+Dataset: TCIA NSCLC-Radiomics/LUNG1, 422 real patients with CT images and
+`GTV-1` masks that passed conversion, partitioned by stable patient hash into
+three simulated sites.
+
+Command used for the final verification pass:
+
+```sh
+LUNG1_WORKDIR=/tmp/dsimaging_lung1_full \
+LUNG1_DATASET_PREFIX=lung1_full_site \
+LUNG1_OPAL_RESOURCE=lung1_full_study \
+LUNG1_PUBLISH=FALSE \
+LUNG1_RUN_JOBS=FALSE \
+LUNG1_TIMEOUT=0 \
+LUNG1_RUN_GLM=TRUE \
+OPAL_USER=administrator \
+OPAL_PASSWORD=admin123 \
+Rscript dsImagingClient/inst/demos/lung1_federated_study/run_lung1_datashield.R
+```
+
+Prepared local site folders:
+
+| site | dataset | images | masks | metadata rows |
+|---|---|---:|---:|---:|
+| `site_a` | `lung1_full_site_a` | 142 | 142 | 142 |
+| `site_b` | `lung1_full_site_b` | 143 | 143 | 143 |
+| `site_c` | `lung1_full_site_c` | 137 | 137 | 137 |
 
 Published collection assets:
 
-- `opal1` / `lung1_site_a`: `asset_20260509_092711_b7545af7`
-- `opal2` / `lung1_site_b`: `asset_20260509_093039_f9f914dd`
-- `opal3` / `lung1_site_c`: `asset_20260509_093620_cd33748d`
+| Opal | dataset | generation | asset |
+|---|---|---|---|
+| `opal1` | `lung1_full_site_a` | `gen_20260509_152105_9e354de9` | `asset_20260509_165902_42b9b1a5` |
+| `opal2` | `lung1_full_site_b` | `gen_20260509_152108_8cf5c55f` | `asset_20260509_170056_0bfdbf8e` |
+| `opal3` | `lung1_full_site_c` | `gen_20260509_152110_b82b5785` | `asset_20260509_170057_9a3db2ab` |
 
-DataSHIELD loaded dimensions:
+DataSHIELD loaded dimensions after `ds.imaging.radiomics.load_features()` with
+clinical metadata:
 
-- `opal1`: `3 x 35`
-- `opal2`: `3 x 35`
-- `opal3`: `3 x 35`
-- combined: `9 x 35`
+| source | dimensions |
+|---|---:|
+| `opal1` | `142 x 20` |
+| `opal2` | `143 x 20` |
+| `opal3` | `137 x 20` |
+| combined | `422 x 20` |
 
-Note: this observed asset was generated before tightening `selected_features`
-normalisation in the final code, so it contains the full Aerts-profile
-PyRadiomics output plus metadata. Fresh runs with the final code filter runner
-output to the requested selected features.
+The published collection parquet schema is constrained by the Aerts signature
+profile to `sample_id` plus these four radiomics features; the remaining loaded
+columns are clinical/sample metadata joined by `sample_id`.
 
-Federated feature means matched the central PyRadiomics baseline:
+Federated feature means:
 
-| server | feature | federated | central | abs_diff |
-|---|---|---:|---:|---:|
-| opal1 | original_firstorder_Energy | 808982115 | 808982115 | 3.58e-07 |
-| opal1 | original_shape_Compactness1 | 0.02808881 | 0.02808881 | 4.51e-17 |
-| opal1 | original_glrlm_RunLengthNonUniformity | 7370.775 | 7370.775 | 0 |
-| opal1 | wavelet.HLH_glrlm_RunLengthNonUniformity | 6257.093 | 6257.093 | 9.09e-13 |
-| opal2 | original_firstorder_Energy | 931587356 | 931587356 | 3.58e-07 |
-| opal2 | original_shape_Compactness1 | 0.01911389 | 0.01911389 | 2.08e-17 |
-| opal2 | original_glrlm_RunLengthNonUniformity | 15614.579 | 15614.579 | 2.00e-11 |
-| opal2 | wavelet.HLH_glrlm_RunLengthNonUniformity | 13377.942 | 13377.942 | 2.91e-11 |
-| opal3 | original_firstorder_Energy | 4002561297 | 4002561297 | 0 |
-| opal3 | original_shape_Compactness1 | 0.02421538 | 0.02421538 | 3.47e-17 |
-| opal3 | original_glrlm_RunLengthNonUniformity | 37924.683 | 37924.683 | 2.91e-11 |
-| opal3 | wavelet.HLH_glrlm_RunLengthNonUniformity | 28100.251 | 28100.251 | 2.91e-11 |
+| server | feature | federated mean |
+|---|---|---:|
+| `opal1` | `original_firstorder_Energy` | 912743691.507042 |
+| `opal2` | `original_firstorder_Energy` | 924557312.867133 |
+| `opal3` | `original_firstorder_Energy` | 1186055557.30657 |
+| `opal1` | `original_shape_Compactness1` | 0.0258847932464428 |
+| `opal2` | `original_shape_Compactness1` | 0.0268293770986911 |
+| `opal3` | `original_shape_Compactness1` | 0.0263166107584965 |
+| `opal1` | `original_glrlm_RunLengthNonUniformity` | 12430.8791801311 |
+| `opal2` | `original_glrlm_RunLengthNonUniformity` | 13151.8800546352 |
+| `opal3` | `original_glrlm_RunLengthNonUniformity` | 14466.9012668664 |
+| `opal1` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 9307.55647427235 |
+| `opal2` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 10245.5239331547 |
+| `opal3` | `wavelet.HLH_glrlm_RunLengthNonUniformity` | 11379.0070861031 |
 
-Clinical metadata was loaded with the radiomics asset:
+Clinical metadata checks:
 
-- mean `survival_time_days`: opal1 `156.67`, opal2 `867.67`, opal3 `820.33`
-- mean `os_2yr_alive`: opal1 `0.00`, opal2 `0.33`, opal3 `0.33`
+| metric | `opal1` | `opal2` | `opal3` |
+|---|---:|---:|---:|
+| mean `survival_time_days` | 1000.6197 | 976.9650 | 989.0803 |
+| mean `os_2yr_alive` | 0.4184397 | 0.4055944 | 0.3823529 |
 
-Container OOM status after the run:
+Federated GLM:
 
-- `opal1-rock`: `OOMKilled=false`
-- `opal2-rock`: `OOMKilled=false`
-- `opal3-rock`: `OOMKilled=false`
+- Formula: `os_2yr_alive ~ original_firstorder_Energy + original_shape_Compactness1 + original_glrlm_RunLengthNonUniformity + wavelet.HLH_glrlm_RunLengthNonUniformity + age + gender_male`
+- `num.valid.studies = 3`
+- `<new.glm.obj>` was created and validated in all data sources.
+
+Fixed-effect pooled estimates from `ds.glmSLMA()`:
+
+| term | pooled.FE | se.FE |
+|---|---:|---:|
+| `(Intercept)` | 1.416178e-01 | 9.263942e-01 |
+| `original_firstorder_Energy` | -8.452579e-11 | 1.228317e-10 |
+| `original_shape_Compactness1` | 2.383309e+01 | 2.154354e+01 |
+| `original_glrlm_RunLengthNonUniformity` | 8.191498e-05 | 5.991988e-05 |
+| `wavelet.HLH_glrlm_RunLengthNonUniformity` | -1.184013e-04 | 7.716003e-05 |
+| `age` | -9.693862e-03 | 1.150634e-02 |
+| `gender_male` | -1.464250e-01 | 2.446642e-01 |
+
+No central PyRadiomics baseline CSV was present for this full-cohort run, so the
+final verification records federated summaries and the federated GLM result.
+The 9-patient smoke run previously validated federated-vs-central feature means
+to floating-point tolerance.
+
+Notes:
+
+- `process_collection()` status applies DataSHIELD metadata bucketing; the
+  bucketed per-site total is `128`, while `ds.dim("rad")` and the local study
+  manifest show the exact engineering counts above.
+- Admin job listing/cancellation was enabled through the demo admin key and
+  verified separately: a wrong key was rejected on all three Opals, while the
+  configured key could list imaging jobs.
