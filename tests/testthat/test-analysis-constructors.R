@@ -37,4 +37,6 @@ test_that("clinical imaging workflow jobs declare expected runners", {
   expect_equal(job$steps[[3]]$publish_kind, "imaging_asset")
   expect_equal(job$steps[[3]]$asset_type, "qc_table")
   expect_equal(job$steps[[3]]$alias, "latest_qc")
+  expect_equal(job$steps[[3]]$runner, "imaging_qc_metrics")
+  expect_equal(job$steps[[3]]$config$image_asset, "images")
 })

@@ -163,6 +163,8 @@ ds.imaging.qc.metrics <- function(conns, dataset_id, image_asset = "images",
   publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, output_asset,
     asset_type = asset_type, publish_kind = "imaging_asset")
   publish_step$alias <- alias
+  publish_step$runner <- runner
+  publish_step$config <- config
 
   dsJobsClient::ds_job(
     label = "dsImaging",

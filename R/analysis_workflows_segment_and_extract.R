@@ -63,10 +63,13 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
   if (!is.null(seg_runner)) {
     seg_config <- segmenter
     seg_config$image_asset <- image_asset
+    mask_publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, "masks",
+      asset_type = "mask_root", publish_kind = "imaging_asset")
+    mask_publish_step$runner <- seg_runner
+    mask_publish_step$config <- seg_config
     steps <- c(steps, list(
       dsJobsClient::ds_step_run_artifact(seg_runner, config = seg_config),
-      dsJobsClient::ds_step_publish_asset(dataset_id, "masks",
-        asset_type = "mask_root", publish_kind = "imaging_asset")
+      mask_publish_step
     ))
   }
 
@@ -76,10 +79,15 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
     image_asset = image_asset,
     settings_file = profile$name
   ))
+  radiomics_publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id,
+    "radiomics", asset_type = "feature_table",
+    publish_kind = "imaging_radiomics_asset")
+  radiomics_publish_step$runner <- "pyradiomics_extract"
+  radiomics_publish_step$config <- extract_config
+
   steps <- c(steps, list(
     dsJobsClient::ds_step_run_artifact("pyradiomics_extract", config = extract_config),
-    dsJobsClient::ds_step_publish_asset(dataset_id, "radiomics",
-      asset_type = "feature_table", publish_kind = "imaging_radiomics_asset"),
+    radiomics_publish_step,
     dsJobsClient::ds_step_safe_summary()
   ))
 
