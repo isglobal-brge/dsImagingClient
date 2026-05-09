@@ -14,7 +14,7 @@
 ds.imaging.init <- function(conns, resource, symbol = "img") {
   # NOTE: symbol defaults to "img" so the server-side handle key
   #   imaging_<symbol>  matches the symbols searched by
-  #   imagingGetManifestDS / .resolve_ds in dsRadiomics
+  #   imagingGetManifestDS / .resolve_ds in dsImaging
   #   ("img", "img_res", "imaging", "res").
   #
   # datashield.assign.resource() already returns a fully-initialised

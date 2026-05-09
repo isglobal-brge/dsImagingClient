@@ -4,7 +4,7 @@
 \alias{ds.imaging.init}
 \title{Initialize Imaging Dataset Handle}
 \usage{
-ds.imaging.init(conns, resource, symbol = "imaging")
+ds.imaging.init(conns, resource, symbol = "img")
 }
 \arguments{
 \item{conns}{DSI connections object.}
