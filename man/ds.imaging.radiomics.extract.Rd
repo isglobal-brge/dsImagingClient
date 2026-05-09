@@ -42,9 +42,9 @@ ds.imaging.radiomics.extract(
 \item{alias}{Character or NULL; alias for the published feature table.}
 }
 \value{
-A dsjobs_submission or existing asset_id if deduplicated.
+A dshpc_submission or existing asset_id if deduplicated.
 }
 \description{
 Checks for existing identical derivation first (deduplication).
-If not found, submits a dsJobs job.
+If not found, submits a dsHPC job.
 }

@@ -9,7 +9,7 @@ Authors@R:
 Description: Client-side DataSHIELD package for clinical imaging. Provides
     functions to initialize imaging handles, query dataset metadata and asset
     catalogs, define DICOM conversion, preprocessing, mask/ROI, QC,
-    segmentation, and radiomics workflows, submit dsJobs-backed imaging jobs,
+    segmentation, and radiomics workflows, submit dsHPC-backed imaging jobs,
     monitor per-image collection processing, and discover derived masks and
     radiomic feature tables.
 License: MIT + file LICENSE
@@ -19,7 +19,7 @@ Depends:
 Imports:
     DSI,
     digest,
-    dsJobsClient,
+    dsHPCClient,
     jsonlite
 Suggests:
     DSOpal,

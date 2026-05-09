@@ -38,7 +38,7 @@ ds.imaging.radiomics.segment_and_extract(
 \item{visibility}{Character; job visibility label (default "global").}
 }
 \value{
-A dsjobs_submission.
+A dshpc_submission.
 }
 \description{
 Chains segmentation and extraction into a single job.

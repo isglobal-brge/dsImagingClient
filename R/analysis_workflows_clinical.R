@@ -3,7 +3,7 @@
 
 #' Convert DICOM series to NIfTI images
 #'
-#' Submits a dsJobs-backed conversion job. The runner uses `dcm2niix` when
+#' Submits a dsHPC-backed conversion job. The runner uses `dcm2niix` when
 #' available and falls back to SimpleITK series reading.
 #'
 #' @param conns DSI connections object.
@@ -13,7 +13,7 @@
 #' @param converter Character; `"auto"`, `"dcm2niix"`, or `"simpleitk"`.
 #' @param visibility Character; job visibility label.
 #' @param alias Character or NULL; optional asset alias.
-#' @return A dsjobs_submission.
+#' @return A dshpc_submission.
 #' @export
 ds.imaging.dicom.convert <- function(conns, dataset_id, dicom_asset = "dicom",
                                      output_asset = "nifti_images",
@@ -28,7 +28,7 @@ ds.imaging.dicom.convert <- function(conns, dataset_id, dicom_asset = "dicom",
   job <- .imaging_asset_job(dataset_id, label_tag = "dicom_convert",
     runner = "dicom_convert", config = config, output_asset = output_asset,
     asset_type = "image_root", visibility = visibility, alias = alias)
-  dsJobsClient::ds.jobs.submit(conns, job)
+  dsHPCClient::ds.hpc.submit(conns, job)
 }
 
 #' Preprocess image assets
@@ -47,7 +47,7 @@ ds.imaging.dicom.convert <- function(conns, dataset_id, dicom_asset = "dicom",
 #' @param output_asset Character; published asset name.
 #' @param visibility Character; job visibility label.
 #' @param alias Character or NULL; optional asset alias.
-#' @return A dsjobs_submission.
+#' @return A dshpc_submission.
 #' @export
 ds.imaging.preprocess <- function(conns, dataset_id, image_asset = "images",
                                   operations = c("float32"),
@@ -68,7 +68,7 @@ ds.imaging.preprocess <- function(conns, dataset_id, image_asset = "images",
   job <- .imaging_asset_job(dataset_id, label_tag = "preprocess",
     runner = "image_preprocess", config = config, output_asset = output_asset,
     asset_type = "image_root", visibility = visibility, alias = alias)
-  dsJobsClient::ds.jobs.submit(conns, job)
+  dsHPCClient::ds.hpc.submit(conns, job)
 }
 
 #' Run mask or ROI operations
@@ -91,7 +91,7 @@ ds.imaging.preprocess <- function(conns, dataset_id, image_asset = "images",
 #' @param output_asset Character; published mask asset name.
 #' @param visibility Character; job visibility label.
 #' @param alias Character or NULL; optional asset alias.
-#' @return A dsjobs_submission.
+#' @return A dshpc_submission.
 #' @export
 ds.imaging.mask.operation <- function(conns, dataset_id, operation,
                                       mask_asset = "masks",
@@ -122,7 +122,7 @@ ds.imaging.mask.operation <- function(conns, dataset_id, operation,
   job <- .imaging_asset_job(dataset_id, label_tag = "mask_operation",
     runner = "mask_ops", config = config, output_asset = output_asset,
     asset_type = "mask_root", visibility = visibility, alias = alias)
-  dsJobsClient::ds.jobs.submit(conns, job)
+  dsHPCClient::ds.hpc.submit(conns, job)
 }
 
 #' Compute image and mask QC metrics
@@ -137,7 +137,7 @@ ds.imaging.mask.operation <- function(conns, dataset_id, operation,
 #' @param output_asset Character; published QC asset name.
 #' @param visibility Character; job visibility label.
 #' @param alias Character or NULL; optional asset alias.
-#' @return A dsjobs_submission.
+#' @return A dshpc_submission.
 #' @export
 ds.imaging.qc.metrics <- function(conns, dataset_id, image_asset = "images",
                                   mask_asset = NULL,
@@ -153,28 +153,28 @@ ds.imaging.qc.metrics <- function(conns, dataset_id, image_asset = "images",
     runner = "imaging_qc_metrics", config = config,
     output_asset = output_asset, asset_type = "qc_table",
     visibility = visibility, alias = alias)
-  dsJobsClient::ds.jobs.submit(conns, job)
+  dsHPCClient::ds.hpc.submit(conns, job)
 }
 
 #' @keywords internal
 .imaging_asset_job <- function(dataset_id, label_tag, runner, config,
                                output_asset, asset_type,
                                visibility = "global", alias = NULL) {
-  publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, output_asset,
+  publish_step <- dsHPCClient::ds_step_publish_asset(dataset_id, output_asset,
     asset_type = asset_type, publish_kind = "imaging_asset")
   publish_step$alias <- alias
   publish_step$runner <- runner
   publish_step$config <- config
 
-  dsJobsClient::ds_job(
+  dsHPCClient::ds_job(
     label = "dsImaging",
     tags = c(label_tag, dataset_id),
     visibility = visibility,
     steps = list(
-      dsJobsClient::ds_step_resolve_dataset(dataset_id),
-      dsJobsClient::ds_step_run_artifact(runner, config = config),
+      dsHPCClient::ds_step_resolve_dataset(dataset_id),
+      dsHPCClient::ds_step_run_artifact(runner, config = config),
       publish_step,
-      dsJobsClient::ds_step_safe_summary()
+      dsHPCClient::ds_step_safe_summary()
     )
   )
 }

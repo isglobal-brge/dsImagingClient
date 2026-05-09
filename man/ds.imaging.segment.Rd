@@ -38,7 +38,7 @@ ds.imaging.segment(
 \item{alias}{Character or NULL; alias for the published mask.}
 }
 \value{
-A dsjobs_submission or existing asset_id.
+A dshpc_submission or existing asset_id.
 }
 \description{
 Segment images in a dataset

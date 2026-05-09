@@ -3,10 +3,10 @@
 
 #' List radiomics jobs
 #' @param conns DSI connections object.
-#' @return A dsjobs_result.
+#' @return A dshpc_result.
 #' @export
 ds.imaging.jobs <- function(conns) {
-  dsJobsClient::ds.jobs.list(conns, label = "dsImaging")
+  dsHPCClient::ds.hpc.list(conns, label = "dsImaging")
 }
 
 #' List radiomics feature tables for a dataset
