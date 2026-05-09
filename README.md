@@ -40,12 +40,27 @@ ds.imaging.radiomics.collection_publish(
   conns, result$generation_id, result$dataset_id
 )
 ds.imaging.radiomics.features(conns, result$dataset_id)
+
+# Assign the published feature table for standard DataSHIELD analysis.
+ds.imaging.radiomics.load_features(
+  conns,
+  dataset_id = result$dataset_id,
+  asset_id = "<asset_id_or_alias>",
+  symbol = "rad"
+)
 ```
 
 `timeout = 0` starts the workflow and returns immediately. The server-side
 publisher keeps feeding the next pending image jobs as previous jobs finish.
 For store-backed resources, the generation carries the manifest/backend context
 needed by the worker, so the analyst can disconnect after the first submission.
+
+To use existing manual or model-derived masks from `dsimaging-store`, publish
+them under `source/masks/` and use:
+
+```r
+segmenter <- ds.imaging.segmenter.existing_mask("masks")
+```
 
 ## Direct Workflows
 
@@ -59,6 +74,7 @@ needed by the worker, so the analyst can disconnect after the first submission.
 - `ds.imaging.radiomics.process_collection()`
 - `ds.imaging.radiomics.collection_status()`
 - `ds.imaging.radiomics.collection_publish()`
+- `ds.imaging.radiomics.load_features()`
 
 ## Preprocessing, Masks, And QC
 

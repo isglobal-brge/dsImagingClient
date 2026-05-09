@@ -39,6 +39,38 @@ ds.imaging.asset <- function(conns, asset_id, dataset_id = NULL) {
   }
 }
 
+#' Load a Published Imaging Feature Asset
+#'
+#' Assigns a server-side feature table asset, such as a radiomics collection,
+#' into the DataSHIELD session so standard analysis packages can operate on it.
+#'
+#' @param conns DSI connections object.
+#' @param dataset_id Character; dataset identifier.
+#' @param asset_id Character; asset id or alias.
+#' @param symbol Character; target server-side symbol.
+#' @param columns Optional character vector of columns to keep.
+#' @return Invisibly TRUE.
+#' @export
+ds.imaging.load_asset <- function(conns, dataset_id, asset_id,
+                                  symbol = "imaging_features",
+                                  columns = NULL) {
+  DSI::datashield.assign.expr(
+    conns,
+    symbol = symbol,
+    expr = call("imagingLoadAssetDS", dataset_id, asset_id, columns)
+  )
+  invisible(TRUE)
+}
+
+#' @rdname ds.imaging.load_asset
+#' @export
+ds.imaging.radiomics.load_features <- function(conns, dataset_id, asset_id,
+                                               symbol = "radiomics",
+                                               columns = NULL) {
+  ds.imaging.load_asset(conns, dataset_id = dataset_id, asset_id = asset_id,
+    symbol = symbol, columns = columns)
+}
+
 #' List aliases for a dataset
 #'
 #' Shows human-friendly names pointing to specific asset versions.
