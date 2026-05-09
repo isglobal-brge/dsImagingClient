@@ -30,7 +30,7 @@ ds.imaging.qc.metrics(
 \item{alias}{Character or NULL; optional asset alias.}
 }
 \value{
-A dsjobs_submission.
+A dshpc_submission.
 }
 \description{
 Produces a server-side CSV/JSON QC output with image size/spacing/intensity

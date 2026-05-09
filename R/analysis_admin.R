@@ -1,14 +1,14 @@
 # Module: Admin Functions for Model Management
-# Protected by the same admin_key as dsJobs admin methods.
+# Protected by the same admin_key as dsHPC admin methods.
 
 #' Install a segmentation model on the server (admin only)
 #'
 #' Downloads model weights to the hospital's server. Requires the admin key to
-#' be configured with `dsjobs.admin_key` or `DSJOBS_ADMIN_KEY`.
+#' be configured with `dshpc.admin_key` or `DSHPC_ADMIN_KEY`.
 #'
 #' @param conns DSI connections object.
-#' @param admin_key Character; the admin key matching `dsjobs.admin_key` or
-#'   `DSJOBS_ADMIN_KEY` on the server.
+#' @param admin_key Character; the admin key matching `dshpc.admin_key` or
+#'   `DSHPC_ADMIN_KEY` on the server.
 #' @param provider Character; "totalsegmentator", "lungmask", "monai", "nnunetv2".
 #' @param task Character; model/task name (e.g. "total", "R231").
 #' @return Named list with install status per server.

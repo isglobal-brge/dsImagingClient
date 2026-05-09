@@ -8,7 +8,7 @@
 #' @param segmenter A segmenter from ds.imaging.segmenter.*().
 #' @param visibility Character; job visibility label (default "global").
 #' @param alias Character or NULL; alias for the published mask.
-#' @return A dsjobs_submission or existing asset_id.
+#' @return A dshpc_submission or existing asset_id.
 #' @export
 ds.imaging.segment <- function(conns, dataset_id, image_asset = "images",
                                    segmenter, visibility = "global",
@@ -48,23 +48,23 @@ ds.imaging.segment <- function(conns, dataset_id, image_asset = "images",
 
   config <- segmenter
   config$image_asset <- image_asset
-  publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, "masks",
+  publish_step <- dsHPCClient::ds_step_publish_asset(dataset_id, "masks",
     asset_type = "mask_root", publish_kind = "imaging_asset")
   publish_step$alias <- alias
   publish_step$runner <- runner
   publish_step$config <- config
 
-  job <- dsJobsClient::ds_job(
+  job <- dsHPCClient::ds_job(
     label = "dsImaging",
     tags = c("segmentation", dataset_id, segmenter$provider),
     visibility = visibility,
     steps = list(
-      dsJobsClient::ds_step_resolve_dataset(dataset_id),
-      dsJobsClient::ds_step_run_artifact(runner, config = config),
+      dsHPCClient::ds_step_resolve_dataset(dataset_id),
+      dsHPCClient::ds_step_run_artifact(runner, config = config),
       publish_step,
-      dsJobsClient::ds_step_safe_summary()
+      dsHPCClient::ds_step_safe_summary()
     )
   )
 
-  dsJobsClient::ds.jobs.submit(conns, job)
+  dsHPCClient::ds.hpc.submit(conns, job)
 }

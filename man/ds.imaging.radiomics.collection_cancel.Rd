@@ -25,8 +25,8 @@ ds.imaging.radiomics.collection_cancel(
 
 \item{generation_id}{Character; the generation_id.}
 
-\item{admin_key}{Character; admin key matching \code{dsjobs.admin_key} or
-\code{DSJOBS_ADMIN_KEY} on the server.}
+\item{admin_key}{Character; admin key matching \code{dshpc.admin_key} or
+\code{DSHPC_ADMIN_KEY} on the server.}
 
 \item{reason}{Character; cancellation reason.}
 }
@@ -34,7 +34,7 @@ ds.imaging.radiomics.collection_cancel(
 Named list with cancellation counts.
 }
 \description{
-Requires the server-side \code{dsjobs.admin_key} option or \code{DSJOBS_ADMIN_KEY}
-environment variable. This cancels dsJobs belonging to the generation and
+Requires the server-side \code{dshpc.admin_key} option or \code{DSHPC_ADMIN_KEY}
+environment variable. This cancels dsHPC jobs belonging to the generation and
 marks unfinished generation items as skipped.
 }

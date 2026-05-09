@@ -2,7 +2,7 @@
 
 This is the real-data counterpart to the local synthetic imaging smoke demo.
 It uses TCIA NSCLC-Radiomics/LUNG1 CT images, RTSTRUCT `GTV-1` tumour masks,
-clinical metadata, `dsimaging-store`, `dsImaging`, and dsJobs-backed radiomics
+clinical metadata, `dsimaging-store`, `dsImaging`, and dsHPC-backed radiomics
 jobs across three simulated Opal/Rock sites.
 
 Sources:

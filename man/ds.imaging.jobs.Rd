@@ -13,7 +13,7 @@ ds.radiomics.list(conns)
 \item{conns}{DSI connections object.}
 }
 \value{
-A dsjobs_result.
+A dshpc_result.
 }
 \description{
 List radiomics jobs

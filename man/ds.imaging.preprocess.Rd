@@ -40,7 +40,7 @@ ds.imaging.preprocess(
 \item{alias}{Character or NULL; optional asset alias.}
 }
 \value{
-A dsjobs_submission.
+A dshpc_submission.
 }
 \description{
 Supports resampling, z-score normalization, intensity clamping/windowing, and

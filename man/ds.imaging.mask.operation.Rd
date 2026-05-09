@@ -54,7 +54,7 @@ ds.imaging.mask.operation(
 \item{alias}{Character or NULL; optional asset alias.}
 }
 \value{
-A dsjobs_submission.
+A dshpc_submission.
 }
 \description{
 Supports \code{binarize}, \code{label_select}, \code{connected_components}, \code{morphology},

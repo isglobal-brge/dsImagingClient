@@ -11,7 +11,7 @@
 #' @param segmenter A segmenter from ds.imaging.segmenter.*().
 #' @param profile A radiomics profile from ds.imaging.radiomics.profile.*().
 #' @param visibility Character; job visibility label (default "global").
-#' @return A dsjobs_submission.
+#' @return A dshpc_submission.
 #' @export
 ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
                                                image_asset = "images",
@@ -57,18 +57,18 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
     stop("Unknown provider: ", segmenter$provider, call. = FALSE))
 
   # Build steps
-  steps <- list(dsJobsClient::ds_step_resolve_dataset(dataset_id))
+  steps <- list(dsHPCClient::ds_step_resolve_dataset(dataset_id))
 
   # Segmentation step (if not using existing masks)
   if (!is.null(seg_runner)) {
     seg_config <- segmenter
     seg_config$image_asset <- image_asset
-    mask_publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, "masks",
+    mask_publish_step <- dsHPCClient::ds_step_publish_asset(dataset_id, "masks",
       asset_type = "mask_root", publish_kind = "imaging_asset")
     mask_publish_step$runner <- seg_runner
     mask_publish_step$config <- seg_config
     steps <- c(steps, list(
-      dsJobsClient::ds_step_run_artifact(seg_runner, config = seg_config),
+      dsHPCClient::ds_step_run_artifact(seg_runner, config = seg_config),
       mask_publish_step
     ))
   }
@@ -79,24 +79,24 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
     image_asset = image_asset,
     settings_file = profile$name
   ))
-  radiomics_publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id,
+  radiomics_publish_step <- dsHPCClient::ds_step_publish_asset(dataset_id,
     "radiomics", asset_type = "feature_table",
     publish_kind = "imaging_radiomics_asset")
   radiomics_publish_step$runner <- "pyradiomics_extract"
   radiomics_publish_step$config <- extract_config
 
   steps <- c(steps, list(
-    dsJobsClient::ds_step_run_artifact("pyradiomics_extract", config = extract_config),
+    dsHPCClient::ds_step_run_artifact("pyradiomics_extract", config = extract_config),
     radiomics_publish_step,
-    dsJobsClient::ds_step_safe_summary()
+    dsHPCClient::ds_step_safe_summary()
   ))
 
-  job <- dsJobsClient::ds_job(
+  job <- dsHPCClient::ds_job(
     label = "dsImaging",
     tags = c("segment_and_extract", dataset_id, segmenter$provider, profile$name),
     visibility = visibility,
     steps = steps
   )
 
-  dsJobsClient::ds.jobs.submit(conns, job)
+  dsHPCClient::ds.hpc.submit(conns, job)
 }

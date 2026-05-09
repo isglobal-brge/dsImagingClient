@@ -2,7 +2,7 @@
 
 `dsImagingClient` is the client-side DataSHIELD package for clinical imaging.
 It initializes imaging resources, queries dataset/asset metadata, builds
-segmentation and radiomics specs, submits dsJobs-backed image workflows, and
+segmentation and radiomics specs, submits dsHPC-backed image workflows, and
 monitors or publishes derived imaging assets.
 
 ## Core Usage
@@ -56,8 +56,8 @@ ds.imaging.radiomics.load_features(
 `collection_status()` already reconciles server-side state. Use
 `collection_recover()` to explicitly re-run that reconciliation after a crash or
 disconnect. Use `collection_cancel(conns, generation_id, admin_key)` only for
-operator cleanup; it is protected by the same `dsjobs.admin_key` or
-`DSJOBS_ADMIN_KEY` used by `dsJobsClient` admin methods.
+operator cleanup; it is protected by the same `dshpc.admin_key` or
+`DSHPC_ADMIN_KEY` used by `dsHPCClient` admin methods.
 
 When the dataset was published with clinical/sample metadata,
 `include_metadata = TRUE` assigns a single server-side data frame joined on
@@ -124,5 +124,5 @@ but new demos should use the `ds.imaging.*` names.
 A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled
 under `inst/demos/lung1_federated_study`. It prepares CT + RTSTRUCT `GTV-1`
 masks, publishes three simulated sites with `dsimaging-admin`, runs
-dsJobs-backed Aerts radiomics through `dsImaging`, and compares the federated
+dsHPC-backed Aerts radiomics through `dsImaging`, and compares the federated
 DataSHIELD feature summaries with a central PyRadiomics baseline.

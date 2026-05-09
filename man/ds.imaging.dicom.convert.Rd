@@ -30,9 +30,9 @@ ds.imaging.dicom.convert(
 \item{alias}{Character or NULL; optional asset alias.}
 }
 \value{
-A dsjobs_submission.
+A dshpc_submission.
 }
 \description{
-Submits a dsJobs-backed conversion job. The runner uses \code{dcm2niix} when
+Submits a dsHPC-backed conversion job. The runner uses \code{dcm2niix} when
 available and falls back to SimpleITK series reading.
 }

@@ -218,14 +218,14 @@ ds.imaging.radiomics.collection_recover <- function(conns, generation_id) {
 
 #' Cancel a running collection generation (admin only)
 #'
-#' Requires the server-side `dsjobs.admin_key` option or `DSJOBS_ADMIN_KEY`
-#' environment variable. This cancels dsJobs belonging to the generation and
+#' Requires the server-side `dshpc.admin_key` option or `DSHPC_ADMIN_KEY`
+#' environment variable. This cancels dsHPC jobs belonging to the generation and
 #' marks unfinished generation items as skipped.
 #'
 #' @param conns DSI connections object.
 #' @param generation_id Character; the generation_id.
-#' @param admin_key Character; admin key matching `dsjobs.admin_key` or
-#'   `DSJOBS_ADMIN_KEY` on the server.
+#' @param admin_key Character; admin key matching `dshpc.admin_key` or
+#'   `DSHPC_ADMIN_KEY` on the server.
 #' @param reason Character; cancellation reason.
 #' @return Named list with cancellation counts.
 #' @export
