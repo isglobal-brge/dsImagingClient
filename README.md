@@ -10,9 +10,8 @@ monitors or publishes derived imaging assets.
 ```r
 library(dsImagingClient)
 
-ds.imaging.init(conns, resource = "demo_lung_ct", symbol = "img")
+ds.imaging.init(conns, resource = "dsdemo.imgct_demo", symbol = "img")
 ds.imaging.datasets(conns)
-ds.imaging.catalog(conns, "imgct_demo")
 ds.imaging.capabilities(conns)
 ```
 
@@ -29,7 +28,7 @@ profile <- ds.imaging.radiomics.profile.demo_ct_firstorder()
 
 result <- ds.imaging.radiomics.process_collection(
   conns,
-  dataset_id = "imgct_demo",
+  dataset_id = NULL,          # use the dataset id from the imaging handle
   segmenter = segmenter,
   profile = profile,
   batch_size = 1L,
@@ -37,12 +36,16 @@ result <- ds.imaging.radiomics.process_collection(
 )
 
 ds.imaging.radiomics.collection_status(conns, result$generation_id)
-ds.imaging.radiomics.collection_publish(conns, result$generation_id, "imgct_demo")
-ds.imaging.radiomics.features(conns, "imgct_demo")
+ds.imaging.radiomics.collection_publish(
+  conns, result$generation_id, result$dataset_id
+)
+ds.imaging.radiomics.features(conns, result$dataset_id)
 ```
 
 `timeout = 0` starts the workflow and returns immediately. The server-side
 publisher keeps feeding the next pending image jobs as previous jobs finish.
+For store-backed resources, the generation carries the manifest/backend context
+needed by the worker, so the analyst can disconnect after the first submission.
 
 ## Direct Workflows
 
