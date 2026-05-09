@@ -1,0 +1,9 @@
+url: https://isglobal-brge.github.io/dsImagingClient/
+
+template:
+  bootstrap: 5
+
+articles:
+- title: Federated imaging demos
+  contents:
+  - lung1-federated-radiomics
