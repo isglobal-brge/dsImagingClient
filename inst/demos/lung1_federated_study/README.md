@@ -44,7 +44,9 @@ Full-cohort preparation:
 
 This downloads CT + RTSTRUCT series through NBIA, converts `GTV-1` masks to
 NIfTI, writes `sites/site_{a,b,c}/{images,masks,metadata.csv}`, and creates a
-central PyRadiomics baseline at `central/aerts_features.csv`.
+central PyRadiomics baseline at `central/aerts_features.csv`. Downloads,
+NIfTI/mask conversion, and central per-patient feature extraction are resumable;
+rerunning the command continues from existing files unless `--force` is used.
 
 ## Run Federated Pipeline
 

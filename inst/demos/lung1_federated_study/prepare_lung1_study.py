@@ -373,23 +373,32 @@ def run_central_radiomics(selected: dict[str, list[str]], image_dir: Path,
     if skip:
         return None
     extractor = featureextractor.RadiomicsFeatureExtractor(str(profile_path))
+    out_dir = image_dir.parents[1] / "central"
+    cache_dir = out_dir / "per_sample"
+    cache_dir.mkdir(parents=True, exist_ok=True)
     rows = []
     for site, patient_ids in selected.items():
         for patient_id in patient_ids:
-            print(f"[central] extracting {patient_id}")
-            result = extractor.execute(
-                str(image_dir / f"{patient_id}.nii.gz"),
-                str(mask_dir / f"{patient_id}_{roi_name}.nii.gz"),
-            )
-            row = {"sample_id": patient_id, "site": site}
-            for feature in SELECTED_FEATURES:
-                if feature not in result:
-                    raise ValueError(f"Feature missing for {patient_id}: {feature}")
-                row[feature] = float(result[feature])
+            cache_path = cache_dir / f"{patient_id}.json"
+            if cache_path.exists():
+                with open(cache_path, encoding="utf-8") as handle:
+                    row = json.load(handle)
+                row["site"] = site
+            else:
+                print(f"[central] extracting {patient_id}")
+                result = extractor.execute(
+                    str(image_dir / f"{patient_id}.nii.gz"),
+                    str(mask_dir / f"{patient_id}_{roi_name}.nii.gz"),
+                )
+                row = {"sample_id": patient_id, "site": site}
+                for feature in SELECTED_FEATURES:
+                    if feature not in result:
+                        raise ValueError(f"Feature missing for {patient_id}: {feature}")
+                    row[feature] = float(result[feature])
+                with open(cache_path, "w", encoding="utf-8") as handle:
+                    json.dump(row, handle, indent=2, sort_keys=True)
             rows.append(row)
 
-    out_dir = image_dir.parents[1] / "central"
-    out_dir.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(rows)
     parquet_path = out_dir / "aerts_features.parquet"
     csv_path = out_dir / "aerts_features.csv"
