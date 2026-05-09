@@ -22,6 +22,7 @@ logical_env <- function(name, default = "FALSE") {
 workdir <- normalizePath(env("LUNG1_WORKDIR", "/tmp/dsimaging_lung1_study"),
                          mustWork = TRUE)
 publish <- logical_env("LUNG1_PUBLISH", "TRUE")
+only_publish <- logical_env("LUNG1_ONLY_PUBLISH", "FALSE")
 run_jobs <- logical_env("LUNG1_RUN_JOBS", "TRUE")
 async <- logical_env("LUNG1_ASYNC", "TRUE")
 run_glm <- logical_env("LUNG1_RUN_GLM", "TRUE")
@@ -73,6 +74,11 @@ publish_site <- function(row) {
 
 if (publish) {
   for (i in seq_len(nrow(sites))) publish_site(sites[i, ])
+}
+
+if (only_publish) {
+  message("Publish-only mode completed.")
+  quit(save = "no", status = 0)
 }
 
 logins <- data.frame(
@@ -137,7 +143,7 @@ wait_and_publish_collections <- function(conns, result, result_path,
 }
 
 result_path <- file.path(workdir, "datashield_radiomics_result.rds")
-if (run_jobs || !file.exists(result_path)) {
+if (run_jobs) {
   result <- list()
   for (srv in names(conns)) {
     message("Starting radiomics on ", srv)
@@ -155,13 +161,28 @@ if (run_jobs || !file.exists(result_path)) {
     saveRDS(result, result_path)
   }
   if (async) {
+    if (identical(timeout, 0)) {
+      message("Fire-and-forget mode: jobs have been kicked off.")
+      message("Rerun with LUNG1_PUBLISH=FALSE LUNG1_RUN_JOBS=FALSE ",
+              "to wait, publish, and analyse completed collections.")
+      quit(save = "no", status = 0)
+    } else {
+      result <- wait_and_publish_collections(conns, result, result_path,
+                                             poll_interval = poll_interval,
+                                             timeout = timeout)
+    }
+  }
+  saveRDS(result, result_path)
+} else if (file.exists(result_path)) {
+  result <- readRDS(result_path)
+  if (any(!vapply(result, is_collection_asset_ready, logical(1)))) {
     result <- wait_and_publish_collections(conns, result, result_path,
                                            poll_interval = poll_interval,
                                            timeout = timeout)
   }
-  saveRDS(result, result_path)
 } else {
-  result <- readRDS(result_path)
+  stop("LUNG1_RUN_JOBS=FALSE but no previous result exists at ",
+       result_path, call. = FALSE)
 }
 
 for (srv in names(result)) {

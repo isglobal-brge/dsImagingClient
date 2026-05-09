@@ -261,22 +261,42 @@ def prepare_patient(patient_id: str, raw_dir: Path, image_dir: Path,
     if image_path.exists() and mask_path.exists() and not force:
         return image_path, mask_path
 
-    series = fetch_series(patient_id)
-    ct_series = choose_series(series, "CT")
-    rt_series = choose_series(series, "RTSTRUCT")
-
     patient_raw = raw_dir / patient_id
     ct_dir = patient_raw / "CT"
     rt_dir = patient_raw / "RTSTRUCT"
-    download_series(ct_series["SeriesInstanceUID"], ct_dir)
-    download_series(rt_series["SeriesInstanceUID"], rt_dir)
+    seg_dir = patient_raw / "SEG"
 
-    rt_path = find_rtstruct(rt_dir)
-    write_ct_nifti_and_mask(ct_dir, rt_path, image_path, mask_path, roi_name)
-    if not keep_raw:
-        shutil.rmtree(patient_raw, ignore_errors=True)
-        for zip_path in (patient_raw / "CT.zip", patient_raw / "RTSTRUCT.zip"):
-            zip_path.unlink(missing_ok=True)
+    try:
+        series = fetch_series(patient_id)
+        rt_series = choose_series(series, "RTSTRUCT")
+        seg_series = choose_optional_series(series, "SEG")
+        download_series(rt_series["SeriesInstanceUID"], rt_dir)
+        rt_path = find_rtstruct(rt_dir)
+
+        ct_series = choose_ct_series(series, rt_path)
+        download_series(ct_series["SeriesInstanceUID"], ct_dir)
+        try:
+            write_ct_nifti_and_mask(ct_dir, rt_path, image_path, mask_path, roi_name)
+        except Exception:
+            if seg_series is None:
+                raise
+            image_path.unlink(missing_ok=True)
+            mask_path.unlink(missing_ok=True)
+            download_series(seg_series["SeriesInstanceUID"], seg_dir)
+            seg_path = find_dicom_modality(seg_dir, "SEG")
+            ct_series = choose_ct_series(series, seg_path)
+            download_series(ct_series["SeriesInstanceUID"], ct_dir)
+            write_ct_nifti_and_seg_mask(ct_dir, seg_path, image_path,
+                                        mask_path, roi_name)
+    except Exception:
+        image_path.unlink(missing_ok=True)
+        mask_path.unlink(missing_ok=True)
+        raise
+    finally:
+        if not keep_raw:
+            shutil.rmtree(patient_raw, ignore_errors=True)
+            for zip_path in (patient_raw / "CT.zip", patient_raw / "RTSTRUCT.zip"):
+                zip_path.unlink(missing_ok=True)
     return image_path, mask_path
 
 
@@ -297,9 +317,56 @@ def choose_series(series: list[dict], modality: str) -> dict:
     return max(matches, key=lambda row: int(row.get("ImageCount", 0)))
 
 
+def choose_optional_series(series: list[dict], modality: str) -> dict | None:
+    matches = [row for row in series if row.get("Modality") == modality]
+    if not matches:
+        return None
+    return max(matches, key=lambda row: int(row.get("ImageCount", 0)))
+
+
+def choose_ct_series(series: list[dict], rt_path: Path) -> dict:
+    matches = [row for row in series if row.get("Modality") == "CT"]
+    if not matches:
+        raise ValueError("No CT series")
+
+    referenced_uids = referenced_series_uids(rt_path)
+    if referenced_uids:
+        referenced_matches = [
+            row for row in matches
+            if row.get("SeriesInstanceUID") in referenced_uids
+        ]
+        if referenced_matches:
+            return max(
+                referenced_matches,
+                key=lambda row: int(row.get("ImageCount", 0)),
+            )
+
+    return max(matches, key=lambda row: int(row.get("ImageCount", 0)))
+
+
+def referenced_series_uids(reference_path: Path) -> set[str]:
+    import pydicom
+
+    ds = pydicom.dcmread(str(reference_path), stop_before_pixels=True)
+    uids: set[str] = set()
+
+    for ref_series in getattr(ds, "ReferencedSeriesSequence", []):
+        uid = getattr(ref_series, "SeriesInstanceUID", None)
+        if uid:
+            uids.add(str(uid))
+
+    for ref_frame in getattr(ds, "ReferencedFrameOfReferenceSequence", []):
+        for ref_study in getattr(ref_frame, "RTReferencedStudySequence", []):
+            for ref_series in getattr(ref_study, "RTReferencedSeriesSequence", []):
+                uid = getattr(ref_series, "SeriesInstanceUID", None)
+                if uid:
+                    uids.add(str(uid))
+    return uids
+
+
 def download_series(series_uid: str, dest_dir: Path) -> None:
     dcm_files = list(dest_dir.glob("*.dcm"))
-    if dcm_files:
+    if dcm_files and dicom_dir_matches_series(dest_dir, series_uid):
         return
     if dest_dir.exists():
         shutil.rmtree(dest_dir)
@@ -316,42 +383,211 @@ def download_series(series_uid: str, dest_dir: Path) -> None:
         archive.extractall(dest_dir)
 
 
-def find_rtstruct(rt_dir: Path) -> Path:
+def dicom_dir_matches_series(dest_dir: Path, series_uid: str) -> bool:
     import pydicom
 
-    for path in sorted(rt_dir.glob("*.dcm")):
+    for path in sorted(dest_dir.glob("*.dcm")):
+        try:
+            ds = pydicom.dcmread(str(path), stop_before_pixels=True)
+        except Exception:  # noqa: BLE001 - stale or partial cache, redownload it.
+            return False
+        uid = getattr(ds, "SeriesInstanceUID", None)
+        if uid:
+            return str(uid) == str(series_uid)
+    return False
+
+
+def find_rtstruct(rt_dir: Path) -> Path:
+    return find_dicom_modality(rt_dir, "RTSTRUCT")
+
+
+def find_dicom_modality(dicom_dir: Path, modality: str) -> Path:
+    import pydicom
+
+    for path in sorted(dicom_dir.glob("*.dcm")):
         ds = pydicom.dcmread(str(path), stop_before_pixels=True)
-        if getattr(ds, "Modality", "") == "RTSTRUCT":
+        if getattr(ds, "Modality", "") == modality:
             return path
-    raise ValueError("RTSTRUCT DICOM not found")
+    raise ValueError(f"{modality} DICOM not found")
 
 
 def write_ct_nifti_and_mask(ct_dir: Path, rt_path: Path, image_path: Path,
                             mask_path: Path, roi_name: str) -> None:
-    reader = sitk.ImageSeriesReader()
-    files = reader.GetGDCMSeriesFileNames(str(ct_dir))
-    if not files:
-        raise ValueError("No readable CT DICOM series")
-    reader.SetFileNames(files)
-    image = reader.Execute()
-    image_path.parent.mkdir(parents=True, exist_ok=True)
-    sitk.WriteImage(image, str(image_path))
+    image, _ = read_ct_image_and_uid_index(ct_dir)
 
     rtstruct = RTStructBuilder.create_from(
         dicom_series_path=str(ct_dir),
         rt_struct_path=str(rt_path),
     )
     roi_names = rtstruct.get_roi_names()
-    if roi_name not in roi_names:
-        raise ValueError(f"ROI {roi_name!r} not found; available: {roi_names}")
-    mask = rtstruct.get_roi_mask_by_name(roi_name)
-    if int(mask.sum()) <= 0:
-        raise ValueError(f"ROI {roi_name!r} mask is empty")
+    mask = best_rtstruct_mask(rtstruct, roi_names, roi_name)
     mask_array = np.transpose(mask.astype(np.uint8), (2, 0, 1))
     mask_image = sitk.GetImageFromArray(mask_array)
     mask_image.CopyInformation(image)
+    image_path.parent.mkdir(parents=True, exist_ok=True)
     mask_path.parent.mkdir(parents=True, exist_ok=True)
+    sitk.WriteImage(image, str(image_path))
     sitk.WriteImage(mask_image, str(mask_path))
+
+
+def best_rtstruct_mask(rtstruct, roi_names: list[str], roi_name: str):
+    candidates = candidate_roi_names(roi_names, roi_name)
+    best_mask = None
+    best_name = None
+    best_voxels = 0
+    for candidate in candidates:
+        mask = rtstruct.get_roi_mask_by_name(candidate)
+        voxels = int(mask.sum())
+        if voxels > best_voxels:
+            best_mask = mask
+            best_name = candidate
+            best_voxels = voxels
+    if best_mask is None or best_voxels <= 0:
+        raise ValueError(
+            f"ROI {roi_name!r} candidates are empty; "
+            f"available: {roi_names}"
+        )
+    if best_name != roi_name:
+        print(f"  ROI fallback: {roi_name!r} -> {best_name!r}")
+    return best_mask
+
+
+def write_ct_nifti_and_seg_mask(ct_dir: Path, seg_path: Path, image_path: Path,
+                                mask_path: Path, roi_name: str) -> None:
+    import pydicom
+
+    image, uid_to_z = read_ct_image_and_uid_index(ct_dir)
+    reference_array = sitk.GetArrayFromImage(image)
+    mask_array = np.zeros(reference_array.shape, dtype=np.uint8)
+
+    ds = pydicom.dcmread(str(seg_path), stop_before_pixels=False)
+    segment_number = find_segment_number(ds, roi_name)
+    pixels = ds.pixel_array
+    if pixels.ndim == 2:
+        pixels = pixels[np.newaxis, :, :]
+    if pixels.shape[1:] != mask_array.shape[1:]:
+        raise ValueError(
+            "DICOM SEG frame size does not match CT image plane: "
+            f"{pixels.shape[1:]} vs {mask_array.shape[1:]}"
+        )
+
+    for frame_index, frame in enumerate(getattr(ds, "PerFrameFunctionalGroupsSequence", [])):
+        if frame_segment_number(frame) != segment_number:
+            continue
+        source_uid = frame_source_sop_instance_uid(frame)
+        if not source_uid or source_uid not in uid_to_z:
+            continue
+        z_index = uid_to_z[source_uid]
+        mask_array[z_index] = np.logical_or(
+            mask_array[z_index],
+            pixels[frame_index].astype(bool),
+        ).astype(np.uint8)
+
+    if int(mask_array.sum()) <= 0:
+        raise ValueError(f"SEG segment for ROI {roi_name!r} is empty or unmapped")
+
+    mask_image = sitk.GetImageFromArray(mask_array)
+    mask_image.CopyInformation(image)
+    image_path.parent.mkdir(parents=True, exist_ok=True)
+    mask_path.parent.mkdir(parents=True, exist_ok=True)
+    sitk.WriteImage(image, str(image_path))
+    sitk.WriteImage(mask_image, str(mask_path))
+
+
+def read_ct_image_and_uid_index(ct_dir: Path) -> tuple[sitk.Image, dict[str, int]]:
+    import pydicom
+
+    reader = sitk.ImageSeriesReader()
+    files = reader.GetGDCMSeriesFileNames(str(ct_dir))
+    if not files:
+        raise ValueError("No readable CT DICOM series")
+    reader.SetFileNames(files)
+    image = reader.Execute()
+
+    uid_to_z: dict[str, int] = {}
+    for z_index, path in enumerate(files):
+        ds = pydicom.dcmread(str(path), stop_before_pixels=True)
+        sop_uid = getattr(ds, "SOPInstanceUID", None)
+        if sop_uid:
+            uid_to_z[str(sop_uid)] = z_index
+    return image, uid_to_z
+
+
+def find_segment_number(ds, roi_name: str) -> int:
+    candidates = []
+    target = normalize_roi_name(roi_name)
+    for segment in getattr(ds, "SegmentSequence", []):
+        number = int(getattr(segment, "SegmentNumber"))
+        labels = [
+            str(getattr(segment, "SegmentLabel", "")),
+            str(getattr(segment, "SegmentDescription", "")),
+        ]
+        for label in labels:
+            if normalize_roi_name(label) == target:
+                return number
+        candidates.append(f"{number}:{'/'.join(label for label in labels if label)}")
+
+    for segment in getattr(ds, "SegmentSequence", []):
+        number = int(getattr(segment, "SegmentNumber"))
+        labels = [
+            str(getattr(segment, "SegmentLabel", "")),
+            str(getattr(segment, "SegmentDescription", "")),
+        ]
+        if any(is_roi_alias(label, target) for label in labels):
+            return number
+
+    raise ValueError(f"SEG ROI {roi_name!r} not found; available: {candidates}")
+
+
+def candidate_roi_names(roi_names: list[str], roi_name: str) -> list[str]:
+    target = normalize_roi_name(roi_name)
+    exact = [name for name in roi_names if name == roi_name]
+    if exact:
+        return exact
+
+    normalized = [name for name in roi_names if normalize_roi_name(name) == target]
+    if normalized:
+        return normalized
+
+    aliases = [name for name in roi_names if is_roi_alias(name, target)]
+    if aliases:
+        return aliases
+
+    raise ValueError(f"ROI {roi_name!r} not found; available: {roi_names}")
+
+
+def is_roi_alias(value: str, normalized_target: str) -> bool:
+    normalized_value = normalize_roi_name(value)
+    if not normalized_value:
+        return False
+    if normalized_target in normalized_value:
+        return True
+    if normalized_target.startswith("gtv"):
+        return ("gtv" in normalized_value or
+                "gross" in normalized_value or
+                "neoplasmprimary" in normalized_value)
+    return False
+
+
+def normalize_roi_name(value: str) -> str:
+    return "".join(ch for ch in value.lower() if ch.isalnum())
+
+
+def frame_segment_number(frame) -> int | None:
+    sequence = getattr(frame, "SegmentIdentificationSequence", [])
+    if not sequence:
+        return None
+    number = getattr(sequence[0], "ReferencedSegmentNumber", None)
+    return int(number) if number is not None else None
+
+
+def frame_source_sop_instance_uid(frame) -> str | None:
+    for derivation in getattr(frame, "DerivationImageSequence", []):
+        for source in getattr(derivation, "SourceImageSequence", []):
+            uid = getattr(source, "ReferencedSOPInstanceUID", None)
+            if uid:
+                return str(uid)
+    return None
 
 
 def write_site_folders(workdir: Path, selected: dict[str, list[str]],
