@@ -13,15 +13,33 @@ Sources:
   https://wiki.cancerimagingarchive.net/x/fILTB
 
 The default preparation size is `--n-per-site 12`, which is the minimum useful
-size for the Aerts 4-feature logistic path under DataSHIELD's default
+validation size for the Aerts 4-feature logistic path under DataSHIELD's default
 `nfilter.glm = 0.33`. For quick engineering validation use `--n-per-site 3`.
+For manuscript-style replication use `--all-patients`, which prepares every
+available public LUNG1 patient and keeps the natural hash-based site imbalance.
 
 ## Prepare Data
 
 ```bash
-/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_subset.py \
+/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_study.py \
   --workdir /tmp/dsimaging_lung1_study \
   --n-per-site 3
+```
+
+Full-cohort plan check, without downloading DICOM data:
+
+```bash
+/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_study.py \
+  --all-patients \
+  --dry-run
+```
+
+Full-cohort preparation:
+
+```bash
+/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_study.py \
+  --workdir /tmp/dsimaging_lung1_full \
+  --all-patients
 ```
 
 This downloads CT + RTSTRUCT series through NBIA, converts `GTV-1` masks to
@@ -57,4 +75,5 @@ tolerance. See `RESULTS.md` for the observed numbers.
 
 This 9-patient run is an engineering validation, not a scientific replication
 of the Aerts/Shi survival result. For a manuscript-style replication, run at
-least `--n-per-site 12`, and preferably the full public LUNG1 cohort.
+least `--n-per-site 12`, and preferably `--all-patients` for the full public
+LUNG1 cohort.

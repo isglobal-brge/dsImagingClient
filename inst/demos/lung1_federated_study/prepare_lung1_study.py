@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare a reproducible LUNG1/NSCLC-Radiomics federated study subset.
+"""Prepare a reproducible LUNG1/NSCLC-Radiomics federated study.
 
 The script downloads CT + RTSTRUCT series from TCIA/NBIA, converts the GTV-1
 RTSTRUCT contour into NIfTI masks, partitions patients into simulated sites by
@@ -60,12 +60,17 @@ def main() -> int:
     for path in (raw_dir, nifti_images, nifti_masks):
         path.mkdir(parents=True, exist_ok=True)
 
+    if args.dry_run:
+        planned = plan_patient_split(clinical["sample_id"].sort_values(), args)
+        print_plan(planned, label="Planned split")
+        return 0
+
     selected: dict[str, list[str]] = {site: [] for site in SITE_NAMES}
     failures: dict[str, str] = {}
 
     for patient_id in clinical["sample_id"].sort_values():
         site = SITE_NAMES[stable_site_index(patient_id, len(SITE_NAMES))]
-        if len(selected[site]) >= args.n_per_site:
+        if not args.all_patients and len(selected[site]) >= args.n_per_site:
             continue
         try:
             image_path, mask_path = prepare_patient(
@@ -83,13 +88,22 @@ def main() -> int:
             failures[patient_id] = str(exc)
             print(f"[skip] {patient_id}: {exc}", file=sys.stderr)
 
-        if all(len(ids) >= args.n_per_site for ids in selected.values()):
+        if (not args.all_patients and
+                all(len(ids) >= args.n_per_site for ids in selected.values())):
             break
 
-    incomplete = {site: len(ids) for site, ids in selected.items()
-                  if len(ids) < args.n_per_site}
-    if incomplete:
-        raise SystemExit(f"Could not fill requested sites: {incomplete}")
+    if args.all_patients:
+        if failures:
+            print(
+                f"WARNING: {len(failures)} patient(s) could not be prepared; "
+                "study uses the successfully converted cases.",
+                file=sys.stderr,
+            )
+    else:
+        incomplete = {site: len(ids) for site, ids in selected.items()
+                      if len(ids) < args.n_per_site}
+        if incomplete:
+            raise SystemExit(f"Could not fill requested sites: {incomplete}")
 
     write_site_folders(workdir, selected, clinical, nifti_images, nifti_masks,
                        roi_name=args.roi)
@@ -130,12 +144,51 @@ def main() -> int:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--workdir", default="/tmp/dsimaging_lung1_study")
-    parser.add_argument("--n-per-site", type=int, default=12)
+    parser.add_argument(
+        "--n-per-site",
+        type=int,
+        default=12,
+        help="Balanced validation cohort size per site when --all-patients is not set",
+    )
+    parser.add_argument(
+        "--all-patients",
+        action="store_true",
+        help="Prepare every available LUNG1 patient instead of a balanced validation cohort",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Resolve the patient split and exit without downloading DICOM data",
+    )
     parser.add_argument("--roi", default="GTV-1")
     parser.add_argument("--profile", default=str(default_profile_path()))
     parser.add_argument("--skip-central", action="store_true")
     parser.add_argument("--force", action="store_true")
     return parser.parse_args()
+
+
+def plan_patient_split(patient_ids, args) -> dict[str, list[str]]:
+    selected: dict[str, list[str]] = {site: [] for site in SITE_NAMES}
+    for patient_id in patient_ids:
+        site = SITE_NAMES[stable_site_index(str(patient_id), len(SITE_NAMES))]
+        if args.all_patients or len(selected[site]) < args.n_per_site:
+            selected[site].append(str(patient_id))
+        if (not args.all_patients and
+                all(len(ids) >= args.n_per_site for ids in selected.values())):
+            break
+    return selected
+
+
+def print_plan(selected: dict[str, list[str]], label: str) -> None:
+    print(label)
+    for site, patient_ids in selected.items():
+        if patient_ids:
+            print(
+                f"  {site}: {len(patient_ids)} patients "
+                f"({patient_ids[0]} ... {patient_ids[-1]})"
+            )
+        else:
+            print(f"  {site}: 0 patients")
 
 
 def default_profile_path() -> Path:
