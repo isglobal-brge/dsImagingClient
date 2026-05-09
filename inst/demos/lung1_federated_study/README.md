@@ -74,12 +74,15 @@ Useful environment variables:
 
 ## Current Validation
 
-The smoke run in this workspace used 9 real LUNG1 patients, split 3 per site.
-All 9 PyRadiomics jobs completed, all three collection assets were published,
-and federated means matched the local central baseline to floating-point
-tolerance. See `RESULTS.md` for the observed numbers.
+The current validation in this workspace uses the full prepared public LUNG1
+cohort that passed CT + `GTV-1` mask conversion: 422 real patients split across
+three simulated Opal/Rock sites (`142`, `143`, and `137` rows after loading the
+published feature assets with metadata). All three collection assets were
+published through `dsImagingClient`, and a federated `ds.glmSLMA()` analysis ran
+successfully with three valid studies. See `RESULTS.md` for the observed
+numbers.
 
-This 9-patient run is an engineering validation, not a scientific replication
-of the Aerts/Shi survival result. For a manuscript-style replication, run at
-least `--n-per-site 12`, and preferably `--all-patients` for the full public
-LUNG1 cohort.
+The collection status returned by `process_collection()` applies DataSHIELD
+metadata bucketing and may show `128` instead of the exact per-site count. Use
+the loaded analysis table dimensions (`ds.dim("rad")`) or the local study
+manifest for exact engineering validation counts.
