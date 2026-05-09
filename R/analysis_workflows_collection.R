@@ -63,10 +63,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
     .ds_encode(visibility))
 
   srv <- names(scan)[1]
-  result <- scan[[srv]]
-
-  if (is.null(result))
-    stop("Scan failed on server ", srv, call. = FALSE)
+  result <- .ds_first_result(scan, "Collection scan")
 
   # Already fully computed
   if (identical(result$action, "reuse_asset")) {
@@ -201,11 +198,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
 ds.imaging.radiomics.collection_status <- function(conns, generation_id) {
   status <- .ds_safe_aggregate(conns, "imagingRadiomicsCollectionStatusDS",
     .ds_encode(generation_id))
-  srv <- names(status)[1]
-  result <- status[[srv]]
-  if (is.null(result))
-    stop("Could not retrieve status for generation ", generation_id, call. = FALSE)
-  result
+  .ds_first_result(status, paste("Collection status", generation_id))
 }
 
 #' Recover a running collection generation
@@ -220,11 +213,7 @@ ds.imaging.radiomics.collection_status <- function(conns, generation_id) {
 ds.imaging.radiomics.collection_recover <- function(conns, generation_id) {
   status <- .ds_safe_aggregate(conns, "imagingRadiomicsRecoverCollectionDS",
     .ds_encode(generation_id))
-  srv <- names(status)[1]
-  result <- status[[srv]]
-  if (is.null(result))
-    stop("Could not recover generation ", generation_id, call. = FALSE)
-  result
+  .ds_first_result(status, paste("Collection recovery", generation_id))
 }
 
 #' Cancel a running collection generation (admin only)
@@ -246,11 +235,7 @@ ds.imaging.radiomics.collection_cancel <- function(conns, generation_id,
     .ds_encode(generation_id),
     key_enc,
     .ds_encode(reason))
-  srv <- names(out)[1]
-  result <- out[[srv]]
-  if (is.null(result))
-    stop("Could not cancel generation ", generation_id, call. = FALSE)
-  result
+  .ds_first_result(out, paste("Collection cancellation", generation_id))
 }
 
 #' Publish a completed collection generation
@@ -283,8 +268,7 @@ ds.imaging.radiomics.collection_publish <- function(conns, generation_id,
     .ds_encode(dataset_id),
     .ds_encode(allow_partial))
 
-  srv <- names(pub)[1]
-  result <- pub[[srv]]
+  result <- .ds_first_result(pub, paste("Collection publish", generation_id))
 
   if (is.null(result) || is.null(result$asset_id)) {
     warning("Publishing failed or returned no asset_id", call. = FALSE)
