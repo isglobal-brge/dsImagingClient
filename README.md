@@ -46,12 +46,41 @@ publisher keeps feeding the next pending image jobs as previous jobs finish.
 
 ## Direct Workflows
 
+- `ds.imaging.dicom.convert()`
+- `ds.imaging.preprocess()`
+- `ds.imaging.mask.operation()`
+- `ds.imaging.qc.metrics()`
 - `ds.imaging.segment()`
 - `ds.imaging.radiomics.extract()`
 - `ds.imaging.radiomics.segment_and_extract()`
 - `ds.imaging.radiomics.process_collection()`
 - `ds.imaging.radiomics.collection_status()`
 - `ds.imaging.radiomics.collection_publish()`
+
+## Preprocessing, Masks, And QC
+
+```r
+ds.imaging.dicom.convert(conns, "imgct_demo", dicom_asset = "dicom")
+
+ds.imaging.preprocess(
+  conns,
+  "imgct_demo",
+  operations = c("resample", "clamp", "float32"),
+  spacing = c(1, 1, 1),
+  lower = -1000,
+  upper = 400
+)
+
+ds.imaging.mask.operation(
+  conns,
+  "imgct_demo",
+  operation = "label_select",
+  mask_asset = "totalseg_masks",
+  labels = c(10, 11)
+)
+
+ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
+```
 
 Compatibility wrappers named `ds.radiomics.*` and `ds.segmenter.*` are exported,
 but new demos should use the `ds.imaging.*` names.

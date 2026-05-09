@@ -22,3 +22,19 @@ test_that("legacy radiomics aliases map to imaging constructors", {
     ds.segmenter.lungmask("R231"),
     ds.imaging.segmenter.lungmask("R231"))
 })
+
+test_that("clinical imaging workflow jobs declare expected runners", {
+  job <- dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
+    runner = "imaging_qc_metrics",
+    config = list(dataset_id = "ds1", image_asset = "images"),
+    output_asset = "imaging_qc",
+    asset_type = "qc_table",
+    visibility = "global",
+    alias = "latest_qc")
+
+  expect_equal(job$label, "dsImaging")
+  expect_equal(job$steps[[2]]$runner, "imaging_qc_metrics")
+  expect_equal(job$steps[[3]]$publish_kind, "imaging_asset")
+  expect_equal(job$steps[[3]]$asset_type, "qc_table")
+  expect_equal(job$steps[[3]]$alias, "latest_qc")
+})

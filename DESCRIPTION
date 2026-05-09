@@ -8,9 +8,10 @@ Authors@R:
       person("Juan R", "González", , "juanr.gonzalez@isglobal.org", role = c("aut")))
 Description: Client-side DataSHIELD package for clinical imaging. Provides
     functions to initialize imaging handles, query dataset metadata and asset
-    catalogs, define segmentation and radiomics profiles, submit dsJobs-backed
-    imaging workflows, monitor per-image collection processing, and discover
-    derived masks and radiomic feature tables.
+    catalogs, define DICOM conversion, preprocessing, mask/ROI, QC,
+    segmentation, and radiomics workflows, submit dsJobs-backed imaging jobs,
+    monitor per-image collection processing, and discover derived masks and
+    radiomic feature tables.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends:
