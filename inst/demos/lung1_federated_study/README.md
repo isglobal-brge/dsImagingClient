@@ -66,7 +66,9 @@ Useful environment variables:
 
 - `LUNG1_WORKDIR=/tmp/dsimaging_lung1_study`
 - `LUNG1_PUBLISH=FALSE` to reuse already published store datasets
-- `LUNG1_RUN_JOBS=FALSE` to reuse `datashield_radiomics_result.rds`
+- `LUNG1_ONLY_PUBLISH=TRUE` to publish datasets and exit before DataSHIELD jobs
+- `LUNG1_RUN_JOBS=FALSE` to reuse or wait/publish `datashield_radiomics_result.rds`
+- `LUNG1_ASYNC=TRUE` and `LUNG1_TIMEOUT=0` to kick off jobs and disconnect
 - `DSIMAGING_RESOURCE_ENDPOINT=http://minio.local:9000`
 - `OPAL_USER=administrator`, `OPAL_PASSWORD=admin123`
 
