@@ -49,15 +49,22 @@ ds.imaging.asset <- function(conns, asset_id, dataset_id = NULL) {
 #' @param asset_id Character; asset id or alias.
 #' @param symbol Character; target server-side symbol.
 #' @param columns Optional character vector of columns to keep.
+#' @param include_metadata Logical; if TRUE, load feature rows joined with
+#'   dataset metadata/clinical columns on `sample_id`.
+#' @param syntactic_names Logical; if TRUE, repair server-side column names for
+#'   formula-based DataSHIELD models.
 #' @return Invisibly TRUE.
 #' @export
 ds.imaging.load_asset <- function(conns, dataset_id, asset_id,
                                   symbol = "imaging_features",
-                                  columns = NULL) {
+                                  columns = NULL,
+                                  include_metadata = FALSE,
+                                  syntactic_names = FALSE) {
   DSI::datashield.assign.expr(
     conns,
     symbol = symbol,
-    expr = call("imagingLoadAssetDS", dataset_id, asset_id, columns)
+    expr = call("imagingLoadAssetDS", dataset_id, asset_id, columns,
+                include_metadata, syntactic_names)
   )
   invisible(TRUE)
 }
@@ -66,9 +73,12 @@ ds.imaging.load_asset <- function(conns, dataset_id, asset_id,
 #' @export
 ds.imaging.radiomics.load_features <- function(conns, dataset_id, asset_id,
                                                symbol = "radiomics",
-                                               columns = NULL) {
+                                               columns = NULL,
+                                               include_metadata = FALSE,
+                                               syntactic_names = FALSE) {
   ds.imaging.load_asset(conns, dataset_id = dataset_id, asset_id = asset_id,
-    symbol = symbol, columns = columns)
+    symbol = symbol, columns = columns, include_metadata = include_metadata,
+    syntactic_names = syntactic_names)
 }
 
 #' List aliases for a dataset

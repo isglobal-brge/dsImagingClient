@@ -10,7 +10,9 @@ ds.imaging.load_asset(
   dataset_id,
   asset_id,
   symbol = "imaging_features",
-  columns = NULL
+  columns = NULL,
+  include_metadata = FALSE,
+  syntactic_names = FALSE
 )
 
 ds.imaging.radiomics.load_features(
@@ -18,7 +20,9 @@ ds.imaging.radiomics.load_features(
   dataset_id,
   asset_id,
   symbol = "radiomics",
-  columns = NULL
+  columns = NULL,
+  include_metadata = FALSE,
+  syntactic_names = FALSE
 )
 }
 \arguments{
@@ -31,6 +35,12 @@ ds.imaging.radiomics.load_features(
 \item{symbol}{Character; target server-side symbol.}
 
 \item{columns}{Optional character vector of columns to keep.}
+
+\item{include_metadata}{Logical; if TRUE, load feature rows joined with
+dataset metadata/clinical columns on \code{sample_id}.}
+
+\item{syntactic_names}{Logical; if TRUE, repair server-side column names for
+formula-based DataSHIELD models.}
 }
 \value{
 Invisibly TRUE.
