@@ -46,9 +46,17 @@ ds.imaging.radiomics.load_features(
   conns,
   dataset_id = result$dataset_id,
   asset_id = "<asset_id_or_alias>",
-  symbol = "rad"
+  symbol = "rad",
+  include_metadata = TRUE,
+  syntactic_names = TRUE
 )
 ```
+
+When the dataset was published with clinical/sample metadata,
+`include_metadata = TRUE` assigns a single server-side data frame joined on
+`sample_id`. `syntactic_names = TRUE` repairs names such as wavelet feature
+columns containing `-`, making the table ready for formula-based DataSHIELD
+analysis functions.
 
 `timeout = 0` starts the workflow and returns immediately. The server-side
 publisher keeps feeding the next pending image jobs as previous jobs finish.
@@ -103,3 +111,11 @@ ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
 
 Compatibility wrappers named `ds.radiomics.*` and `ds.segmenter.*` are exported,
 but new demos should use the `ds.imaging.*` names.
+
+## Public LUNG1 Study Demo
+
+A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled
+under `inst/demos/lung1_federated_study`. It prepares CT + RTSTRUCT `GTV-1`
+masks, publishes three simulated sites with `dsimaging-admin`, runs
+dsJobs-backed Aerts radiomics through `dsImaging`, and compares the federated
+DataSHIELD feature summaries with a central PyRadiomics baseline.

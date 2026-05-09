@@ -40,3 +40,10 @@ test_that("clinical imaging workflow jobs declare expected runners", {
   expect_equal(job$steps[[3]]$runner, "imaging_qc_metrics")
   expect_equal(job$steps[[3]]$config$image_asset, "images")
 })
+
+test_that("asset loading wrappers expose metadata join option", {
+  expect_true("include_metadata" %in% names(formals(ds.imaging.load_asset)))
+  expect_true("include_metadata" %in% names(formals(ds.imaging.radiomics.load_features)))
+  expect_true("syntactic_names" %in% names(formals(ds.imaging.load_asset)))
+  expect_true("syntactic_names" %in% names(formals(ds.imaging.radiomics.load_features)))
+})
