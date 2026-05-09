@@ -56,8 +56,8 @@ ds.imaging.radiomics.load_features(
 `collection_status()` already reconciles server-side state. Use
 `collection_recover()` to explicitly re-run that reconciliation after a crash or
 disconnect. Use `collection_cancel(conns, generation_id, admin_key)` only for
-operator cleanup; it is protected by the same `dsjobs.admin_key` used by
-`dsJobsClient` admin methods.
+operator cleanup; it is protected by the same `dsjobs.admin_key` or
+`DSJOBS_ADMIN_KEY` used by `dsJobsClient` admin methods.
 
 When the dataset was published with clinical/sample metadata,
 `include_metadata = TRUE` assigns a single server-side data frame joined on

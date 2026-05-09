@@ -12,7 +12,8 @@ ds.radiomics.install_model(conns, admin_key, provider, task)
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{admin_key}{Character; the admin key.}
+\item{admin_key}{Character; the admin key matching \code{dsjobs.admin_key} or
+\code{DSJOBS_ADMIN_KEY} on the server.}
 
 \item{provider}{Character; "totalsegmentator", "lungmask", "monai", "nnunetv2".}
 
@@ -22,6 +23,6 @@ ds.radiomics.install_model(conns, admin_key, provider, task)
 Named list with install status per server.
 }
 \description{
-Downloads model weights to the hospital's server. Requires admin_key
-to be configured: dsadmin.set_option(con, "dsjobs.admin_key", "secret")
+Downloads model weights to the hospital's server. Requires the admin key to
+be configured with \code{dsjobs.admin_key} or \code{DSJOBS_ADMIN_KEY}.
 }
