@@ -80,6 +80,7 @@ def main() -> int:
                 mask_dir=nifti_masks,
                 roi_name=args.roi,
                 force=args.force,
+                keep_raw=args.keep_raw,
             )
             if image_path.exists() and mask_path.exists():
                 selected[site].append(patient_id)
@@ -164,6 +165,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--profile", default=str(default_profile_path()))
     parser.add_argument("--skip-central", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--keep-raw",
+        action="store_true",
+        help="Keep downloaded DICOM/zip files after NIfTI and mask conversion",
+    )
     return parser.parse_args()
 
 
@@ -248,7 +254,8 @@ def stable_site_index(patient_id: str, n_sites: int) -> int:
 
 
 def prepare_patient(patient_id: str, raw_dir: Path, image_dir: Path,
-                    mask_dir: Path, roi_name: str, force: bool) -> tuple[Path, Path]:
+                    mask_dir: Path, roi_name: str, force: bool,
+                    keep_raw: bool) -> tuple[Path, Path]:
     image_path = image_dir / f"{patient_id}.nii.gz"
     mask_path = mask_dir / f"{patient_id}_{roi_name}.nii.gz"
     if image_path.exists() and mask_path.exists() and not force:
@@ -266,6 +273,10 @@ def prepare_patient(patient_id: str, raw_dir: Path, image_dir: Path,
 
     rt_path = find_rtstruct(rt_dir)
     write_ct_nifti_and_mask(ct_dir, rt_path, image_path, mask_path, roi_name)
+    if not keep_raw:
+        shutil.rmtree(patient_raw, ignore_errors=True)
+        for zip_path in (patient_raw / "CT.zip", patient_raw / "RTSTRUCT.zip"):
+            zip_path.unlink(missing_ok=True)
     return image_path, mask_path
 
 

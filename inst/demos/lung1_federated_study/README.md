@@ -47,6 +47,8 @@ NIfTI, writes `sites/site_{a,b,c}/{images,masks,metadata.csv}`, and creates a
 central PyRadiomics baseline at `central/aerts_features.csv`. Downloads,
 NIfTI/mask conversion, and central per-patient feature extraction are resumable;
 rerunning the command continues from existing files unless `--force` is used.
+Downloaded DICOM/zip files are removed after successful conversion by default
+to keep full-cohort runs practical; use `--keep-raw` to retain them.
 
 ## Run Federated Pipeline
 
