@@ -63,3 +63,25 @@
   }
   results
 }
+
+#' Return the first server result or fail with collected DataSHIELD errors
+#'
+#' @keywords internal
+.ds_first_result <- function(results, context = "DataSHIELD call") {
+  if (length(results) == 0) {
+    errors <- attr(results, "ds_errors")
+    detail <- if (length(errors) > 0) {
+      paste(paste(names(errors), unlist(errors), sep = ": "),
+        collapse = "; ")
+    } else {
+      "no server returned a result"
+    }
+    stop(context, " failed: ", detail, call. = FALSE)
+  }
+  srv <- names(results)[1]
+  result <- results[[srv]]
+  if (is.null(result)) {
+    stop(context, " failed on server ", srv, call. = FALSE)
+  }
+  result
+}
