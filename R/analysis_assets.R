@@ -15,7 +15,7 @@ ds.imaging.jobs <- function(conns) {
 #' @return Named list of per-server data.frames.
 #' @export
 ds.imaging.radiomics.features <- function(conns, dataset_id) {
-  ds.imaging.catalog(conns, dataset_id, kind = "feature_table")
+  ds.imaging.catalog(conns, dataset_id, kind = "radiomics_collection")
 }
 
 #' List segmentation masks for a dataset

@@ -16,7 +16,7 @@ ds.radiomics.collection_publish(
 ds.imaging.radiomics.collection_publish(
   conns,
   generation_id,
-  dataset_id,
+  dataset_id = NULL,
   allow_partial = FALSE
 )
 }
