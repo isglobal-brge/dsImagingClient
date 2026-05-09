@@ -51,6 +51,8 @@ ds.imaging.segment <- function(conns, dataset_id, image_asset = "images",
   publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, "masks",
     asset_type = "mask_root", publish_kind = "imaging_asset")
   publish_step$alias <- alias
+  publish_step$runner <- runner
+  publish_step$config <- config
 
   job <- dsJobsClient::ds_job(
     label = "dsImaging",

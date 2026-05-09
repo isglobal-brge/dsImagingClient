@@ -46,6 +46,8 @@ ds.imaging.radiomics.extract <- function(conns, dataset_id, image_asset = "image
   publish_step <- dsJobsClient::ds_step_publish_asset(dataset_id, "radiomics",
     asset_type = "feature_table", publish_kind = "imaging_radiomics_asset")
   publish_step$alias <- alias
+  publish_step$runner <- "pyradiomics_extract"
+  publish_step$config <- config
 
   job <- dsJobsClient::ds_job(
     label = "dsImaging",
