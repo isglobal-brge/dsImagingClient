@@ -31,9 +31,9 @@ prepare_script <- file.path(demo_dir, "prepare_lung1_study.py")
 run_script <- file.path(demo_dir, "run_lung1_datashield.R")
 c(prepare_script = prepare_script, run_script = run_script)
 #>                                                                                                                                                     prepare_script 
-#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpWKHQe1/temp_libpath1224216675c04/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" 
+#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpwUm40P/temp_libpath14d5528ec5697/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" 
 #>                                                                                                                                                         run_script 
-#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpWKHQe1/temp_libpath1224216675c04/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
+#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpwUm40P/temp_libpath14d5528ec5697/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
 ```
 
 Prepare the full public cohort:
@@ -104,6 +104,31 @@ knitr::kable(site_counts)
 | site_a | lung1_full_site_a |    142 |   142 |           142 |
 | site_b | lung1_full_site_b |    143 |   143 |           143 |
 | site_c | lung1_full_site_c |    137 |   137 |           137 |
+
+``` r
+
+if (has_ggplot2) {
+  ggplot2::ggplot(site_counts,
+                  ggplot2::aes(x = site, y = metadata_rows, fill = site)) +
+    ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+    ggplot2::geom_text(ggplot2::aes(label = metadata_rows), vjust = -0.4) +
+    ggplot2::labs(
+      x = "Simulated site",
+      y = "Patients with CT + GTV-1 mask + metadata",
+      title = "Full LUNG1 cohort split across three DataSHIELD sites"
+    ) +
+    ggplot2::ylim(0, max(site_counts$metadata_rows) * 1.12) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  barplot(site_counts$metadata_rows, names.arg = site_counts$site,
+          ylab = "Patients", xlab = "Simulated site",
+          main = "Full LUNG1 cohort split")
+}
+```
+
+![Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142,
+143, and 137
+patients.](lung1-federated-radiomics_files/figure-html/cohort-plot-1.png)
 
 Published collection assets:
 
@@ -180,6 +205,66 @@ knitr::kable(
 | opal3 | original_shape_Compactness1 | 2.631661e-02 | 2.631661e-02 | 4.857e-17 | 1.846e-15 |
 | opal3 | wavelet.HLH_glrlm_RunLengthNonUniformity | 1.137901e+04 | 1.137901e+04 | 7.276e-12 | 6.394e-16 |
 
+``` r
+
+if (has_ggplot2) {
+  ggplot2::ggplot(comparison,
+                  ggplot2::aes(x = central, y = federated, color = server)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+                         color = "grey45") +
+    ggplot2::geom_point(size = 2.6) +
+    ggplot2::facet_wrap(~feature_label, scales = "free") +
+    ggplot2::labs(
+      x = "Central PyRadiomics mean",
+      y = "Federated DataSHIELD mean",
+      color = "Server",
+      title = "Federated radiomics reproduces the central baseline"
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(legend.position = "bottom")
+} else {
+  plot(comparison$central, comparison$federated,
+       xlab = "Central PyRadiomics mean",
+       ylab = "Federated DataSHIELD mean",
+       main = "Federated versus central radiomics means")
+  abline(0, 1, lty = 2, col = "grey45")
+}
+```
+
+![Faceted scatter plot comparing central PyRadiomics feature means with
+federated DataSHIELD means; all points lie on the identity
+line.](lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png)
+
+``` r
+
+plot_errors <- comparison
+plot_errors$abs_diff_floor <- pmax(plot_errors$abs_diff, .Machine$double.eps)
+if (has_ggplot2) {
+  ggplot2::ggplot(plot_errors,
+                  ggplot2::aes(x = feature_label, y = abs_diff_floor,
+                               fill = server)) +
+    ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.75),
+                      width = 0.68) +
+    ggplot2::scale_y_log10() +
+    ggplot2::labs(
+      x = NULL,
+      y = "Absolute difference, log10 scale",
+      fill = "Server",
+      title = "Numerical drift stays at floating-point tolerance"
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(legend.position = "bottom")
+} else {
+  dotchart(plot_errors$abs_diff_floor, labels = plot_errors$feature_label,
+           xlab = "Absolute difference",
+           main = "Federated-central absolute differences")
+}
+```
+
+![Grouped bar chart on a log scale showing very small absolute
+differences between federated and central feature
+means.](lung1-federated-radiomics_files/figure-html/absolute-error-plot-1.png)
+
 Maximum absolute difference: 9.537e-07. Maximum relative difference:
 4.794e-15.
 
@@ -203,6 +288,35 @@ knitr::kable(clinical, digits = 7)
 |:------------------------|-------------:|------------:|------------:|
 | mean survival_time_days | 1000.6197000 | 976.9650000 | 989.0803000 |
 | mean os_2yr_alive       |    0.4184397 |   0.4055944 |   0.3823529 |
+
+``` r
+
+clinical_long <- data.frame(
+  metric = rep(clinical$metric, each = 3),
+  server = rep(c("opal1", "opal2", "opal3"), times = nrow(clinical)),
+  value = as.numeric(t(clinical[, c("opal1", "opal2", "opal3")]))
+)
+if (has_ggplot2) {
+  ggplot2::ggplot(clinical_long,
+                  ggplot2::aes(x = server, y = value, fill = server)) +
+    ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+    ggplot2::facet_wrap(~metric, scales = "free_y") +
+    ggplot2::labs(
+      x = "Server",
+      y = "Federated site mean",
+      title = "Clinical metadata remain available after server-side joining"
+    ) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  barplot(as.matrix(clinical[, c("opal1", "opal2", "opal3")]),
+          beside = TRUE, legend.text = clinical$metric,
+          ylab = "Site mean", main = "Clinical metadata site means")
+}
+```
+
+![Faceted bar chart of site-level means for survival time and two-year
+overall survival
+status.](lung1-federated-radiomics_files/figure-html/clinical-plot-1.png)
 
 A federated `ds.glmSLMA()` model was fit with:
 
@@ -249,6 +363,37 @@ knitr::kable(glm_fe, digits = 6)
 | wavelet.HLH_glrlm_RunLengthNonUniformity | -0.000118 |  0.000077 |
 | age                                      | -0.009694 |  0.011506 |
 | gender_male                              | -0.146425 |  0.244664 |
+
+``` r
+
+glm_plot <- glm_fe
+glm_plot$z_score <- glm_plot$pooled.FE / glm_plot$se.FE
+glm_plot$term <- factor(glm_plot$term,
+                        levels = glm_plot$term[order(glm_plot$z_score)])
+if (has_ggplot2) {
+  ggplot2::ggplot(glm_plot, ggplot2::aes(x = term, y = z_score)) +
+    ggplot2::geom_hline(yintercept = c(-1.96, 1.96), linetype = "dashed",
+                        color = "grey45") +
+    ggplot2::geom_col(fill = "#3b6ea8", width = 0.7) +
+    ggplot2::coord_flip() +
+    ggplot2::labs(
+      x = NULL,
+      y = "Fixed-effect coefficient / standard error",
+      title = "Federated GLM coefficient signal"
+    ) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  dotchart(glm_plot$z_score, labels = as.character(glm_plot$term),
+           xlab = "Coefficient / standard error",
+           main = "Federated GLM coefficient signal")
+  abline(v = c(-1.96, 1.96), lty = 2, col = "grey45")
+}
+```
+
+![Horizontal bar chart of fixed-effect coefficient divided by standard
+error for each federated GLM term, with dashed reference lines at plus
+or minus
+1.96.](lung1-federated-radiomics_files/figure-html/glm-z-plot-1.png)
 
 ## Operational Notes
 

@@ -26,6 +26,7 @@ Imports:
     jsonlite
 Suggests:
     DSOpal,
+    ggplot2,
     knitr,
     pkgdown,
     rmarkdown,

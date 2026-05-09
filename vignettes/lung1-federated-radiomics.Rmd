@@ -12,10 +12,15 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
 format_num <- function(x, digits = 6) {
   ifelse(abs(x) >= 1e5 | abs(x) < 1e-3,
          formatC(x, format = "e", digits = digits),
          formatC(x, format = "f", digits = digits))
+}
+feature_label <- function(x) {
+  sub("^wavelet\\.HLH_", "wavelet.HLH\n",
+      sub("^original_", "original\n", x))
 }
 ```
 
@@ -110,6 +115,26 @@ site_counts <- data.frame(
 knitr::kable(site_counts)
 ```
 
+```{r cohort-plot, fig.width=7, fig.height=4, fig.alt="Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142, 143, and 137 patients."}
+if (has_ggplot2) {
+  ggplot2::ggplot(site_counts,
+                  ggplot2::aes(x = site, y = metadata_rows, fill = site)) +
+    ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+    ggplot2::geom_text(ggplot2::aes(label = metadata_rows), vjust = -0.4) +
+    ggplot2::labs(
+      x = "Simulated site",
+      y = "Patients with CT + GTV-1 mask + metadata",
+      title = "Full LUNG1 cohort split across three DataSHIELD sites"
+    ) +
+    ggplot2::ylim(0, max(site_counts$metadata_rows) * 1.12) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  barplot(site_counts$metadata_rows, names.arg = site_counts$site,
+          ylab = "Patients", xlab = "Simulated site",
+          main = "Full LUNG1 cohort split")
+}
+```
+
 Published collection assets:
 
 ```{r assets}
@@ -197,6 +222,7 @@ comparison <- if (file.exists(comparison_path)) {
 }
 comparison$abs_diff_fmt <- format_num(comparison$abs_diff, digits = 3)
 comparison$rel_diff_fmt <- format_num(comparison$rel_diff, digits = 3)
+comparison$feature_label <- feature_label(comparison$feature)
 ```
 
 ```{r comparison}
@@ -207,6 +233,56 @@ knitr::kable(
                 "abs diff", "rel diff"),
   digits = 12
 )
+```
+
+```{r federated-central-plot, fig.width=8, fig.height=5, fig.alt="Faceted scatter plot comparing central PyRadiomics feature means with federated DataSHIELD means; all points lie on the identity line."}
+if (has_ggplot2) {
+  ggplot2::ggplot(comparison,
+                  ggplot2::aes(x = central, y = federated, color = server)) +
+    ggplot2::geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+                         color = "grey45") +
+    ggplot2::geom_point(size = 2.6) +
+    ggplot2::facet_wrap(~feature_label, scales = "free") +
+    ggplot2::labs(
+      x = "Central PyRadiomics mean",
+      y = "Federated DataSHIELD mean",
+      color = "Server",
+      title = "Federated radiomics reproduces the central baseline"
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(legend.position = "bottom")
+} else {
+  plot(comparison$central, comparison$federated,
+       xlab = "Central PyRadiomics mean",
+       ylab = "Federated DataSHIELD mean",
+       main = "Federated versus central radiomics means")
+  abline(0, 1, lty = 2, col = "grey45")
+}
+```
+
+```{r absolute-error-plot, fig.width=8, fig.height=4.5, fig.alt="Grouped bar chart on a log scale showing very small absolute differences between federated and central feature means."}
+plot_errors <- comparison
+plot_errors$abs_diff_floor <- pmax(plot_errors$abs_diff, .Machine$double.eps)
+if (has_ggplot2) {
+  ggplot2::ggplot(plot_errors,
+                  ggplot2::aes(x = feature_label, y = abs_diff_floor,
+                               fill = server)) +
+    ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.75),
+                      width = 0.68) +
+    ggplot2::scale_y_log10() +
+    ggplot2::labs(
+      x = NULL,
+      y = "Absolute difference, log10 scale",
+      fill = "Server",
+      title = "Numerical drift stays at floating-point tolerance"
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(legend.position = "bottom")
+} else {
+  dotchart(plot_errors$abs_diff_floor, labels = plot_errors$feature_label,
+           xlab = "Absolute difference",
+           main = "Federated-central absolute differences")
+}
 ```
 
 Maximum absolute difference: `r format_num(max(comparison$abs_diff), 3)`.
@@ -225,6 +301,30 @@ clinical <- data.frame(
   opal3 = c(989.0803, 0.3823529)
 )
 knitr::kable(clinical, digits = 7)
+```
+
+```{r clinical-plot, fig.width=7, fig.height=4, fig.alt="Faceted bar chart of site-level means for survival time and two-year overall survival status."}
+clinical_long <- data.frame(
+  metric = rep(clinical$metric, each = 3),
+  server = rep(c("opal1", "opal2", "opal3"), times = nrow(clinical)),
+  value = as.numeric(t(clinical[, c("opal1", "opal2", "opal3")]))
+)
+if (has_ggplot2) {
+  ggplot2::ggplot(clinical_long,
+                  ggplot2::aes(x = server, y = value, fill = server)) +
+    ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+    ggplot2::facet_wrap(~metric, scales = "free_y") +
+    ggplot2::labs(
+      x = "Server",
+      y = "Federated site mean",
+      title = "Clinical metadata remain available after server-side joining"
+    ) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  barplot(as.matrix(clinical[, c("opal1", "opal2", "opal3")]),
+          beside = TRUE, legend.text = clinical$metric,
+          ylab = "Site mean", main = "Clinical metadata site means")
+}
 ```
 
 A federated `ds.glmSLMA()` model was fit with:
@@ -256,6 +356,31 @@ glm_fe <- data.frame(
             2.446642e-01)
 )
 knitr::kable(glm_fe, digits = 6)
+```
+
+```{r glm-z-plot, fig.width=7, fig.height=4.5, fig.alt="Horizontal bar chart of fixed-effect coefficient divided by standard error for each federated GLM term, with dashed reference lines at plus or minus 1.96."}
+glm_plot <- glm_fe
+glm_plot$z_score <- glm_plot$pooled.FE / glm_plot$se.FE
+glm_plot$term <- factor(glm_plot$term,
+                        levels = glm_plot$term[order(glm_plot$z_score)])
+if (has_ggplot2) {
+  ggplot2::ggplot(glm_plot, ggplot2::aes(x = term, y = z_score)) +
+    ggplot2::geom_hline(yintercept = c(-1.96, 1.96), linetype = "dashed",
+                        color = "grey45") +
+    ggplot2::geom_col(fill = "#3b6ea8", width = 0.7) +
+    ggplot2::coord_flip() +
+    ggplot2::labs(
+      x = NULL,
+      y = "Fixed-effect coefficient / standard error",
+      title = "Federated GLM coefficient signal"
+    ) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  dotchart(glm_plot$z_score, labels = as.character(glm_plot$term),
+           xlab = "Coefficient / standard error",
+           main = "Federated GLM coefficient signal")
+  abline(v = c(-1.96, 1.96), lty = 2, col = "grey45")
+}
 ```
 
 ## Operational Notes
