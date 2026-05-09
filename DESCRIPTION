@@ -13,6 +13,9 @@ Description: Client-side DataSHIELD package for clinical imaging. Provides
     monitor per-image collection processing, and discover derived masks and
     radiomic feature tables.
 License: MIT + file LICENSE
+URL: https://isglobal-brge.github.io/dsImagingClient/,
+    https://github.com/isglobal-brge/dsImagingClient
+BugReports: https://github.com/isglobal-brge/dsImagingClient/issues
 Encoding: UTF-8
 Depends:
     R (>= 4.1.0)
@@ -23,6 +26,9 @@ Imports:
     jsonlite
 Suggests:
     DSOpal,
+    knitr,
+    pkgdown,
+    rmarkdown,
     testthat (>= 3.0.0),
     DSLite,
     opalr,
@@ -30,3 +36,4 @@ Suggests:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
+VignetteBuilder: knitr
