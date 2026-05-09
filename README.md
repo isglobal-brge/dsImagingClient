@@ -36,6 +36,7 @@ result <- ds.imaging.radiomics.process_collection(
 )
 
 ds.imaging.radiomics.collection_status(conns, result$generation_id)
+ds.imaging.radiomics.collection_recover(conns, result$generation_id)
 ds.imaging.radiomics.collection_publish(
   conns, result$generation_id, result$dataset_id
 )
@@ -51,6 +52,12 @@ ds.imaging.radiomics.load_features(
   syntactic_names = TRUE
 )
 ```
+
+`collection_status()` already reconciles server-side state. Use
+`collection_recover()` to explicitly re-run that reconciliation after a crash or
+disconnect. Use `collection_cancel(conns, generation_id, admin_key)` only for
+operator cleanup; it is protected by the same `dsjobs.admin_key` used by
+`dsJobsClient` admin methods.
 
 When the dataset was published with clinical/sample metadata,
 `include_metadata = TRUE` assigns a single server-side data frame joined on
