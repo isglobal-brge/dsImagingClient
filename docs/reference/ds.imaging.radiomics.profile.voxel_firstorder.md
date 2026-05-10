@@ -5,8 +5,6 @@ Voxel-based feature map (firstorder only)
 ## Usage
 
 ``` r
-ds.radiomics.profile.voxel_firstorder(bin_width = 25, kernel_radius = 2)
-
 ds.imaging.radiomics.profile.voxel_firstorder(
   bin_width = 25,
   kernel_radius = 2

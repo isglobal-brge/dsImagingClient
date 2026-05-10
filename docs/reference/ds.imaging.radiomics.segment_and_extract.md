@@ -6,15 +6,6 @@ existing masks and radiomics before recomputing.
 ## Usage
 
 ``` r
-ds.radiomics.segment_and_extract(
-  conns,
-  dataset_id,
-  image_asset = "images",
-  segmenter,
-  profile = ds.radiomics.profile.ibsi_ct_3d(),
-  visibility = "global"
-)
-
 ds.imaging.radiomics.segment_and_extract(
   conns,
   dataset_id,

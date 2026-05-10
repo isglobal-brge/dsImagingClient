@@ -6,8 +6,6 @@ List segmentation masks for a dataset
 
 ``` r
 ds.imaging.masks(conns, dataset_id)
-
-ds.radiomics.masks(conns, dataset_id)
 ```
 
 ## Arguments

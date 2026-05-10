@@ -122,8 +122,9 @@ ds.imaging.mask.operation(
 ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
 ```
 
-Compatibility wrappers named `ds.radiomics.*` and `ds.segmenter.*` are
-exported, but new demos should use the `ds.imaging.*` names.
+The public client surface is `ds.imaging.*`; the former `ds.radiomics.*`
+and `ds.segmenter.*` compatibility wrappers have been retired before
+production use.
 
 ## Public LUNG1 Study Demo
 
@@ -145,7 +146,6 @@ with a central PyRadiomics baseline.
 - [`ds.imaging.assets()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.assets.md)
   : List Dataset Assets
 - [`ds.imaging.capabilities()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.capabilities.md)
-  [`ds.radiomics.capabilities()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.capabilities.md)
   : Get radiomics capabilities from server
 - [`ds.imaging.catalog()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.catalog.md)
   : List derived assets for a dataset
@@ -158,10 +158,8 @@ with a central PyRadiomics baseline.
 - [`ds.imaging.init()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.init.md)
   : Initialize Imaging Dataset Handle
 - [`ds.imaging.install_model()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.md)
-  [`ds.radiomics.install_model()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.md)
   : Install a segmentation model on the server (admin only)
 - [`ds.imaging.jobs()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.jobs.md)
-  [`ds.radiomics.list()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.jobs.md)
   : List radiomics jobs
 - [`ds.imaging.labels()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.labels.md)
   : List available label sets for an imaging dataset
@@ -173,82 +171,58 @@ with a central PyRadiomics baseline.
 - [`ds.imaging.mask.operation()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.mask.operation.md)
   : Run mask or ROI operations
 - [`ds.imaging.masks()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.masks.md)
-  [`ds.radiomics.masks()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.masks.md)
   : List segmentation masks for a dataset
 - [`ds.imaging.metadata()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.metadata.md)
   : Get Imaging Dataset Metadata
 - [`ds.imaging.models()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.models.md)
-  [`ds.radiomics.models()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.models.md)
   : List installed models on the server
 - [`ds.imaging.preprocess()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.preprocess.md)
   : Preprocess image assets
 - [`ds.imaging.qc.metrics()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.metrics.md)
   : Compute image and mask QC metrics
-- [`ds.radiomics.collection_cancel()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_cancel.md)
-  [`ds.imaging.radiomics.collection_cancel()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_cancel.md)
+- [`ds.imaging.radiomics.collection_cancel()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_cancel.md)
   : Cancel a running collection generation (admin only)
-- [`ds.radiomics.collection_publish()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_publish.md)
-  [`ds.imaging.radiomics.collection_publish()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_publish.md)
+- [`ds.imaging.radiomics.collection_publish()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_publish.md)
   : Publish a completed collection generation
-- [`ds.radiomics.collection_recover()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_recover.md)
-  [`ds.imaging.radiomics.collection_recover()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_recover.md)
+- [`ds.imaging.radiomics.collection_recover()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_recover.md)
   : Recover a running collection generation
-- [`ds.radiomics.collection_status()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_status.md)
-  [`ds.imaging.radiomics.collection_status()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_status.md)
+- [`ds.imaging.radiomics.collection_status()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_status.md)
   : Check status of a running collection processing generation
-- [`ds.radiomics.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.extract.md)
-  [`ds.imaging.radiomics.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.extract.md)
+- [`ds.imaging.radiomics.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.extract.md)
   : Extract radiomics features from a dataset
 - [`ds.imaging.radiomics.features()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.features.md)
-  [`ds.radiomics.features()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.features.md)
   : List radiomics feature tables for a dataset
-- [`ds.radiomics.process_collection()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.process_collection.md)
-  [`ds.imaging.radiomics.process_collection()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.process_collection.md)
+- [`ds.imaging.radiomics.process_collection()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.process_collection.md)
   : Process an image collection with per-image deduplication
-- [`ds.radiomics.profile.aerts_signature()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.aerts_signature.md)
-  [`ds.imaging.radiomics.profile.aerts_signature()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.aerts_signature.md)
+- [`ds.imaging.radiomics.profile.aerts_signature()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.aerts_signature.md)
   : Aerts 4-feature CT radiomic signature profile
-- [`ds.radiomics.profile.demo_ct_firstorder()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.demo_ct_firstorder.md)
-  [`ds.imaging.radiomics.profile.demo_ct_firstorder()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.demo_ct_firstorder.md)
+- [`ds.imaging.radiomics.profile.demo_ct_firstorder()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.demo_ct_firstorder.md)
   : Lightweight CT first-order demo profile
-- [`ds.radiomics.profile.force2d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.force2d.md)
-  [`ds.imaging.radiomics.profile.force2d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.force2d.md)
+- [`ds.imaging.radiomics.profile.force2d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.force2d.md)
   : Force-2D profile (for 2D slices)
-- [`ds.radiomics.profile.ibsi_ct_3d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_ct_3d.md)
-  [`ds.imaging.radiomics.profile.ibsi_ct_3d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_ct_3d.md)
+- [`ds.imaging.radiomics.profile.ibsi_ct_3d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_ct_3d.md)
   : IBSI-compliant CT 3D profile
-- [`ds.radiomics.profile.ibsi_mr_3d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_mr_3d.md)
-  [`ds.imaging.radiomics.profile.ibsi_mr_3d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_mr_3d.md)
+- [`ds.imaging.radiomics.profile.ibsi_mr_3d()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_mr_3d.md)
   : IBSI-compliant MR 3D profile
-- [`ds.radiomics.profile.voxel_firstorder()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.voxel_firstorder.md)
-  [`ds.imaging.radiomics.profile.voxel_firstorder()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.voxel_firstorder.md)
+- [`ds.imaging.radiomics.profile.voxel_firstorder()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.voxel_firstorder.md)
   : Voxel-based feature map (firstorder only)
-- [`ds.radiomics.segment_and_extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.segment_and_extract.md)
-  [`ds.imaging.radiomics.segment_and_extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.segment_and_extract.md)
+- [`ds.imaging.radiomics.segment_and_extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.segment_and_extract.md)
   : Segment images then extract radiomics features
-- [`ds.radiomics.segment()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segment.md)
-  [`ds.imaging.segment()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segment.md)
+- [`ds.imaging.segment()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segment.md)
   : Segment images in a dataset
-- [`ds.segmenter.ct_lung_threshold()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.ct_lung_threshold.md)
-  [`ds.imaging.segmenter.ct_lung_threshold()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.ct_lung_threshold.md)
+- [`ds.imaging.segmenter.ct_lung_threshold()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.ct_lung_threshold.md)
   : Lightweight CT lung threshold segmenter
-- [`ds.segmenter.existing_mask()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.existing_mask.md)
-  [`ds.imaging.segmenter.existing_mask()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.existing_mask.md)
+- [`ds.imaging.segmenter.existing_mask()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.existing_mask.md)
   : Use existing mask asset (no segmentation needed)
-- [`ds.segmenter.lungmask()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.lungmask.md)
-  [`ds.imaging.segmenter.lungmask()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.lungmask.md)
+- [`ds.imaging.segmenter.lungmask()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.lungmask.md)
   : LungMask segmenter (lung/lobe specific)
-- [`ds.segmenter.monai_bundle()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.monai_bundle.md)
-  [`ds.imaging.segmenter.monai_bundle()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.monai_bundle.md)
+- [`ds.imaging.segmenter.monai_bundle()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.monai_bundle.md)
   : MONAI bundle segmenter
-- [`ds.segmenter.nnunet()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.nnunet.md)
-  [`ds.imaging.segmenter.nnunet()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.nnunet.md)
+- [`ds.imaging.segmenter.nnunet()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.nnunet.md)
   : nnU-Net v2 segmenter
-- [`ds.segmenter.totalsegmentator()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.totalsegmentator.md)
-  [`ds.imaging.segmenter.totalsegmentator()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.totalsegmentator.md)
+- [`ds.imaging.segmenter.totalsegmentator()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.totalsegmentator.md)
   : TotalSegmentator segmenter
-- [`ds.radiomics.summary()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.summary.md)
-  [`ds.imaging.summary()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.summary.md)
+- [`ds.imaging.summary()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.summary.md)
   : Print a summary of radiomics activity
 - [`ds.imaging.validate()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.validate.md)
   : Validate Imaging Dataset

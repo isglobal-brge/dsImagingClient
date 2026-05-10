@@ -7,13 +7,6 @@ generation and marks unfinished generation items as skipped.
 ## Usage
 
 ``` r
-ds.radiomics.collection_cancel(
-  conns,
-  generation_id,
-  admin_key,
-  reason = "Cancelled by admin"
-)
-
 ds.imaging.radiomics.collection_cancel(
   conns,
   generation_id,

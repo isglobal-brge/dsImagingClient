@@ -6,8 +6,6 @@ Get radiomics capabilities from server
 
 ``` r
 ds.imaging.capabilities(conns)
-
-ds.radiomics.capabilities(conns)
 ```
 
 ## Arguments

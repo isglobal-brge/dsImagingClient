@@ -5,8 +5,6 @@ Force-2D profile (for 2D slices)
 ## Usage
 
 ``` r
-ds.radiomics.profile.force2d(bin_width = 25)
-
 ds.imaging.radiomics.profile.force2d(bin_width = 25)
 ```
 

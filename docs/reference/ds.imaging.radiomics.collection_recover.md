@@ -6,8 +6,6 @@ an interrupted submitter, and nudges the server-side drip-feed loop.
 ## Usage
 
 ``` r
-ds.radiomics.collection_recover(conns, generation_id)
-
 ds.imaging.radiomics.collection_recover(conns, generation_id)
 ```
 

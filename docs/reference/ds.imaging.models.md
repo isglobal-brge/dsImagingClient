@@ -6,8 +6,6 @@ List installed models on the server
 
 ``` r
 ds.imaging.models(conns)
-
-ds.radiomics.models(conns)
 ```
 
 ## Arguments

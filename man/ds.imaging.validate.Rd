@@ -4,13 +4,13 @@
 \alias{ds.imaging.validate}
 \title{Validate Imaging Dataset}
 \usage{
-ds.imaging.validate(conns, handle = "imaging")
+ds.imaging.validate(conns, handle = "img")
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
 \item{handle}{Character; symbol name of the imaging handle
-(default \code{"imaging"}).}
+(default \code{"img"}).}
 }
 \value{
 Named list of per-server validation results.

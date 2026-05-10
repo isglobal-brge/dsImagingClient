@@ -6,8 +6,6 @@ especially after a fire-and-forget call or reconnecting to a session.
 ## Usage
 
 ``` r
-ds.radiomics.collection_status(conns, generation_id)
-
 ds.imaging.radiomics.collection_status(conns, generation_id)
 ```
 

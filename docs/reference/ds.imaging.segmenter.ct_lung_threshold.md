@@ -8,12 +8,6 @@ production organ segmentation.
 ## Usage
 
 ``` r
-ds.segmenter.ct_lung_threshold(
-  threshold = -320,
-  max_components = 2L,
-  min_voxels = 1000L
-)
-
 ds.imaging.segmenter.ct_lung_threshold(
   threshold = -320,
   max_components = 2L,

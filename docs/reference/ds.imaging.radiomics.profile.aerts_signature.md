@@ -7,8 +7,6 @@ the published firstorder/shape/GLRLM feature classes.
 ## Usage
 
 ``` r
-ds.radiomics.profile.aerts_signature(bin_width = 25)
-
 ds.imaging.radiomics.profile.aerts_signature(bin_width = 25)
 ```
 

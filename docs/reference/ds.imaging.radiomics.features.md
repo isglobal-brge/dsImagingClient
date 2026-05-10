@@ -6,8 +6,6 @@ List radiomics feature tables for a dataset
 
 ``` r
 ds.imaging.radiomics.features(conns, dataset_id)
-
-ds.radiomics.features(conns, dataset_id)
 ```
 
 ## Arguments

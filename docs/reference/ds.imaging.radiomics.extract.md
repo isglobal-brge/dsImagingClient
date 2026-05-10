@@ -6,16 +6,6 @@ found, submits a dsHPC job.
 ## Usage
 
 ``` r
-ds.radiomics.extract(
-  conns,
-  dataset_id,
-  image_asset = "images",
-  mask_asset,
-  profile = ds.radiomics.profile.ibsi_ct_3d(),
-  visibility = "global",
-  alias = NULL
-)
-
 ds.imaging.radiomics.extract(
   conns,
   dataset_id,

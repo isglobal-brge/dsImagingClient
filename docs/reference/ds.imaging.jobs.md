@@ -6,8 +6,6 @@ List radiomics jobs
 
 ``` r
 ds.imaging.jobs(conns)
-
-ds.radiomics.list(conns)
 ```
 
 ## Arguments

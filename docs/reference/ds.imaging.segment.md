@@ -5,15 +5,6 @@ Segment images in a dataset
 ## Usage
 
 ``` r
-ds.radiomics.segment(
-  conns,
-  dataset_id,
-  image_asset = "images",
-  segmenter,
-  visibility = "global",
-  alias = NULL
-)
-
 ds.imaging.segment(
   conns,
   dataset_id,

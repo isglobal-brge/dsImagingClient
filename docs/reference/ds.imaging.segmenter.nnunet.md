@@ -5,8 +5,6 @@ nnU-Net v2 segmenter
 ## Usage
 
 ``` r
-ds.segmenter.nnunet(model_name, fold = "all")
-
 ds.imaging.segmenter.nnunet(model_name, fold = "all")
 ```
 

@@ -7,8 +7,6 @@ feature families can be too memory intensive.
 ## Usage
 
 ``` r
-ds.radiomics.profile.demo_ct_firstorder(bin_width = 25)
-
 ds.imaging.radiomics.profile.demo_ct_firstorder(bin_width = 25)
 ```
 

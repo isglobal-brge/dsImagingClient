@@ -6,18 +6,6 @@ processing jobs, and optionally waits for completion.
 ## Usage
 
 ``` r
-ds.radiomics.process_collection(
-  conns,
-  dataset_id,
-  segmenter,
-  profile = ds.radiomics.profile.ibsi_ct_3d(),
-  batch_size = 10L,
-  poll_interval = 15,
-  timeout = 14400,
-  allow_partial = FALSE,
-  visibility = "global"
-)
-
 ds.imaging.radiomics.process_collection(
   conns,
   dataset_id = NULL,

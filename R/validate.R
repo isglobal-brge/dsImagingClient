@@ -7,9 +7,9 @@
 #'
 #' @param conns DSI connections object.
 #' @param handle Character; symbol name of the imaging handle
-#'   (default \code{"imaging"}).
+#'   (default \code{"img"}).
 #' @return Named list of per-server validation results.
 #' @export
-ds.imaging.validate <- function(conns, handle = "imaging") {
+ds.imaging.validate <- function(conns, handle = "img") {
   .ds_safe_aggregate(conns, expr = call("imagingValidateDS", handle))
 }
