@@ -53,6 +53,7 @@ ds.imaging.segment <- function(conns, dataset_id, image_asset = "images",
   publish_step$alias <- alias
   publish_step$runner <- runner
   publish_step$config <- config
+  publish_step$derivation_hash <- hash
 
   job <- dsHPCClient::ds_job(
     label = "dsImaging",

@@ -41,6 +41,20 @@ test_that("clinical imaging workflow jobs declare expected runners", {
   expect_equal(job$steps[[3]]$alias, "latest_qc")
   expect_equal(job$steps[[3]]$runner, "imaging_qc_metrics")
   expect_equal(job$steps[[3]]$config$image_asset, "images")
+
+  runners <- c("rt_convert", "rt_dose_plan", "imaging_qc_visuals",
+               "image_spatial", "wsi_tile", "image_embeddings")
+  asset_types <- c("mask_root", "dose_table", "qc_visual_asset",
+                   "image_root", "wsi_tile_root", "embedding_table")
+  for (i in seq_along(runners)) {
+    derived <- dsImagingClient:::.imaging_asset_job("ds1", runners[[i]],
+      runner = runners[[i]],
+      config = list(dataset_id = "ds1"),
+      output_asset = paste0("asset_", i),
+      asset_type = asset_types[[i]])
+    expect_equal(derived$steps[[2]]$runner, runners[[i]])
+    expect_equal(derived$steps[[3]]$asset_type, asset_types[[i]])
+  }
 })
 
 test_that("asset loading wrappers expose metadata join option", {
@@ -48,4 +62,14 @@ test_that("asset loading wrappers expose metadata join option", {
   expect_true("include_metadata" %in% names(formals(ds.imaging.radiomics.load_features)))
   expect_true("syntactic_names" %in% names(formals(ds.imaging.load_asset)))
   expect_true("syntactic_names" %in% names(formals(ds.imaging.radiomics.load_features)))
+})
+
+test_that("advanced imaging workflow functions are exported", {
+  exports <- getNamespaceExports("dsImagingClient")
+  expect_true("ds.imaging.rt.convert" %in% exports)
+  expect_true("ds.imaging.rt.dose" %in% exports)
+  expect_true("ds.imaging.qc.visuals" %in% exports)
+  expect_true("ds.imaging.spatial.process" %in% exports)
+  expect_true("ds.imaging.wsi.tile" %in% exports)
+  expect_true("ds.imaging.embeddings.extract" %in% exports)
 })

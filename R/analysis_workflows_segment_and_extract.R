@@ -56,6 +56,19 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
     monai_bundle_infer = "monai_bundle_infer",
     stop("Unknown provider: ", segmenter$provider, call. = FALSE))
 
+  mask_asset_for_extract <- segmenter$mask_asset %||% "masks"
+  if (!is.null(seg_runner)) {
+    existing_seg <- ds.imaging.check_exists(conns, dataset_id,
+      derivation_hash = seg_hash)
+    seg_srv <- names(existing_seg)[1]
+    if (!is.null(existing_seg[[seg_srv]]) &&
+        isTRUE(existing_seg[[seg_srv]]$exists)) {
+      mask_asset_for_extract <- existing_seg[[seg_srv]]$asset_id
+      message("Reusing existing segmentation: ", mask_asset_for_extract)
+      seg_runner <- NULL
+    }
+  }
+
   # Build steps
   steps <- list(dsHPCClient::ds_step_resolve_dataset(dataset_id))
 
@@ -67,6 +80,7 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
       asset_type = "mask_root", publish_kind = "imaging_asset")
     mask_publish_step$runner <- seg_runner
     mask_publish_step$config <- seg_config
+    mask_publish_step$derivation_hash <- seg_hash
     steps <- c(steps, list(
       dsHPCClient::ds_step_run_artifact(seg_runner, config = seg_config),
       mask_publish_step
@@ -75,7 +89,7 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
 
   # Extraction step
   extract_config <- c(profile, list(
-    mask_asset = segmenter$mask_asset %||% "masks",
+    mask_asset = mask_asset_for_extract,
     image_asset = image_asset,
     settings_file = profile$name
   ))
@@ -84,9 +98,15 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
     publish_kind = "imaging_radiomics_asset")
   radiomics_publish_step$runner <- "pyradiomics_extract"
   radiomics_publish_step$config <- extract_config
+  radiomics_publish_step$derivation_hash <- full_hash
 
+  extract_step <- dsHPCClient::ds_step_run_artifact("pyradiomics_extract",
+    config = extract_config)
+  if (!is.null(seg_runner)) {
+    extract_step$inputs <- list(2L)
+  }
   steps <- c(steps, list(
-    dsHPCClient::ds_step_run_artifact("pyradiomics_extract", config = extract_config),
+    extract_step,
     radiomics_publish_step,
     dsHPCClient::ds_step_safe_summary()
   ))
