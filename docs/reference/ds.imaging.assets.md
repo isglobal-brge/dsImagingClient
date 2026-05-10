@@ -6,7 +6,7 @@ of assets available in the imaging dataset.
 ## Usage
 
 ``` r
-ds.imaging.assets(conns, handle = "imaging")
+ds.imaging.assets(conns, handle = "img")
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ ds.imaging.assets(conns, handle = "imaging")
 
 - handle:
 
-  Character; symbol name of the imaging handle (default `"imaging"`).
+  Character; symbol name of the imaging handle (default `"img"`).
 
 ## Value
 

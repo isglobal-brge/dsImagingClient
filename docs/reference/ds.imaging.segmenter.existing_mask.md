@@ -5,8 +5,6 @@ Use existing mask asset (no segmentation needed)
 ## Usage
 
 ``` r
-ds.segmenter.existing_mask(mask_asset)
-
 ds.imaging.segmenter.existing_mask(mask_asset)
 ```
 

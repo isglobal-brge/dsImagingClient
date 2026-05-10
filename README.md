@@ -116,8 +116,8 @@ ds.imaging.mask.operation(
 ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
 ```
 
-Compatibility wrappers named `ds.radiomics.*` and `ds.segmenter.*` are exported,
-but new demos should use the `ds.imaging.*` names.
+The public client surface is `ds.imaging.*`; the former `ds.radiomics.*` and
+`ds.segmenter.*` compatibility wrappers have been retired before production use.
 
 ## Public LUNG1 Study Demo
 

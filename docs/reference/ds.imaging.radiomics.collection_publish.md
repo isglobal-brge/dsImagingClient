@@ -6,13 +6,6 @@ collection-level asset.
 ## Usage
 
 ``` r
-ds.radiomics.collection_publish(
-  conns,
-  generation_id,
-  dataset_id,
-  allow_partial = FALSE
-)
-
 ds.imaging.radiomics.collection_publish(
   conns,
   generation_id,

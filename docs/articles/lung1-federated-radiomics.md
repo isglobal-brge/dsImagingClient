@@ -30,10 +30,10 @@ if (!nzchar(demo_dir)) {
 prepare_script <- file.path(demo_dir, "prepare_lung1_study.py")
 run_script <- file.path(demo_dir, "run_lung1_datashield.R")
 c(prepare_script = prepare_script, run_script = run_script)
-#>                                                                                                                                                     prepare_script 
-#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpwUm40P/temp_libpath14d5528ec5697/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" 
-#>                                                                                                                                                         run_script 
-#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/RtmpwUm40P/temp_libpath14d5528ec5697/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
+#>                                                                                                                                                     prepare_script
+#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmp5ZQ19h/temp_libpath1366a4b99965f/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py"
+#>                                                                                                                                                         run_script
+#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmp5ZQ19h/temp_libpath1366a4b99965f/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
 ```
 
 Prepare the full public cohort:

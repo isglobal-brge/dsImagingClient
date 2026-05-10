@@ -5,8 +5,6 @@ MONAI bundle segmenter
 ## Usage
 
 ``` r
-ds.segmenter.monai_bundle(bundle_name)
-
 ds.imaging.segmenter.monai_bundle(bundle_name)
 ```
 

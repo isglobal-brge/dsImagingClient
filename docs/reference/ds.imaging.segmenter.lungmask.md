@@ -5,8 +5,6 @@ LungMask segmenter (lung/lobe specific)
 ## Usage
 
 ``` r
-ds.segmenter.lungmask(model = "R231")
-
 ds.imaging.segmenter.lungmask(model = "R231")
 ```
 

@@ -5,8 +5,6 @@ TotalSegmentator segmenter
 ## Usage
 
 ``` r
-ds.segmenter.totalsegmentator(task = "total", fast = FALSE, roi_subset = NULL)
-
 ds.imaging.segmenter.totalsegmentator(
   task = "total",
   fast = FALSE,

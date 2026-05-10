@@ -5,8 +5,6 @@ IBSI-compliant CT 3D profile
 ## Usage
 
 ``` r
-ds.radiomics.profile.ibsi_ct_3d(bin_width = 25)
-
 ds.imaging.radiomics.profile.ibsi_ct_3d(bin_width = 25)
 ```
 

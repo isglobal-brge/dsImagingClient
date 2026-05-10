@@ -7,8 +7,6 @@ to be configured with `dshpc.admin_key` or `DSHPC_ADMIN_KEY`.
 
 ``` r
 ds.imaging.install_model(conns, admin_key, provider, task)
-
-ds.radiomics.install_model(conns, admin_key, provider, task)
 ```
 
 ## Arguments

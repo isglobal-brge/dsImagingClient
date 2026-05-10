@@ -13,14 +13,16 @@ test_that("imaging radiomics profiles and segmenters are built", {
   expect_equal(segmenter$max_components, 3L)
 })
 
-test_that("legacy radiomics aliases map to imaging constructors", {
-  expect_equal(
-    ds.radiomics.profile.aerts_signature(),
-    ds.imaging.radiomics.profile.aerts_signature())
+test_that("legacy radiomics aliases are not exported", {
+  exports <- getNamespaceExports("dsImagingClient")
+  expect_false("ds.radiomics.profile.aerts_signature" %in% exports)
+  expect_false("ds.segmenter.lungmask" %in% exports)
+})
 
-  expect_equal(
-    ds.segmenter.lungmask("R231"),
-    ds.imaging.segmenter.lungmask("R231"))
+test_that("imaging dataset wrappers default to the canonical handle", {
+  expect_equal(formals(ds.imaging.assets)$handle, "img")
+  expect_equal(formals(ds.imaging.metadata)$handle, "img")
+  expect_equal(formals(ds.imaging.validate)$handle, "img")
 })
 
 test_that("clinical imaging workflow jobs declare expected runners", {

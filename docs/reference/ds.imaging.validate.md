@@ -6,7 +6,7 @@ checks on the imaging dataset.
 ## Usage
 
 ``` r
-ds.imaging.validate(conns, handle = "imaging")
+ds.imaging.validate(conns, handle = "img")
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ ds.imaging.validate(conns, handle = "imaging")
 
 - handle:
 
-  Character; symbol name of the imaging handle (default `"imaging"`).
+  Character; symbol name of the imaging handle (default `"img"`).
 
 ## Value
 
