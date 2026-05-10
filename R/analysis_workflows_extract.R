@@ -48,6 +48,7 @@ ds.imaging.radiomics.extract <- function(conns, dataset_id, image_asset = "image
   publish_step$alias <- alias
   publish_step$runner <- "pyradiomics_extract"
   publish_step$config <- config
+  publish_step$derivation_hash <- hash
 
   job <- dsHPCClient::ds_job(
     label = "dsImaging",

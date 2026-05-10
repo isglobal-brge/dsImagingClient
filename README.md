@@ -83,6 +83,12 @@ segmenter <- ds.imaging.segmenter.existing_mask("masks")
 - `ds.imaging.preprocess()`
 - `ds.imaging.mask.operation()`
 - `ds.imaging.qc.metrics()`
+- `ds.imaging.qc.visuals()`
+- `ds.imaging.rt.convert()`
+- `ds.imaging.rt.dose()`
+- `ds.imaging.spatial.process()`
+- `ds.imaging.wsi.tile()`
+- `ds.imaging.embeddings.extract()`
 - `ds.imaging.segment()`
 - `ds.imaging.radiomics.extract()`
 - `ds.imaging.radiomics.segment_and_extract()`
@@ -114,6 +120,23 @@ ds.imaging.mask.operation(
 )
 
 ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
+
+ds.imaging.qc.visuals(conns, "imgct_demo", mask_asset = "lung_masks")
+ds.imaging.embeddings.extract(conns, "imgct_demo")
+ds.imaging.spatial.process(
+  conns,
+  "imgct_demo",
+  operations = c("resample", "crop_to_mask"),
+  mask_asset = "lung_masks",
+  spacing = c(1, 1, 1)
+)
+
+# Radiotherapy assets can become reusable masks/tables.
+ds.imaging.rt.convert(conns, "lung1", rt_asset = "rt_struct", rois = "GTV-1")
+ds.imaging.rt.dose(conns, "lung1", mask_asset = "rt_masks")
+
+# WSI/pathology studies can publish tile manifests and optional tile PNGs.
+ds.imaging.wsi.tile(conns, "pathology_demo", tile_size = 512, max_tiles = 1000)
 ```
 
 The public client surface is `ds.imaging.*`; the former `ds.radiomics.*` and
