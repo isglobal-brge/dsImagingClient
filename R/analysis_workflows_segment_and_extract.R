@@ -118,5 +118,5 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
     steps = steps
   )
 
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }

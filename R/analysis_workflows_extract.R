@@ -62,5 +62,5 @@ ds.imaging.radiomics.extract <- function(conns, dataset_id, image_asset = "image
     )
   )
 
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
