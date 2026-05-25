@@ -27,6 +27,38 @@
   paste0("B64:", b64)
 }
 
+#' Generate a client-side job id for domain-mediated dsHPC submissions
+#' @keywords internal
+.generate_job_id <- function() {
+  paste0("job_", paste(sample(c(letters, 0:9), 32, replace = TRUE), collapse = ""))
+}
+
+#' Generate a server-side symbol for domain workflow handles
+#' @keywords internal
+.generate_symbol <- function(prefix = "dsIjob") {
+  paste0(prefix, ".",
+    paste(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
+}
+
+#' Assign a high-level imaging workflow request to the server
+#' @keywords internal
+.assign_domain_workflow <- function(conns, method, request, symbol = NULL) {
+  symbol <- symbol %||% .generate_symbol()
+  encoded <- .ds_encode(request)
+  DSI::datashield.assign.expr(conns, symbol = symbol, expr = call(method, encoded))
+  out <- list(
+    symbol = symbol,
+    method = method,
+    job_id = request$job_id %||% NULL,
+    dataset_id = request$dataset_id %||% NULL,
+    label = "dsImaging",
+    servers = if (inherits(conns, "DSConnection")) "default" else names(conns),
+    submitted_at = Sys.time()
+  )
+  class(out) <- c("dsimaging_domain_submission", "list")
+  out
+}
+
 #' Resilient datashield.aggregate that tolerates per-server failures
 #'
 #' @param conns DSI connections object.

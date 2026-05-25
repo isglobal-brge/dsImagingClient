@@ -10,7 +10,7 @@ ds.imaging.dicom.convert(
   dicom_asset = "dicom",
   output_asset = "nifti_images",
   converter = "auto",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }

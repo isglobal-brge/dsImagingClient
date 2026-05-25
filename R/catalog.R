@@ -76,9 +76,12 @@ ds.imaging.radiomics.load_features <- function(conns, dataset_id, asset_id,
                                                columns = NULL,
                                                include_metadata = FALSE,
                                                syntactic_names = FALSE) {
-  ds.imaging.load_asset(conns, dataset_id = dataset_id, asset_id = asset_id,
-    symbol = symbol, columns = columns, include_metadata = include_metadata,
+  request <- list(dataset_id = dataset_id, asset_id_or_alias = asset_id,
+    columns = columns, include_metadata = include_metadata,
     syntactic_names = syntactic_names)
+  DSI::datashield.assign.expr(conns, symbol = symbol,
+    expr = call("imagingLoadRadiomicsFeaturesDS", .ds_encode(request)))
+  invisible(TRUE)
 }
 
 #' List aliases for a dataset

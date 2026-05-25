@@ -72,10 +72,14 @@
 
 #' @keywords internal
 .submit_imaging_job <- function(conns, job) {
-  job <- .enrich_imaging_job_resources(conns, job)
-  submitter <- getOption("dsimagingclient.hpc_submitter", NULL)
-  if (is.function(submitter)) return(submitter(conns, job))
-  dsHPCClient::ds.hpc.submit(conns, job)
+  if (is.list(job) && !is.null(job$domain_method)) {
+    method <- job$domain_method
+    job$domain_method <- NULL
+    return(.assign_domain_workflow(conns, method, job))
+  }
+  stop("Low-level dsHPC job submission from dsImagingClient is deprecated. ",
+    "Use a ds.imaging.* workflow that invokes a dsImaging DataSHIELD method.",
+    call. = FALSE)
 }
 
 #' @keywords internal

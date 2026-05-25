@@ -12,7 +12,7 @@ ds.imaging.rt.convert(
   reference_asset = "images",
   rois = NULL,
   output_asset = "rt_masks",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }

@@ -11,7 +11,7 @@ ds.imaging.embeddings.extract(
   model = "intensity_histogram",
   bins = 32L,
   output_asset = "image_embeddings",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }

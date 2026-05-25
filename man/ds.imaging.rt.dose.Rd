@@ -11,7 +11,7 @@ ds.imaging.rt.dose(
   plan_asset = "rt_plan",
   mask_asset = NULL,
   output_asset = "rt_dose_metrics",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }

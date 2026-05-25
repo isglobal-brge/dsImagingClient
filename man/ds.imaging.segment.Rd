@@ -9,8 +9,9 @@ ds.imaging.segment(
   dataset_id,
   image_asset = "images",
   segmenter,
-  visibility = "global",
-  alias = NULL
+  visibility = "private",
+  alias = NULL,
+  symbol = NULL
 )
 }
 \arguments{
@@ -22,12 +23,15 @@ ds.imaging.segment(
 
 \item{segmenter}{A segmenter from ds.imaging.segmenter.*().}
 
-\item{visibility}{Character; job visibility label (default "global").}
+\item{visibility}{Character; job visibility label (default "private").}
 
 \item{alias}{Character or NULL; alias for the published mask.}
+
+\item{symbol}{Character or NULL; target server-side symbol for the workflow
+handle. If NULL, a temporary symbol is generated.}
 }
 \value{
-A dshpc_submission or existing asset_id.
+A domain-mediated workflow submission handle.
 }
 \description{
 Segment images in a dataset

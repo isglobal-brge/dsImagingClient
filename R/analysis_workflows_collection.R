@@ -27,7 +27,7 @@
 #' @param timeout Numeric; max seconds to wait (default 14400 = 4 hours).
 #'   Set to 0 to return immediately after kick-off (fire and forget).
 #' @param allow_partial Logical; publish with some failures (default FALSE).
-#' @param visibility Character; asset visibility (default "global").
+#' @param visibility Character; asset visibility (default "private").
 #' @return Named list with generation_id, asset_id (if completed), summary.
 #' @export
 ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
@@ -37,7 +37,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
                                              poll_interval = 15,
                                              timeout = 14400,
                                              allow_partial = FALSE,
-                                             visibility = "global") {
+                                             visibility = "private") {
   # If invoked with a multi-server connections object, fan out per server.
   # Each site has its own dataset / generation / pending list, so doing it
   # otherwise silently drops sites 2..N.
