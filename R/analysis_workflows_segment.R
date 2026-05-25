@@ -67,5 +67,5 @@ ds.imaging.segment <- function(conns, dataset_id, image_asset = "images",
     )
   )
 
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }

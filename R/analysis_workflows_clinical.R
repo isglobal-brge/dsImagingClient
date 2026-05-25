@@ -28,7 +28,7 @@ ds.imaging.dicom.convert <- function(conns, dataset_id, dicom_asset = "dicom",
   job <- .imaging_asset_job(dataset_id, label_tag = "dicom_convert",
     runner = "dicom_convert", config = config, output_asset = output_asset,
     asset_type = "image_root", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Preprocess image assets
@@ -68,7 +68,7 @@ ds.imaging.preprocess <- function(conns, dataset_id, image_asset = "images",
   job <- .imaging_asset_job(dataset_id, label_tag = "preprocess",
     runner = "image_preprocess", config = config, output_asset = output_asset,
     asset_type = "image_root", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Run mask or ROI operations
@@ -122,7 +122,7 @@ ds.imaging.mask.operation <- function(conns, dataset_id, operation,
   job <- .imaging_asset_job(dataset_id, label_tag = "mask_operation",
     runner = "mask_ops", config = config, output_asset = output_asset,
     asset_type = "mask_root", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Compute image and mask QC metrics
@@ -153,7 +153,7 @@ ds.imaging.qc.metrics <- function(conns, dataset_id, image_asset = "images",
     runner = "imaging_qc_metrics", config = config,
     output_asset = output_asset, asset_type = "qc_table",
     visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Convert RTSTRUCT or DICOM SEG assets into masks
@@ -186,7 +186,7 @@ ds.imaging.rt.convert <- function(conns, dataset_id, rt_asset = "rt_struct",
   job <- .imaging_asset_job(dataset_id, label_tag = "rt_convert",
     runner = "rt_convert", config = config, output_asset = output_asset,
     asset_type = "mask_root", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Run RTDOSE and RTPLAN summaries
@@ -216,7 +216,7 @@ ds.imaging.rt.dose <- function(conns, dataset_id, dose_asset = "rt_dose",
   job <- .imaging_asset_job(dataset_id, label_tag = "rt_dose",
     runner = "rt_dose_plan", config = config, output_asset = output_asset,
     asset_type = "dose_table", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Generate non-disclosive QC thumbnails and overlays
@@ -253,7 +253,7 @@ ds.imaging.qc.visuals <- function(conns, dataset_id, image_asset = "images",
     runner = "imaging_qc_visuals", config = config,
     output_asset = output_asset, asset_type = "qc_visual_asset",
     visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Run spatial image operations
@@ -294,7 +294,7 @@ ds.imaging.spatial.process <- function(conns, dataset_id,
   job <- .imaging_asset_job(dataset_id, label_tag = "spatial",
     runner = "image_spatial", config = config, output_asset = output_asset,
     asset_type = "image_root", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Tile WSI/pathology images
@@ -333,7 +333,7 @@ ds.imaging.wsi.tile <- function(conns, dataset_id, wsi_asset = "wsi",
   job <- .imaging_asset_job(dataset_id, label_tag = "wsi_tile",
     runner = "wsi_tile", config = config, output_asset = output_asset,
     asset_type = "wsi_tile_root", visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' Extract image embeddings
@@ -366,7 +366,7 @@ ds.imaging.embeddings.extract <- function(conns, dataset_id,
     runner = "image_embeddings", config = config,
     output_asset = output_asset, asset_type = "embedding_table",
     visibility = visibility, alias = alias)
-  dsHPCClient::ds.hpc.submit(conns, job)
+  .submit_imaging_job(conns, job)
 }
 
 #' @keywords internal
