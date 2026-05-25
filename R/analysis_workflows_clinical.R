@@ -18,7 +18,7 @@
 ds.imaging.dicom.convert <- function(conns, dataset_id, dicom_asset = "dicom",
                                      output_asset = "nifti_images",
                                      converter = "auto",
-                                     visibility = "global",
+                                     visibility = "private",
                                      alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -55,7 +55,7 @@ ds.imaging.preprocess <- function(conns, dataset_id, image_asset = "images",
                                   lower = -1000,
                                   upper = 1000,
                                   output_asset = "preprocessed_images",
-                                  visibility = "global",
+                                  visibility = "private",
                                   alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -104,7 +104,7 @@ ds.imaging.mask.operation <- function(conns, dataset_id, operation,
                                       min_voxels = 1L,
                                       max_components = 1L,
                                       output_asset = paste0(mask_asset, "_", operation),
-                                      visibility = "global",
+                                      visibility = "private",
                                       alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -142,7 +142,7 @@ ds.imaging.mask.operation <- function(conns, dataset_id, operation,
 ds.imaging.qc.metrics <- function(conns, dataset_id, image_asset = "images",
                                   mask_asset = NULL,
                                   output_asset = "imaging_qc",
-                                  visibility = "global",
+                                  visibility = "private",
                                   alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -174,7 +174,7 @@ ds.imaging.rt.convert <- function(conns, dataset_id, rt_asset = "rt_struct",
                                   reference_asset = "images",
                                   rois = NULL,
                                   output_asset = "rt_masks",
-                                  visibility = "global",
+                                  visibility = "private",
                                   alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -205,7 +205,7 @@ ds.imaging.rt.dose <- function(conns, dataset_id, dose_asset = "rt_dose",
                                plan_asset = "rt_plan",
                                mask_asset = NULL,
                                output_asset = "rt_dose_metrics",
-                               visibility = "global",
+                               visibility = "private",
                                alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -239,7 +239,7 @@ ds.imaging.qc.visuals <- function(conns, dataset_id, image_asset = "images",
                                   max_images = 24L,
                                   anonymize_names = TRUE,
                                   output_asset = "qc_visuals",
-                                  visibility = "global",
+                                  visibility = "private",
                                   alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -280,7 +280,7 @@ ds.imaging.spatial.process <- function(conns, dataset_id,
                                        spacing = NULL,
                                        crop_size = NULL,
                                        output_asset = "spatial_images",
-                                       visibility = "global",
+                                       visibility = "private",
                                        alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -319,7 +319,7 @@ ds.imaging.wsi.tile <- function(conns, dataset_id, wsi_asset = "wsi",
                                 tissue_threshold = 0.10,
                                 write_tiles = TRUE,
                                 output_asset = "wsi_tiles",
-                                visibility = "global",
+                                visibility = "private",
                                 alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -354,7 +354,7 @@ ds.imaging.embeddings.extract <- function(conns, dataset_id,
                                           model = "intensity_histogram",
                                           bins = 32L,
                                           output_asset = "image_embeddings",
-                                          visibility = "global",
+                                          visibility = "private",
                                           alias = NULL) {
   config <- .compact_list(list(
     dataset_id = dataset_id,
@@ -372,24 +372,11 @@ ds.imaging.embeddings.extract <- function(conns, dataset_id,
 #' @keywords internal
 .imaging_asset_job <- function(dataset_id, label_tag, runner, config,
                                output_asset, asset_type,
-                               visibility = "global", alias = NULL) {
-  publish_step <- dsHPCClient::ds_step_publish_asset(dataset_id, output_asset,
-    asset_type = asset_type, publish_kind = "imaging_asset")
-  publish_step$alias <- alias
-  publish_step$runner <- runner
-  publish_step$config <- config
-
-  dsHPCClient::ds_job(
-    label = "dsImaging",
-    tags = c(label_tag, dataset_id),
-    visibility = visibility,
-    steps = list(
-      dsHPCClient::ds_step_resolve_dataset(dataset_id),
-      dsHPCClient::ds_step_run_artifact(runner, config = config),
-      publish_step,
-      dsHPCClient::ds_step_safe_summary()
-    )
-  )
+                               visibility = "private", alias = NULL) {
+  list(domain_method = "imagingProcessAssetWorkflowDS",
+    dataset_id = dataset_id, label_tag = label_tag, runner = runner,
+    config = config, output_asset = output_asset, asset_type = asset_type,
+    visibility = visibility, alias = alias, job_id = .generate_job_id())
 }
 
 #' @keywords internal

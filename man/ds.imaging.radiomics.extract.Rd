@@ -10,8 +10,9 @@ ds.imaging.radiomics.extract(
   image_asset = "images",
   mask_asset,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-  visibility = "global",
-  alias = NULL
+  visibility = "private",
+  alias = NULL,
+  symbol = NULL
 )
 }
 \arguments{
@@ -25,12 +26,15 @@ ds.imaging.radiomics.extract(
 
 \item{profile}{A radiomics profile from ds.imaging.radiomics.profile.*().}
 
-\item{visibility}{Character; job visibility label (default "global").}
+\item{visibility}{Character; job visibility label (default "private").}
 
 \item{alias}{Character or NULL; alias for the published feature table.}
+
+\item{symbol}{Character or NULL; target server-side symbol for the workflow
+handle. If NULL, a temporary symbol is generated.}
 }
 \value{
-A dshpc_submission or existing asset_id if deduplicated.
+A domain-mediated workflow submission handle.
 }
 \description{
 Checks for existing identical derivation first (deduplication).

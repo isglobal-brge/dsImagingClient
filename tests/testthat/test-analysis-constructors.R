@@ -25,8 +25,8 @@ test_that("imaging dataset wrappers default to the canonical handle", {
   expect_equal(formals(ds.imaging.validate)$handle, "img")
 })
 
-test_that("clinical imaging workflow jobs declare expected runners", {
-  job <- dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
+test_that("clinical imaging workflow requests declare expected runners", {
+  req <- dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
     runner = "imaging_qc_metrics",
     config = list(dataset_id = "ds1", image_asset = "images"),
     output_asset = "imaging_qc",
@@ -34,13 +34,11 @@ test_that("clinical imaging workflow jobs declare expected runners", {
     visibility = "global",
     alias = "latest_qc")
 
-  expect_equal(job$label, "dsImaging")
-  expect_equal(job$steps[[2]]$runner, "imaging_qc_metrics")
-  expect_equal(job$steps[[3]]$publish_kind, "imaging_asset")
-  expect_equal(job$steps[[3]]$asset_type, "qc_table")
-  expect_equal(job$steps[[3]]$alias, "latest_qc")
-  expect_equal(job$steps[[3]]$runner, "imaging_qc_metrics")
-  expect_equal(job$steps[[3]]$config$image_asset, "images")
+  expect_equal(req$domain_method, "imagingProcessAssetWorkflowDS")
+  expect_equal(req$runner, "imaging_qc_metrics")
+  expect_equal(req$asset_type, "qc_table")
+  expect_equal(req$alias, "latest_qc")
+  expect_equal(req$config$image_asset, "images")
 
   runners <- c("rt_convert", "rt_dose_plan", "imaging_qc_visuals",
                "image_spatial", "wsi_tile", "image_embeddings")
@@ -52,8 +50,8 @@ test_that("clinical imaging workflow jobs declare expected runners", {
       config = list(dataset_id = "ds1"),
       output_asset = paste0("asset_", i),
       asset_type = asset_types[[i]])
-    expect_equal(derived$steps[[2]]$runner, runners[[i]])
-    expect_equal(derived$steps[[3]]$asset_type, asset_types[[i]])
+    expect_equal(derived$runner, runners[[i]])
+    expect_equal(derived$asset_type, asset_types[[i]])
   }
 })
 

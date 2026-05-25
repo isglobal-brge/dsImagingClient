@@ -10,7 +10,7 @@ ds.imaging.qc.metrics(
   image_asset = "images",
   mask_asset = NULL,
   output_asset = "imaging_qc",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }

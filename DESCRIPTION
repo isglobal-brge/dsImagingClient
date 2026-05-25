@@ -1,7 +1,7 @@
 Package: dsImagingClient
 Type: Package
 Title: DataSHIELD Client for Clinical Imaging Workflows
-Version: 0.1.0
+Version: 0.3.0
 Authors@R:
     c(person("David", "Sarrat González", , "david.sarrat@isglobal.org", role = c("aut", "cre")),
       person("Xavier", "Escribà-Montagut", , "xavier.escriba@isglobal.org", role = c("aut")),
@@ -13,9 +13,9 @@ Maintainer: David Sarrat González <david.sarrat@isglobal.org>
 Description: Client-side DataSHIELD package for clinical imaging. Provides
     functions to initialize imaging handles, query dataset metadata and asset
     catalogs, define DICOM conversion, preprocessing, mask/ROI, QC,
-    segmentation, and radiomics workflows, submit dsHPC-backed imaging jobs,
-    monitor per-image collection processing, and discover derived masks and
-    radiomic feature tables.
+    segmentation, and radiomics workflows, invoke domain-mediated server-side
+    dsImaging methods backed by dsHPC, monitor per-image collection processing,
+    and discover derived masks and radiomic feature tables.
 License: MIT + file LICENSE
 URL: https://isglobal-brge.github.io/dsImagingClient/,
     https://github.com/isglobal-brge/dsImagingClient

@@ -13,7 +13,7 @@ ds.imaging.qc.visuals(
   max_images = 24L,
   anonymize_names = TRUE,
   output_asset = "qc_visuals",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }

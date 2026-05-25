@@ -13,7 +13,7 @@ ds.imaging.radiomics.process_collection(
   poll_interval = 15,
   timeout = 14400,
   allow_partial = FALSE,
-  visibility = "global"
+  visibility = "private"
 )
 }
 \arguments{
@@ -34,7 +34,7 @@ Set to 0 to return immediately after kick-off (fire and forget).}
 
 \item{allow_partial}{Logical; publish with some failures (default FALSE).}
 
-\item{visibility}{Character; asset visibility (default "global").}
+\item{visibility}{Character; asset visibility (default "private").}
 }
 \value{
 Named list with generation_id, asset_id (if completed), summary.

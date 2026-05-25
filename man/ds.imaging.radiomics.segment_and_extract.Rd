@@ -10,7 +10,8 @@ ds.imaging.radiomics.segment_and_extract(
   image_asset = "images",
   segmenter,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-  visibility = "global"
+  visibility = "private",
+  symbol = NULL
 )
 }
 \arguments{
@@ -24,10 +25,13 @@ ds.imaging.radiomics.segment_and_extract(
 
 \item{profile}{A radiomics profile from ds.imaging.radiomics.profile.*().}
 
-\item{visibility}{Character; job visibility label (default "global").}
+\item{visibility}{Character; job visibility label (default "private").}
+
+\item{symbol}{Character or NULL; target server-side symbol for the workflow
+handle. If NULL, a temporary symbol is generated.}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Chains segmentation and extraction into a single job.

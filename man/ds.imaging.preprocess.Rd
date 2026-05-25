@@ -13,7 +13,7 @@ ds.imaging.preprocess(
   lower = -1000,
   upper = 1000,
   output_asset = "preprocessed_images",
-  visibility = "global",
+  visibility = "private",
   alias = NULL
 )
 }
