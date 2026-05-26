@@ -13,6 +13,25 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
+load_lung1_evidence <- function() {
+  input_file <- tryCatch(knitr::current_input(dir = TRUE),
+                         error = function(e) NULL)
+  input_dir <- if (is.null(input_file)) getwd() else dirname(input_file)
+  candidates <- c(
+    system.file("extdata", "lung1_federated_radiomics_results.json",
+                package = "dsImagingClient"),
+    file.path(getwd(), "inst", "extdata",
+              "lung1_federated_radiomics_results.json"),
+    file.path(input_dir, "..", "inst", "extdata",
+              "lung1_federated_radiomics_results.json")
+  )
+  candidates <- candidates[nzchar(candidates) & file.exists(candidates)]
+  if (!length(candidates)) {
+    stop("Cannot find LUNG1 validation evidence JSON.", call. = FALSE)
+  }
+  jsonlite::fromJSON(candidates[[1]], simplifyDataFrame = TRUE)
+}
+lung1_evidence <- load_lung1_evidence()
 format_num <- function(x, digits = 6) {
   ifelse(abs(x) >= 1e5 | abs(x) < 1e-3,
          formatC(x, format = "e", digits = digits),
@@ -30,6 +49,13 @@ from TCIA, publishes three simulated DataSHIELD sites through
 `dsimaging-store`, runs Aerts-signature PyRadiomics extraction through
 `dsImaging` and `dsHPC`, and compares the federated summaries with a central
 PyRadiomics baseline over the same patients.
+
+The external anchor is the public NSCLC-Radiomics/LUNG1 collection and the
+radiomics workflow popularised by Aerts et al. The purpose here is narrower
+than re-estimating the complete prognostic modelling programme of that paper:
+the validation checks that the image-to-mask-to-radiomics path, executed through
+DataSHIELD jobs on separated sites, reproduces the same numerical feature
+summaries obtained by a central PyRadiomics run over the same prepared images.
 
 The default pkgdown build renders the validated results below without launching
 jobs. To execute the live demo while rendering this article, set
@@ -60,6 +86,15 @@ Prepare the full public cohort:
 python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
   --workdir /tmp/dsimaging_lung1_full \
   --all-patients
+```
+
+For a metadata-only check before downloading DICOM files:
+
+```{bash prepare-plan, eval=FALSE}
+python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
+  --workdir /tmp/dsimaging_lung1_plan \
+  --all-patients \
+  --dry-run
 ```
 
 Run or resume the federated DataSHIELD pass:
@@ -101,17 +136,11 @@ if (!identical(status, 0L)) {
 ## Validated Cohort
 
 The final validation pass used every public LUNG1 patient that passed CT and
-`GTV-1` mask conversion: `422` patients split across three sites by stable
+`GTV-1` mask conversion: `r lung1_evidence$dataset$patients_prepared` patients split across three sites by stable
 patient hash.
 
 ```{r cohort}
-site_counts <- data.frame(
-  site = c("site_a", "site_b", "site_c"),
-  dataset = c("lung1_full_site_a", "lung1_full_site_b", "lung1_full_site_c"),
-  images = c(142L, 143L, 137L),
-  masks = c(142L, 143L, 137L),
-  metadata_rows = c(142L, 143L, 137L)
-)
+site_counts <- lung1_evidence$site_counts
 knitr::kable(site_counts)
 ```
 
@@ -138,16 +167,7 @@ if (has_ggplot2) {
 Published collection assets:
 
 ```{r assets}
-assets <- data.frame(
-  opal = c("opal1", "opal2", "opal3"),
-  dataset = c("lung1_full_site_a", "lung1_full_site_b", "lung1_full_site_c"),
-  generation = c("gen_20260509_152105_9e354de9",
-                 "gen_20260509_152108_8cf5c55f",
-                 "gen_20260509_152110_b82b5785"),
-  asset = c("asset_20260509_165902_42b9b1a5",
-            "asset_20260509_170056_0bfdbf8e",
-            "asset_20260509_170057_9a3db2ab")
-)
+assets <- lung1_evidence$assets
 knitr::kable(assets)
 ```
 
@@ -155,10 +175,7 @@ After `ds.imaging.radiomics.load_features(..., include_metadata = TRUE)`, the
 server-side analysis tables had these dimensions:
 
 ```{r dimensions}
-loaded_dims <- data.frame(
-  source = c("opal1", "opal2", "opal3", "combined"),
-  dimensions = c("142 x 20", "143 x 20", "137 x 20", "422 x 20")
-)
+loaded_dims <- lung1_evidence$loaded_dimensions
 knitr::kable(loaded_dims)
 ```
 
@@ -169,56 +186,12 @@ profile to `sample_id` plus four radiomics features. The remaining loaded
 columns are clinical metadata joined by `sample_id`.
 
 ```{r comparison-data, include=FALSE}
-embedded_comparison <- data.frame(
-  server = c("opal1", "opal1", "opal1", "opal1",
-             "opal2", "opal2", "opal2", "opal2",
-             "opal3", "opal3", "opal3", "opal3"),
-  feature = c(
-    "original_firstorder_Energy",
-    "original_glrlm_RunLengthNonUniformity",
-    "original_shape_Compactness1",
-    "wavelet.HLH_glrlm_RunLengthNonUniformity",
-    "original_firstorder_Energy",
-    "original_glrlm_RunLengthNonUniformity",
-    "original_shape_Compactness1",
-    "wavelet.HLH_glrlm_RunLengthNonUniformity",
-    "original_firstorder_Energy",
-    "original_glrlm_RunLengthNonUniformity",
-    "original_shape_Compactness1",
-    "wavelet.HLH_glrlm_RunLengthNonUniformity"
-  ),
-  federated = c(
-    912743691.507042, 12430.8791801311, 0.0258847932464428,
-    9307.55647427235, 924557312.867133, 13151.8800546352,
-    0.0268293770986911, 10245.5239331547, 1186055557.30657,
-    14466.9012668664, 0.0263166107584965, 11379.0070861031
-  ),
-  central = c(
-    912743691.507043, 12430.8791801311, 0.0258847932464428,
-    9307.55647427235, 924557312.867133, 13151.8800546352,
-    0.0268293770986911, 10245.5239331547, 1186055557.30657,
-    14466.9012668664, 0.0263166107584965, 11379.0070861031
-  ),
-  abs_diff = c(
-    5.96046447753906e-07, 4.36557456851006e-11, 2.42861286636753e-17,
-    1.81898940354586e-12, 1.19209289550781e-07, 1.63709046319127e-11,
-    1.38777878078145e-17, 4.91127138957381e-11, 9.5367431640625e-07,
-    1.81898940354586e-11, 4.85722573273506e-17, 7.27595761418343e-12
-  ),
-  rel_diff = c(
-    6.53027189670045e-16, 3.51187917222121e-15, 9.38239236931621e-16,
-    1.95431465667047e-16, 1.28936614195504e-16, 1.24475775051971e-15,
-    5.17260902359582e-16, 4.79357758726308e-15, 8.04072212748586e-16,
-    1.25734555727694e-15, 1.84568817668395e-15, 6.39419376324089e-16
-  )
-)
-
 workdir <- Sys.getenv("LUNG1_WORKDIR", "/tmp/dsimaging_lung1_full")
 comparison_path <- file.path(workdir, "federated_vs_central_means.csv")
 comparison <- if (file.exists(comparison_path)) {
   read.csv(comparison_path, check.names = FALSE)
 } else {
-  embedded_comparison
+  lung1_evidence$comparison
 }
 comparison$abs_diff_fmt <- format_num(comparison$abs_diff, digits = 3)
 comparison$rel_diff_fmt <- format_num(comparison$rel_diff, digits = 3)
@@ -294,12 +267,7 @@ Clinical metadata were joined to the radiomics feature table on the server side
 before analysis.
 
 ```{r clinical}
-clinical <- data.frame(
-  metric = c("mean survival_time_days", "mean os_2yr_alive"),
-  opal1 = c(1000.6197, 0.4184397),
-  opal2 = c(976.9650, 0.4055944),
-  opal3 = c(989.0803, 0.3823529)
-)
+clinical <- lung1_evidence$clinical
 knitr::kable(clinical, digits = 7)
 ```
 
@@ -330,31 +298,14 @@ if (has_ggplot2) {
 A federated `ds.glmSLMA()` model was fit with:
 
 ```{r glm-formula}
-glm_formula <- os_2yr_alive ~ original_firstorder_Energy +
-  original_shape_Compactness1 +
-  original_glrlm_RunLengthNonUniformity +
-  wavelet.HLH_glrlm_RunLengthNonUniformity +
-  age + gender_male
-glm_formula
+stats::as.formula(lung1_evidence$glm$formula)
 ```
 
-The run produced `num.valid.studies = 3`; `<new.glm.obj>` was created and
-validated in all data sources.
+The run produced `r paste0("num.valid.studies = ", lung1_evidence$glm$num_valid_studies)`;
+`<new.glm.obj>` was created and validated in all data sources.
 
 ```{r glm-results}
-glm_fe <- data.frame(
-  term = c("(Intercept)", "original_firstorder_Energy",
-           "original_shape_Compactness1",
-           "original_glrlm_RunLengthNonUniformity",
-           "wavelet.HLH_glrlm_RunLengthNonUniformity",
-           "age", "gender_male"),
-  pooled.FE = c(1.416178e-01, -8.452579e-11, 2.383309e+01,
-                8.191498e-05, -1.184013e-04, -9.693862e-03,
-                -1.464250e-01),
-  se.FE = c(9.263942e-01, 1.228317e-10, 2.154354e+01,
-            5.991988e-05, 7.716003e-05, 1.150634e-02,
-            2.446642e-01)
-)
+glm_fe <- lung1_evidence$glm$fixed_effects
 knitr::kable(glm_fe, digits = 6)
 ```
 

@@ -148,4 +148,7 @@ A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled
 under `inst/demos/lung1_federated_study`. It prepares CT + RTSTRUCT `GTV-1`
 masks, publishes three simulated sites with `dsimaging-admin`, runs
 dsHPC-backed Aerts radiomics through `dsImaging`, and compares the federated
-DataSHIELD feature summaries with a central PyRadiomics baseline.
+DataSHIELD feature summaries with a central PyRadiomics baseline. The full
+validation path uses 422 public LUNG1 patients that passed conversion and is
+aligned with the public Aerts/LUNG1 radiomics workflow rather than with a
+synthetic imaging fixture.
