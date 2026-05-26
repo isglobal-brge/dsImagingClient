@@ -1,0 +1,349 @@
+---
+title: "dsImaging validation demo"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{dsImaging validation demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
+`%||%` <- function(x, y) if (is.null(x) || !length(x)) y else x
+load_imaging_demo_evidence <- function() {
+  input_file <- tryCatch(knitr::current_input(dir = TRUE),
+                         error = function(e) NULL)
+  input_dir <- if (is.null(input_file)) getwd() else dirname(input_file)
+  candidates <- c(
+    file.path(getwd(), "inst", "extdata",
+              "imaging_demo_validation_summary.json"),
+    file.path(input_dir, "..", "inst", "extdata",
+              "imaging_demo_validation_summary.json"),
+    system.file("extdata", "imaging_demo_validation_summary.json",
+                package = "dsImagingClient")
+  )
+  candidates <- candidates[nzchar(candidates) & file.exists(candidates)]
+  if (!length(candidates)) {
+    stop("Cannot find dsImaging validation evidence JSON.", call. = FALSE)
+  }
+  jsonlite::fromJSON(candidates[[1]], simplifyVector = FALSE)
+}
+evidence <- load_imaging_demo_evidence()
+stopifnot(isTRUE(evidence$overall_pass))
+dim_text <- function(x) paste(unlist(x), collapse = " x ")
+site_names <- names(evidence$datasets)
+```
+
+This article documents a compact end-to-end validation of the `dsImaging`
+runner surface. The demo uses one logical DataSHIELD resource,
+`r evidence$resource`, resolved independently by three Opal servers. Each site
+holds ten synthetic CT-like NIfTI images, ten matching masks and per-sample
+metadata. The validation is deliberately smaller than the LUNG1 cohort article:
+its purpose is to exercise the imaging operations provided by `dsImaging`
+without making the vignette depend on a large public image download.
+
+The same resource is used for six server-side workflows: dataset validation,
+QC metrics, mask connected components, crop-to-mask spatial processing,
+deterministic image embeddings, existing-mask radiomics, and threshold
+segmentation followed by radiomics. The jobs are submitted from R through
+`dsImagingClient`; execution and publication are handled by `dsHPC` inside the
+Rock workers.
+
+The evidence bundled with this vignette records `overall_pass =
+TRUE`: dataset validation passed on all three servers and
+all six workflow families completed with the expected ten local samples per
+site.
+
+## Running The Demo
+
+The preparation and execution scripts are installed with the package under
+`inst/demos/imaging_demo_validation`.
+
+```{r demo-paths}
+demo_dir <- system.file("demos", "imaging_demo_validation",
+                        package = "dsImagingClient")
+if (!nzchar(demo_dir)) {
+  demo_dir <- normalizePath(file.path("..", "inst", "demos",
+                                     "imaging_demo_validation"),
+                            mustWork = FALSE)
+}
+prepare_script <- file.path(demo_dir, "prepare_imaging_demo.py")
+run_script <- file.path(demo_dir, "run_imaging_demo_validation.R")
+c(prepare_script = prepare_script, run_script = run_script)
+```
+
+Prepare the three site folders:
+
+```{bash prepare-demo, eval=FALSE}
+python3 inst/demos/imaging_demo_validation/prepare_imaging_demo.py \
+  --workdir /tmp/dsimaging_imaging_demo \
+  --cases-per-site 10 \
+  --replace
+```
+
+Publish the datasets to `dsimaging-store`, register `dsdemo.imaging_demo` on
+each Opal server, and run the validation jobs:
+
+```{bash run-demo, eval=FALSE}
+IMAGING_DEMO_WORKDIR=/tmp/dsimaging_imaging_demo \
+IMAGING_DEMO_REPLACE=TRUE \
+IMAGING_DEMO_PUBLISH=TRUE \
+IMAGING_DEMO_RUN_JOBS=TRUE \
+OPAL_USER=administrator \
+OPAL_PASSWORD=admin123 \
+Rscript inst/demos/imaging_demo_validation/run_imaging_demo_validation.R
+```
+
+```{r run-live-demo, eval=identical(tolower(Sys.getenv("DSIMAGINGCLIENT_RUN_IMAGING_DEMO_VIGNETTE")), "true")}
+demo_env <- c(
+  paste0("IMAGING_DEMO_WORKDIR=", Sys.getenv("IMAGING_DEMO_WORKDIR",
+                                            "/tmp/dsimaging_imaging_demo")),
+  paste0("IMAGING_DEMO_REPLACE=", Sys.getenv("IMAGING_DEMO_REPLACE", "FALSE")),
+  paste0("IMAGING_DEMO_PUBLISH=", Sys.getenv("IMAGING_DEMO_PUBLISH", "FALSE")),
+  paste0("IMAGING_DEMO_RUN_JOBS=", Sys.getenv("IMAGING_DEMO_RUN_JOBS", "FALSE")),
+  paste0("OPAL_USER=", Sys.getenv("OPAL_USER", "administrator")),
+  paste0("OPAL_PASSWORD=", Sys.getenv("OPAL_PASSWORD", "admin123"))
+)
+status <- system2("Rscript", run_script, env = demo_env)
+if (!identical(status, 0L)) {
+  stop("dsImaging demo failed with exit status ", status, call. = FALSE)
+}
+```
+
+## Site Layout
+
+```{r site-layout}
+site_counts <- data.frame(
+  server = site_names,
+  dataset = unlist(evidence$datasets, use.names = FALSE),
+  samples = as.integer(unlist(evidence$samples_per_site, use.names = FALSE)),
+  images = as.integer(unlist(evidence$samples_per_site, use.names = FALSE)),
+  masks = as.integer(unlist(evidence$samples_per_site, use.names = FALSE))
+)
+knitr::kable(site_counts)
+```
+
+```{r site-layout-plot, fig.width=7, fig.height=4, fig.alt="Bar chart showing 10 imaging samples on each of three Opal servers."}
+if (has_ggplot2) {
+  ggplot2::ggplot(site_counts,
+                  ggplot2::aes(x = server, y = samples, fill = server)) +
+    ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+    ggplot2::geom_text(ggplot2::aes(label = samples), vjust = -0.4) +
+    ggplot2::labs(
+      x = "DataSHIELD server",
+      y = "Synthetic CT images with masks",
+      title = "dsImaging validation resource split across three sites"
+    ) +
+    ggplot2::ylim(0, max(site_counts$samples) * 1.15) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  barplot(site_counts$samples, names.arg = site_counts$server,
+          ylab = "Samples", xlab = "DataSHIELD server")
+}
+```
+
+## Mask QC View
+
+The overlay below is generated from the synthetic validation fixture. It is not
+evidence that patient-level overlays should be returned to the analyst; rather,
+it shows the kind of local image-mask relation checked inside each site before
+only approved derived artefacts and aggregate summaries are exposed.
+
+```{r mask-overlay, fig.width=8.5, fig.alt="Three synthetic CT slices, one per site, with local ROI masks overlaid in red."}
+overlay <- system.file("extdata", "imaging_demo_mask_overlay.png",
+                       package = "dsImagingClient")
+if (!nzchar(overlay)) {
+  overlay <- file.path("..", "inst", "extdata",
+                       "imaging_demo_mask_overlay.png")
+}
+knitr::include_graphics(overlay)
+```
+
+The same QC pass publishes table assets server-side. The table below reports
+site-level aggregate mask summaries computed after loading the QC asset through
+DataSHIELD.
+
+```{r mask-aggregates}
+mask_aggregates <- data.frame(
+  server = site_names,
+  mean_mask_voxels = as.numeric(unlist(evidence$qc_aggregates$mask_voxels_mean,
+                                       use.names = FALSE)),
+  mean_mask_volume = as.numeric(unlist(evidence$qc_aggregates$mask_volume_mean,
+                                       use.names = FALSE)),
+  mean_masked_hu = as.numeric(unlist(evidence$qc_aggregates$masked_mean_hu,
+                                    use.names = FALSE)),
+  n_valid = as.integer(unlist(evidence$qc_aggregates$n_valid,
+                              use.names = FALSE))
+)
+knitr::kable(mask_aggregates, digits = 3)
+```
+
+```{r mask-aggregates-plot, fig.width=7, fig.height=4, fig.alt="Bar chart of mean local mask volume by DataSHIELD server."}
+if (has_ggplot2) {
+  ggplot2::ggplot(mask_aggregates,
+                  ggplot2::aes(x = server, y = mean_mask_volume,
+                               fill = server)) +
+    ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+    ggplot2::geom_text(ggplot2::aes(label = round(mean_mask_volume, 1)),
+                       vjust = -0.4) +
+    ggplot2::labs(
+      x = "DataSHIELD server",
+      y = "Mean mask volume",
+      title = "Mask QC is summarised by site, not by exporting patient images"
+    ) +
+    ggplot2::ylim(0, max(mask_aggregates$mean_mask_volume) * 1.15) +
+    ggplot2::theme_minimal(base_size = 12)
+} else {
+  barplot(mask_aggregates$mean_mask_volume,
+          names.arg = mask_aggregates$server,
+          ylab = "Mean mask volume")
+}
+```
+
+## Workflow Evidence
+
+```{r workflow-table}
+workflow_rows <- data.frame(
+  workflow = c("QC metrics", "Image embeddings",
+               "Existing-mask radiomics", "Segmentation to radiomics"),
+  runner_or_route = c("imaging_qc_metrics", "image_embeddings",
+                      "existing masks + PyRadiomics",
+                      "ct_lung_threshold + PyRadiomics"),
+  opal1 = c(dim_text(evidence$dimensions$qc_metrics$opal1),
+            dim_text(evidence$dimensions$embeddings$opal1),
+            dim_text(evidence$dimensions$existing_mask_radiomics$opal1),
+            dim_text(evidence$dimensions$segmented_radiomics$opal1)),
+  opal2 = c(dim_text(evidence$dimensions$qc_metrics$opal2),
+            dim_text(evidence$dimensions$embeddings$opal2),
+            dim_text(evidence$dimensions$existing_mask_radiomics$opal2),
+            dim_text(evidence$dimensions$segmented_radiomics$opal2)),
+  opal3 = c(dim_text(evidence$dimensions$qc_metrics$opal3),
+            dim_text(evidence$dimensions$embeddings$opal3),
+            dim_text(evidence$dimensions$existing_mask_radiomics$opal3),
+            dim_text(evidence$dimensions$segmented_radiomics$opal3)),
+  stringsAsFactors = FALSE
+)
+knitr::kable(workflow_rows)
+```
+
+```{r workflow-status}
+status_rows <- do.call(rbind, lapply(names(evidence$workflow_status),
+  function(workflow) {
+    do.call(rbind, lapply(site_names, function(site) {
+      item <- evidence$workflow_status[[workflow]][[site]]
+      data.frame(
+        workflow = workflow,
+        site = site,
+        pass = isTRUE(item$pass),
+        completed_or_rows = item$completed %||% item$rows,
+        failed = item$failed %||% 0,
+        stringsAsFactors = FALSE
+      )
+    }))
+  }))
+knitr::kable(status_rows)
+```
+
+Mask connected-components and crop-to-mask spatial processing publish derived
+image or mask assets rather than feature tables. Their job summaries record
+ten completed samples and zero failures at each site.
+
+```{r asset-table}
+generic <- evidence$generic_assets
+asset_row <- function(site, key, label) {
+  item <- generic[[site]][[key]]
+  summaries <- item$provenance$output$summaries
+  summary <- summaries[[names(summaries)[1]]]
+  data.frame(
+    site = site,
+    workflow = label,
+    kind = item$kind,
+    runner = item$provenance$runner,
+    completed = summary$n_done %||% summary$n_images %||% summary$n_samples,
+    failed = summary$n_failed %||% 0,
+    asset_id = item$asset_id,
+    stringsAsFactors = FALSE
+  )
+}
+asset_rows <- do.call(rbind, lapply(site_names, function(site) {
+  rbind(
+    asset_row(site, "mask_connected_components", "Mask connected components"),
+    asset_row(site, "crop_to_mask", "Crop to mask")
+  )
+}))
+knitr::kable(asset_rows[, c("site", "workflow", "kind", "runner",
+                            "completed", "failed")])
+```
+
+## Radiomics Outputs
+
+The two radiomics passes validate different entry points. The first consumes
+the masks already present in the collection. The second creates masks inside
+the DataSHIELD job chain using a deterministic CT threshold runner and then
+passes those masks to PyRadiomics. Both routes publish ten rows per server.
+
+```{r radiomics-assets}
+radiomics_assets <- data.frame(
+  site = rep(site_names, times = 2),
+  route = rep(c("Existing masks", "Threshold segmentation"), each = length(site_names)),
+  asset_id = c(unlist(evidence$assets$existing_mask_radiomics, use.names = FALSE),
+               unlist(evidence$assets$segmented_radiomics, use.names = FALSE)),
+  dimensions = c(vapply(evidence$dimensions$existing_mask_radiomics, dim_text, character(1)),
+                 vapply(evidence$dimensions$segmented_radiomics, dim_text, character(1))),
+  stringsAsFactors = FALSE
+)
+knitr::kable(radiomics_assets)
+```
+
+```{r dimensions-plot, fig.width=7, fig.height=4, fig.alt="Bar chart comparing output row counts across QC, embeddings and radiomics workflows."}
+plot_dims <- data.frame(
+  workflow = rep(workflow_rows$workflow, each = 3),
+  server = rep(site_names, times = nrow(workflow_rows)),
+  rows = as.integer(c(
+    evidence$dimensions$qc_metrics$opal1[[1]],
+    evidence$dimensions$qc_metrics$opal2[[1]],
+    evidence$dimensions$qc_metrics$opal3[[1]],
+    evidence$dimensions$embeddings$opal1[[1]],
+    evidence$dimensions$embeddings$opal2[[1]],
+    evidence$dimensions$embeddings$opal3[[1]],
+    evidence$dimensions$existing_mask_radiomics$opal1[[1]],
+    evidence$dimensions$existing_mask_radiomics$opal2[[1]],
+    evidence$dimensions$existing_mask_radiomics$opal3[[1]],
+    evidence$dimensions$segmented_radiomics$opal1[[1]],
+    evidence$dimensions$segmented_radiomics$opal2[[1]],
+    evidence$dimensions$segmented_radiomics$opal3[[1]]
+  ))
+)
+if (has_ggplot2) {
+  ggplot2::ggplot(plot_dims,
+                  ggplot2::aes(x = workflow, y = rows, fill = server)) +
+    ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.75),
+                      width = 0.68) +
+    ggplot2::coord_flip() +
+    ggplot2::labs(
+      x = NULL,
+      y = "Rows published as server-side assets",
+      fill = "Server",
+      title = "Every validated workflow returns one row per local image"
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(legend.position = "bottom")
+} else {
+  barplot(matrix(plot_dims$rows, ncol = 3, byrow = TRUE),
+          beside = TRUE, names.arg = site_names,
+          ylab = "Rows", legend.text = workflow_rows$workflow)
+}
+```
+
+## Interpretation
+
+The validation exercises the parts of `dsImaging` that matter for downstream
+DataSHIELD workflows: a resource-backed image collection can be initialized
+from Opal, the worker can materialize MinIO/S3 assets without analyst-side file
+access, derived image and mask assets can be published back into the server
+catalogue, and tabular outputs can be loaded into the DataSHIELD session for
+ordinary aggregate analysis.

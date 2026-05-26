@@ -1,0 +1,830 @@
+{
+  "generated_at": "2026-05-26T13:48:31Z",
+  "resource": "dsdemo.imaging_demo",
+  "datasets": {
+    "opal1": "imaging_demo_a",
+    "opal2": "imaging_demo_b",
+    "opal3": "imaging_demo_c"
+  },
+  "samples_per_site": {
+    "opal1": 10,
+    "opal2": 10,
+    "opal3": 10
+  },
+  "assets": {
+    "existing_mask_radiomics": {
+      "opal1": "asset_20260526_134318_b3cf4fbc",
+      "opal2": "asset_20260526_134353_4dc60e83",
+      "opal3": "asset_20260526_134422_ebc6d090"
+    },
+    "segmented_radiomics": {
+      "opal1": "asset_20260526_134519_241ec0e6",
+      "opal2": "asset_20260526_134621_d78ece15",
+      "opal3": "asset_20260526_134718_d8ed42f7"
+    }
+  },
+  "dimensions": {
+    "qc_metrics": {
+      "opal1": [
+        10,
+        23
+      ],
+      "opal2": [
+        10,
+        23
+      ],
+      "opal3": [
+        10,
+        23
+      ]
+    },
+    "embeddings": {
+      "opal1": [
+        10,
+        36
+      ],
+      "opal2": [
+        10,
+        36
+      ],
+      "opal3": [
+        10,
+        36
+      ]
+    },
+    "existing_mask_radiomics": {
+      "opal1": [
+        10,
+        29
+      ],
+      "opal2": [
+        10,
+        29
+      ],
+      "opal3": [
+        10,
+        29
+      ]
+    },
+    "segmented_radiomics": {
+      "opal1": [
+        10,
+        29
+      ],
+      "opal2": [
+        10,
+        29
+      ],
+      "opal3": [
+        10,
+        29
+      ]
+    }
+  },
+  "generic_assets": {
+    "opal1": {
+      "mask_connected_components": {
+        "asset_id": "asset_20260526_134223_a96f0661",
+        "dataset_id": "imaging_demo_a",
+        "kind": "mask_root",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "21f93cc90fa934c80cbbd4d511a58f17762d908516c369a336ae3b4ebd5ca9f6",
+        "created_at": "2026-05-26T13:42:23.987Z",
+        "created_by": null,
+        "created_by_job": "job_2vqas5ldvwa84jmq2xxc81r8ytrrz8iz",
+        "path_or_root": "/srv/dshpc/artifacts/job_2vqas5ldvwa84jmq2xxc81r8ytrrz8iz/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_2vqas5ldvwa84jmq2xxc81r8ytrrz8iz",
+          "asset_name": "demo_masks_cc",
+          "runner": "mask_ops",
+          "config": {
+            "dataset_id": "imaging_demo_a",
+            "operation": "connected_components",
+            "mask_asset": "masks",
+            "reference_asset": "images",
+            "threshold": 0,
+            "mode": "closing",
+            "radius": 1,
+            "min_voxels": 5,
+            "max_components": 1
+          },
+          "output": {
+            "summaries": {
+              "mask_ops_summary": {
+                "n_total": 10,
+                "n_done": 10,
+                "n_failed": 0,
+                "operation": "connected_components",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4"
+                },
+                "file": "mask_ops_summary.json"
+              }
+            },
+            "runner_versions": {
+              "mask_ops_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "crop_to_mask": {
+        "asset_id": "asset_20260526_134230_c9c9d6ea",
+        "dataset_id": "imaging_demo_a",
+        "kind": "image_root",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "b521b7fae0a04514f3dc0f329b30b5a69891afe4cf10e8b5af63b4915ce7c09e",
+        "created_at": "2026-05-26T13:42:30.396Z",
+        "created_by": null,
+        "created_by_job": "job_j1ecd0zkj8lcqghl4a8sf8n403kufcza",
+        "path_or_root": "/srv/dshpc/artifacts/job_j1ecd0zkj8lcqghl4a8sf8n403kufcza/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_j1ecd0zkj8lcqghl4a8sf8n403kufcza",
+          "asset_name": "demo_crop_to_mask",
+          "runner": "image_spatial",
+          "config": {
+            "dataset_id": "imaging_demo_a",
+            "image_asset": "images",
+            "operations": "crop_to_mask",
+            "mask_asset": "masks"
+          },
+          "output": {
+            "summaries": {
+              "derived_images_manifest": {
+                "n_images": 10,
+                "operations": [
+                  "crop_to_mask"
+                ],
+                "file": "derived_images_manifest.json"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "qc_metrics": {
+        "asset_id": "asset_20260526_133952_6e6569af",
+        "dataset_id": "imaging_demo_a",
+        "kind": "qc_table",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "cb186209b8faeacf72dd7db62076f43131c9514bd114848ac95892b103e0349f",
+        "created_at": "2026-05-26T13:39:52.615Z",
+        "created_by": null,
+        "created_by_job": "job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e",
+        "path_or_root": "/srv/dshpc/artifacts/job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e",
+          "asset_name": "demo_qc_metrics",
+          "runner": "imaging_qc_metrics",
+          "config": {
+            "dataset_id": "imaging_demo_a",
+            "image_asset": "images",
+            "mask_asset": "masks"
+          },
+          "output": {
+            "summaries": {
+              "imaging_qc_summary": {
+                "n_samples": 10,
+                "has_masks": true,
+                "table": "/srv/dshpc/artifacts/job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e/step_002/output/imaging_qc_metrics.csv",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4"
+                },
+                "file": "imaging_qc_summary.json"
+              }
+            },
+            "runner_versions": {
+              "imaging_qc_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "embeddings": {
+        "asset_id": "asset_20260526_134238_15d1d092",
+        "dataset_id": "imaging_demo_a",
+        "kind": "embedding_table",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "b8e44f9cacf7016dc2dce949831708eba2fe882ec45828b63710dea297aa34cd",
+        "created_at": "2026-05-26T13:42:38.814Z",
+        "created_by": null,
+        "created_by_job": "job_a8udi0goqn6u77h3u517wopnq0sd12mj",
+        "path_or_root": "/srv/dshpc/artifacts/job_a8udi0goqn6u77h3u517wopnq0sd12mj/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_a8udi0goqn6u77h3u517wopnq0sd12mj",
+          "asset_name": "demo_embeddings",
+          "runner": "image_embeddings",
+          "config": {
+            "dataset_id": "imaging_demo_a",
+            "image_asset": "images",
+            "model": "intensity_histogram",
+            "bins": 16
+          },
+          "output": {
+            "summaries": {
+              "image_embeddings_summary": {
+                "n_samples": 10,
+                "model": "intensity_histogram",
+                "embedding_dim": 24,
+                "accelerator": "unavailable",
+                "table": "/srv/dshpc/artifacts/job_a8udi0goqn6u77h3u517wopnq0sd12mj/step_002/output/image_embeddings.csv",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4",
+                  "PIL": "12.2.0"
+                },
+                "file": "image_embeddings_summary.json"
+              }
+            },
+            "runner_versions": {
+              "image_embeddings_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4",
+                "PIL": "12.2.0"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      }
+    },
+    "opal2": {
+      "mask_connected_components": {
+        "asset_id": "asset_20260526_134224_11e855b3",
+        "dataset_id": "imaging_demo_b",
+        "kind": "mask_root",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "c8d0a968d3e1efbf4a1c2ca0a02e420d2886aa55f4bb777a931a06079f21bf28",
+        "created_at": "2026-05-26T13:42:24.463Z",
+        "created_by": null,
+        "created_by_job": "job_voknql4hpcx8cvfepudzefvxy8bjbhl3",
+        "path_or_root": "/srv/dshpc/artifacts/job_voknql4hpcx8cvfepudzefvxy8bjbhl3/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_voknql4hpcx8cvfepudzefvxy8bjbhl3",
+          "asset_name": "demo_masks_cc",
+          "runner": "mask_ops",
+          "config": {
+            "dataset_id": "imaging_demo_b",
+            "operation": "connected_components",
+            "mask_asset": "masks",
+            "reference_asset": "images",
+            "threshold": 0,
+            "mode": "closing",
+            "radius": 1,
+            "min_voxels": 5,
+            "max_components": 1
+          },
+          "output": {
+            "summaries": {
+              "mask_ops_summary": {
+                "n_total": 10,
+                "n_done": 10,
+                "n_failed": 0,
+                "operation": "connected_components",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4"
+                },
+                "file": "mask_ops_summary.json"
+              }
+            },
+            "runner_versions": {
+              "mask_ops_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "crop_to_mask": {
+        "asset_id": "asset_20260526_134230_b0957aba",
+        "dataset_id": "imaging_demo_b",
+        "kind": "image_root",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "e1fef8a64d1493f270651e66a020bb3785ec37429cf69b27b34eccb4ceecf48b",
+        "created_at": "2026-05-26T13:42:30.973Z",
+        "created_by": null,
+        "created_by_job": "job_9xpyr2kr8kpkes9pk0s7c1gis2popkwx",
+        "path_or_root": "/srv/dshpc/artifacts/job_9xpyr2kr8kpkes9pk0s7c1gis2popkwx/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_9xpyr2kr8kpkes9pk0s7c1gis2popkwx",
+          "asset_name": "demo_crop_to_mask",
+          "runner": "image_spatial",
+          "config": {
+            "dataset_id": "imaging_demo_b",
+            "image_asset": "images",
+            "operations": "crop_to_mask",
+            "mask_asset": "masks"
+          },
+          "output": {
+            "summaries": {
+              "derived_images_manifest": {
+                "n_images": 10,
+                "operations": [
+                  "crop_to_mask"
+                ],
+                "file": "derived_images_manifest.json"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "qc_metrics": {
+        "asset_id": "asset_20260526_134207_0231b4cf",
+        "dataset_id": "imaging_demo_b",
+        "kind": "qc_table",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "3439750202b06ce8278fd3d3ff35f8dbe2fdef42c82a73f7c76117aa7bd00e1c",
+        "created_at": "2026-05-26T13:42:07.792Z",
+        "created_by": null,
+        "created_by_job": "job_2fw086jp6iiqny3ym8pe6vsze2km3n1i",
+        "path_or_root": "/srv/dshpc/artifacts/job_2fw086jp6iiqny3ym8pe6vsze2km3n1i/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_2fw086jp6iiqny3ym8pe6vsze2km3n1i",
+          "asset_name": "demo_qc_metrics",
+          "runner": "imaging_qc_metrics",
+          "config": {
+            "dataset_id": "imaging_demo_b",
+            "image_asset": "images",
+            "mask_asset": "masks"
+          },
+          "output": {
+            "summaries": {
+              "imaging_qc_summary": {
+                "n_samples": 10,
+                "has_masks": true,
+                "table": "/srv/dshpc/artifacts/job_2fw086jp6iiqny3ym8pe6vsze2km3n1i/step_002/output/imaging_qc_metrics.csv",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4"
+                },
+                "file": "imaging_qc_summary.json"
+              }
+            },
+            "runner_versions": {
+              "imaging_qc_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "embeddings": {
+        "asset_id": "asset_20260526_134237_2e859ad7",
+        "dataset_id": "imaging_demo_b",
+        "kind": "embedding_table",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "45bc700a0d6628bb59eae548a7ed5c0c319f24bbbf86faccd866fb5fffb85738",
+        "created_at": "2026-05-26T13:42:37.401Z",
+        "created_by": null,
+        "created_by_job": "job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6",
+        "path_or_root": "/srv/dshpc/artifacts/job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6",
+          "asset_name": "demo_embeddings",
+          "runner": "image_embeddings",
+          "config": {
+            "dataset_id": "imaging_demo_b",
+            "image_asset": "images",
+            "model": "intensity_histogram",
+            "bins": 16
+          },
+          "output": {
+            "summaries": {
+              "image_embeddings_summary": {
+                "n_samples": 10,
+                "model": "intensity_histogram",
+                "embedding_dim": 24,
+                "accelerator": "unavailable",
+                "table": "/srv/dshpc/artifacts/job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6/step_002/output/image_embeddings.csv",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4",
+                  "PIL": "12.2.0"
+                },
+                "file": "image_embeddings_summary.json"
+              }
+            },
+            "runner_versions": {
+              "image_embeddings_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4",
+                "PIL": "12.2.0"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      }
+    },
+    "opal3": {
+      "mask_connected_components": {
+        "asset_id": "asset_20260526_134223_23862112",
+        "dataset_id": "imaging_demo_c",
+        "kind": "mask_root",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "c70a3ffb194265b9116f90dfd008cdf770c803b41dee43a5253239d060436e5f",
+        "created_at": "2026-05-26T13:42:23.619Z",
+        "created_by": null,
+        "created_by_job": "job_4ul1v1soab6kaodaq498t31b69wcxo3l",
+        "path_or_root": "/srv/dshpc/artifacts/job_4ul1v1soab6kaodaq498t31b69wcxo3l/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_4ul1v1soab6kaodaq498t31b69wcxo3l",
+          "asset_name": "demo_masks_cc",
+          "runner": "mask_ops",
+          "config": {
+            "dataset_id": "imaging_demo_c",
+            "operation": "connected_components",
+            "mask_asset": "masks",
+            "reference_asset": "images",
+            "threshold": 0,
+            "mode": "closing",
+            "radius": 1,
+            "min_voxels": 5,
+            "max_components": 1
+          },
+          "output": {
+            "summaries": {
+              "mask_ops_summary": {
+                "n_total": 10,
+                "n_done": 10,
+                "n_failed": 0,
+                "operation": "connected_components",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4"
+                },
+                "file": "mask_ops_summary.json"
+              }
+            },
+            "runner_versions": {
+              "mask_ops_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "crop_to_mask": {
+        "asset_id": "asset_20260526_134232_a7269661",
+        "dataset_id": "imaging_demo_c",
+        "kind": "image_root",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "b7ccb16388bae713bcef48b907f9e8ab9a0af71f17bb0352a2b7eb69ca6610ff",
+        "created_at": "2026-05-26T13:42:32.105Z",
+        "created_by": null,
+        "created_by_job": "job_dunn4e26oijsszpg8zmps670bmk7nykr",
+        "path_or_root": "/srv/dshpc/artifacts/job_dunn4e26oijsszpg8zmps670bmk7nykr/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_dunn4e26oijsszpg8zmps670bmk7nykr",
+          "asset_name": "demo_crop_to_mask",
+          "runner": "image_spatial",
+          "config": {
+            "dataset_id": "imaging_demo_c",
+            "image_asset": "images",
+            "operations": "crop_to_mask",
+            "mask_asset": "masks"
+          },
+          "output": {
+            "summaries": {
+              "derived_images_manifest": {
+                "n_images": 10,
+                "operations": [
+                  "crop_to_mask"
+                ],
+                "file": "derived_images_manifest.json"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "qc_metrics": {
+        "asset_id": "asset_20260526_134209_b5b7b783",
+        "dataset_id": "imaging_demo_c",
+        "kind": "qc_table",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "1079ab63970ca01bad6e20abed7743023d93bee12680bcb0f432916080910429",
+        "created_at": "2026-05-26T13:42:09.054Z",
+        "created_by": null,
+        "created_by_job": "job_h230drp8ej4nhbl6i44joogab41nkhv7",
+        "path_or_root": "/srv/dshpc/artifacts/job_h230drp8ej4nhbl6i44joogab41nkhv7/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_h230drp8ej4nhbl6i44joogab41nkhv7",
+          "asset_name": "demo_qc_metrics",
+          "runner": "imaging_qc_metrics",
+          "config": {
+            "dataset_id": "imaging_demo_c",
+            "image_asset": "images",
+            "mask_asset": "masks"
+          },
+          "output": {
+            "summaries": {
+              "imaging_qc_summary": {
+                "n_samples": 10,
+                "has_masks": true,
+                "table": "/srv/dshpc/artifacts/job_h230drp8ej4nhbl6i44joogab41nkhv7/step_002/output/imaging_qc_metrics.csv",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4"
+                },
+                "file": "imaging_qc_summary.json"
+              }
+            },
+            "runner_versions": {
+              "imaging_qc_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      },
+      "embeddings": {
+        "asset_id": "asset_20260526_134238_28162089",
+        "dataset_id": "imaging_demo_c",
+        "kind": "embedding_table",
+        "modality": null,
+        "status": "active",
+        "visibility": "global",
+        "derivation_hash": "35cb5425ff700ebaf6cbc197849799b397acdab333104228c2759aea239228bb",
+        "created_at": "2026-05-26T13:42:38.577Z",
+        "created_by": null,
+        "created_by_job": "job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6",
+        "path_or_root": "/srv/dshpc/artifacts/job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6/step_002/output",
+        "tags": null,
+        "provenance": {
+          "type": "dshpc_publish",
+          "job_id": "job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6",
+          "asset_name": "demo_embeddings",
+          "runner": "image_embeddings",
+          "config": {
+            "dataset_id": "imaging_demo_c",
+            "image_asset": "images",
+            "model": "intensity_histogram",
+            "bins": 16
+          },
+          "output": {
+            "summaries": {
+              "image_embeddings_summary": {
+                "n_samples": 10,
+                "model": "intensity_histogram",
+                "embedding_dim": 24,
+                "accelerator": "unavailable",
+                "table": "/srv/dshpc/artifacts/job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6/step_002/output/image_embeddings.csv",
+                "versions": {
+                  "python": "3.11.15",
+                  "SimpleITK": "2.5.4",
+                  "numpy": "1.26.4",
+                  "PIL": "12.2.0"
+                },
+                "file": "image_embeddings_summary.json"
+              }
+            },
+            "runner_versions": {
+              "image_embeddings_summary": {
+                "python": "3.11.15",
+                "SimpleITK": "2.5.4",
+                "numpy": "1.26.4",
+                "PIL": "12.2.0"
+              }
+            }
+          }
+        },
+        "manifest": [],
+        "parents": {}
+      }
+    }
+  },
+  "qc_aggregates": {
+    "mask_volume_mean": {
+      "opal1": 584.3671,
+      "opal2": 604.7252,
+      "opal3": 627.3597
+    },
+    "mask_voxels_mean": {
+      "opal1": 197.4,
+      "opal2": 200.8,
+      "opal3": 204.8
+    },
+    "masked_mean_hu": {
+      "opal1": 130.0776,
+      "opal2": 133.9259,
+      "opal3": 138.1138
+    },
+    "n_valid": {
+      "opal1": 10,
+      "opal2": 10,
+      "opal3": 10
+    }
+  },
+  "validation": {
+    "opal1": true,
+    "opal2": true,
+    "opal3": true
+  },
+  "workflow_status": {
+    "qc_metrics": {
+      "opal1": {
+        "rows": 10,
+        "columns": 23,
+        "pass": true
+      },
+      "opal2": {
+        "rows": 10,
+        "columns": 23,
+        "pass": true
+      },
+      "opal3": {
+        "rows": 10,
+        "columns": 23,
+        "pass": true
+      }
+    },
+    "mask_connected_components": {
+      "opal1": {
+        "asset_id": "asset_20260526_134223_a96f0661",
+        "kind": "mask_root",
+        "completed": 10,
+        "failed": 0,
+        "pass": true
+      },
+      "opal2": {
+        "asset_id": "asset_20260526_134224_11e855b3",
+        "kind": "mask_root",
+        "completed": 10,
+        "failed": 0,
+        "pass": true
+      },
+      "opal3": {
+        "asset_id": "asset_20260526_134223_23862112",
+        "kind": "mask_root",
+        "completed": 10,
+        "failed": 0,
+        "pass": true
+      }
+    },
+    "crop_to_mask": {
+      "opal1": {
+        "asset_id": "asset_20260526_134230_c9c9d6ea",
+        "kind": "image_root",
+        "completed": 10,
+        "failed": 0,
+        "pass": true
+      },
+      "opal2": {
+        "asset_id": "asset_20260526_134230_b0957aba",
+        "kind": "image_root",
+        "completed": 10,
+        "failed": 0,
+        "pass": true
+      },
+      "opal3": {
+        "asset_id": "asset_20260526_134232_a7269661",
+        "kind": "image_root",
+        "completed": 10,
+        "failed": 0,
+        "pass": true
+      }
+    },
+    "embeddings": {
+      "opal1": {
+        "rows": 10,
+        "columns": 36,
+        "pass": true
+      },
+      "opal2": {
+        "rows": 10,
+        "columns": 36,
+        "pass": true
+      },
+      "opal3": {
+        "rows": 10,
+        "columns": 36,
+        "pass": true
+      }
+    },
+    "existing_mask_radiomics": {
+      "opal1": {
+        "rows": 10,
+        "columns": 29,
+        "pass": true
+      },
+      "opal2": {
+        "rows": 10,
+        "columns": 29,
+        "pass": true
+      },
+      "opal3": {
+        "rows": 10,
+        "columns": 29,
+        "pass": true
+      }
+    },
+    "segmented_radiomics": {
+      "opal1": {
+        "rows": 10,
+        "columns": 29,
+        "pass": true
+      },
+      "opal2": {
+        "rows": 10,
+        "columns": 29,
+        "pass": true
+      },
+      "opal3": {
+        "rows": 10,
+        "columns": 29,
+        "pass": true
+      }
+    }
+  },
+  "overall_pass": true
+}
