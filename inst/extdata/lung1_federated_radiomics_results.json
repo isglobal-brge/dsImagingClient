@@ -1,0 +1,63 @@
+{
+  "run_date": "2026-05-09",
+  "dataset": {
+    "collection": "NSCLC-Radiomics",
+    "cohort": "LUNG1",
+    "source": "The Cancer Imaging Archive",
+    "source_url": "https://www.cancerimagingarchive.net/collection/nsclc-radiomics/",
+    "doi": "10.7937/K9/TCIA.2015.PF0M9REI",
+    "clinical_url": "https://www.cancerimagingarchive.net/wp-content/uploads/NSCLC-Radiomics-Lung1.clinical-version3-Oct-2019.csv",
+    "reference_study": "Aerts et al. 2014, Nature Communications",
+    "reference_doi": "10.1038/ncomms5006",
+    "roi": "GTV-1",
+    "patients_prepared": 422,
+    "site_split": "stable SHA-256 patient hash"
+  },
+  "site_counts": [
+    {"site": "site_a", "dataset": "lung1_full_site_a", "images": 142, "masks": 142, "metadata_rows": 142},
+    {"site": "site_b", "dataset": "lung1_full_site_b", "images": 143, "masks": 143, "metadata_rows": 143},
+    {"site": "site_c", "dataset": "lung1_full_site_c", "images": 137, "masks": 137, "metadata_rows": 137}
+  ],
+  "assets": [
+    {"opal": "opal1", "dataset": "lung1_full_site_a", "generation": "gen_20260509_152105_9e354de9", "asset": "asset_20260509_165902_42b9b1a5"},
+    {"opal": "opal2", "dataset": "lung1_full_site_b", "generation": "gen_20260509_152108_8cf5c55f", "asset": "asset_20260509_170056_0bfdbf8e"},
+    {"opal": "opal3", "dataset": "lung1_full_site_c", "generation": "gen_20260509_152110_b82b5785", "asset": "asset_20260509_170057_9a3db2ab"}
+  ],
+  "loaded_dimensions": [
+    {"source": "opal1", "dimensions": "142 x 20"},
+    {"source": "opal2", "dimensions": "143 x 20"},
+    {"source": "opal3", "dimensions": "137 x 20"},
+    {"source": "combined", "dimensions": "422 x 20"}
+  ],
+  "comparison": [
+    {"server": "opal1", "feature": "original_firstorder_Energy", "federated": 912743691.507042, "central": 912743691.507043, "abs_diff": 5.96046447753906e-07, "rel_diff": 6.53027189670045e-16},
+    {"server": "opal1", "feature": "original_glrlm_RunLengthNonUniformity", "federated": 12430.8791801311, "central": 12430.8791801311, "abs_diff": 4.36557456851006e-11, "rel_diff": 3.51187917222121e-15},
+    {"server": "opal1", "feature": "original_shape_Compactness1", "federated": 0.0258847932464428, "central": 0.0258847932464428, "abs_diff": 2.42861286636753e-17, "rel_diff": 9.38239236931621e-16},
+    {"server": "opal1", "feature": "wavelet.HLH_glrlm_RunLengthNonUniformity", "federated": 9307.55647427235, "central": 9307.55647427235, "abs_diff": 1.81898940354586e-12, "rel_diff": 1.95431465667047e-16},
+    {"server": "opal2", "feature": "original_firstorder_Energy", "federated": 924557312.867133, "central": 924557312.867133, "abs_diff": 1.19209289550781e-07, "rel_diff": 1.28936614195504e-16},
+    {"server": "opal2", "feature": "original_glrlm_RunLengthNonUniformity", "federated": 13151.8800546352, "central": 13151.8800546352, "abs_diff": 1.63709046319127e-11, "rel_diff": 1.24475775051971e-15},
+    {"server": "opal2", "feature": "original_shape_Compactness1", "federated": 0.0268293770986911, "central": 0.0268293770986911, "abs_diff": 1.38777878078145e-17, "rel_diff": 5.17260902359582e-16},
+    {"server": "opal2", "feature": "wavelet.HLH_glrlm_RunLengthNonUniformity", "federated": 10245.5239331547, "central": 10245.5239331547, "abs_diff": 4.91127138957381e-11, "rel_diff": 4.79357758726308e-15},
+    {"server": "opal3", "feature": "original_firstorder_Energy", "federated": 1186055557.30657, "central": 1186055557.30657, "abs_diff": 9.5367431640625e-07, "rel_diff": 8.04072212748586e-16},
+    {"server": "opal3", "feature": "original_glrlm_RunLengthNonUniformity", "federated": 14466.9012668664, "central": 14466.9012668664, "abs_diff": 1.81898940354586e-11, "rel_diff": 1.25734555727694e-15},
+    {"server": "opal3", "feature": "original_shape_Compactness1", "federated": 0.0263166107584965, "central": 0.0263166107584965, "abs_diff": 4.85722573273506e-17, "rel_diff": 1.84568817668395e-15},
+    {"server": "opal3", "feature": "wavelet.HLH_glrlm_RunLengthNonUniformity", "federated": 11379.0070861031, "central": 11379.0070861031, "abs_diff": 7.27595761418343e-12, "rel_diff": 6.39419376324089e-16}
+  ],
+  "clinical": [
+    {"metric": "mean survival_time_days", "opal1": 1000.6197, "opal2": 976.9650, "opal3": 989.0803},
+    {"metric": "mean os_2yr_alive", "opal1": 0.4184397, "opal2": 0.4055944, "opal3": 0.3823529}
+  ],
+  "glm": {
+    "formula": "os_2yr_alive ~ original_firstorder_Energy + original_shape_Compactness1 + original_glrlm_RunLengthNonUniformity + wavelet.HLH_glrlm_RunLengthNonUniformity + age + gender_male",
+    "num_valid_studies": 3,
+    "fixed_effects": [
+      {"term": "(Intercept)", "pooled.FE": 1.416178e-01, "se.FE": 9.263942e-01},
+      {"term": "original_firstorder_Energy", "pooled.FE": -8.452579e-11, "se.FE": 1.228317e-10},
+      {"term": "original_shape_Compactness1", "pooled.FE": 2.383309e+01, "se.FE": 2.154354e+01},
+      {"term": "original_glrlm_RunLengthNonUniformity", "pooled.FE": 8.191498e-05, "se.FE": 5.991988e-05},
+      {"term": "wavelet.HLH_glrlm_RunLengthNonUniformity", "pooled.FE": -1.184013e-04, "se.FE": 7.716003e-05},
+      {"term": "age", "pooled.FE": -9.693862e-03, "se.FE": 1.150634e-02},
+      {"term": "gender_male", "pooled.FE": -1.464250e-01, "se.FE": 2.446642e-01}
+    ]
+  }
+}

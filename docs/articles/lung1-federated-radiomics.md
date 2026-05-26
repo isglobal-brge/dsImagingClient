@@ -8,6 +8,14 @@ PyRadiomics extraction through `dsImaging` and `dsHPC`, and compares the
 federated summaries with a central PyRadiomics baseline over the same
 patients.
 
+The external anchor is the public NSCLC-Radiomics/LUNG1 collection and
+the radiomics workflow popularised by Aerts et al. The purpose here is
+narrower than re-estimating the complete prognostic modelling programme
+of that paper: the validation checks that the image-to-mask-to-radiomics
+path, executed through DataSHIELD jobs on separated sites, reproduces
+the same numerical feature summaries obtained by a central PyRadiomics
+run over the same prepared images.
+
 The default pkgdown build renders the validated results below without
 launching jobs. To execute the live demo while rendering this article,
 set `DSIMAGINGCLIENT_RUN_LUNG1_VIGNETTE=true` and point `LUNG1_WORKDIR`
@@ -19,7 +27,6 @@ The preparation and execution scripts are installed with the package
 under `inst/demos/lung1_federated_study`.
 
 ``` r
-
 demo_dir <- system.file("demos", "lung1_federated_study",
                         package = "dsImagingClient")
 if (!nzchar(demo_dir)) {
@@ -30,10 +37,10 @@ if (!nzchar(demo_dir)) {
 prepare_script <- file.path(demo_dir, "prepare_lung1_study.py")
 run_script <- file.path(demo_dir, "run_lung1_datashield.R")
 c(prepare_script = prepare_script, run_script = run_script)
-#>                                                                                                                                                     prepare_script
-#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmp5ZQ19h/temp_libpath1366a4b99965f/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py"
-#>                                                                                                                                                         run_script
-#> "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmp5ZQ19h/temp_libpath1366a4b99965f/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
+#>                                                                                                                            prepare_script
+#> "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py"
+#>                                                                                                                                run_script
+#> "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
 ```
 
 Prepare the full public cohort:
@@ -42,6 +49,15 @@ Prepare the full public cohort:
 python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
   --workdir /tmp/dsimaging_lung1_full \
   --all-patients
+```
+
+For a metadata-only check before downloading DICOM files:
+
+``` bash
+python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
+  --workdir /tmp/dsimaging_lung1_plan \
+  --all-patients \
+  --dry-run
 ```
 
 Run or resume the federated DataSHIELD pass:
@@ -60,7 +76,6 @@ Rscript inst/demos/lung1_federated_study/run_lung1_datashield.R
 ```
 
 ``` r
-
 demo_env <- c(
   paste0("LUNG1_WORKDIR=", Sys.getenv("LUNG1_WORKDIR",
                                       "/tmp/dsimaging_lung1_full")),
@@ -84,18 +99,11 @@ if (!identical(status, 0L)) {
 ## Validated Cohort
 
 The final validation pass used every public LUNG1 patient that passed CT
-and `GTV-1` mask conversion: `422` patients split across three sites by
+and `GTV-1` mask conversion: 422 patients split across three sites by
 stable patient hash.
 
 ``` r
-
-site_counts <- data.frame(
-  site = c("site_a", "site_b", "site_c"),
-  dataset = c("lung1_full_site_a", "lung1_full_site_b", "lung1_full_site_c"),
-  images = c(142L, 143L, 137L),
-  masks = c(142L, 143L, 137L),
-  metadata_rows = c(142L, 143L, 137L)
-)
+site_counts <- lung1_evidence$site_counts
 knitr::kable(site_counts)
 ```
 
@@ -106,7 +114,6 @@ knitr::kable(site_counts)
 | site_c | lung1_full_site_c |    137 |   137 |           137 |
 
 ``` r
-
 if (has_ggplot2) {
   ggplot2::ggplot(site_counts,
                   ggplot2::aes(x = site, y = metadata_rows, fill = site)) +
@@ -126,24 +133,12 @@ if (has_ggplot2) {
 }
 ```
 
-![Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142,
-143, and 137
-patients.](lung1-federated-radiomics_files/figure-html/cohort-plot-1.png)
+<img src="lung1-federated-radiomics_files/figure-html/cohort-plot-1.png" alt="Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142, 143, and 137 patients."  />
 
 Published collection assets:
 
 ``` r
-
-assets <- data.frame(
-  opal = c("opal1", "opal2", "opal3"),
-  dataset = c("lung1_full_site_a", "lung1_full_site_b", "lung1_full_site_c"),
-  generation = c("gen_20260509_152105_9e354de9",
-                 "gen_20260509_152108_8cf5c55f",
-                 "gen_20260509_152110_b82b5785"),
-  asset = c("asset_20260509_165902_42b9b1a5",
-            "asset_20260509_170056_0bfdbf8e",
-            "asset_20260509_170057_9a3db2ab")
-)
+assets <- lung1_evidence$assets
 knitr::kable(assets)
 ```
 
@@ -158,11 +153,7 @@ After
 server-side analysis tables had these dimensions:
 
 ``` r
-
-loaded_dims <- data.frame(
-  source = c("opal1", "opal2", "opal3", "combined"),
-  dimensions = c("142 x 20", "143 x 20", "137 x 20", "422 x 20")
-)
+loaded_dims <- lung1_evidence$loaded_dimensions
 knitr::kable(loaded_dims)
 ```
 
@@ -180,7 +171,6 @@ signature profile to `sample_id` plus four radiomics features. The
 remaining loaded columns are clinical metadata joined by `sample_id`.
 
 ``` r
-
 knitr::kable(
   comparison[, c("server", "feature", "federated", "central",
                  "abs_diff_fmt", "rel_diff_fmt")],
@@ -206,7 +196,6 @@ knitr::kable(
 | opal3 | wavelet.HLH_glrlm_RunLengthNonUniformity | 1.137901e+04 | 1.137901e+04 | 7.276e-12 | 6.394e-16 |
 
 ``` r
-
 if (has_ggplot2) {
   ggplot2::ggplot(comparison,
                   ggplot2::aes(x = central, y = federated, color = server)) +
@@ -231,12 +220,9 @@ if (has_ggplot2) {
 }
 ```
 
-![Faceted scatter plot comparing central PyRadiomics feature means with
-federated DataSHIELD means; all points lie on the identity
-line.](lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png)
+<img src="lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png" alt="Faceted scatter plot comparing central PyRadiomics feature means with federated DataSHIELD means; all points lie on the identity line."  />
 
 ``` r
-
 plot_errors <- comparison
 plot_errors$abs_diff_floor <- pmax(plot_errors$abs_diff, .Machine$double.eps)
 if (has_ggplot2) {
@@ -261,9 +247,7 @@ if (has_ggplot2) {
 }
 ```
 
-![Grouped bar chart on a log scale showing very small absolute
-differences between federated and central feature
-means.](lung1-federated-radiomics_files/figure-html/absolute-error-plot-1.png)
+<img src="lung1-federated-radiomics_files/figure-html/absolute-error-plot-1.png" alt="Grouped bar chart on a log scale showing very small absolute differences between federated and central feature means."  />
 
 Maximum absolute difference: 9.537e-07. Maximum relative difference:
 4.794e-15.
@@ -274,13 +258,7 @@ Clinical metadata were joined to the radiomics feature table on the
 server side before analysis.
 
 ``` r
-
-clinical <- data.frame(
-  metric = c("mean survival_time_days", "mean os_2yr_alive"),
-  opal1 = c(1000.6197, 0.4184397),
-  opal2 = c(976.9650, 0.4055944),
-  opal3 = c(989.0803, 0.3823529)
-)
+clinical <- lung1_evidence$clinical
 knitr::kable(clinical, digits = 7)
 ```
 
@@ -290,7 +268,6 @@ knitr::kable(clinical, digits = 7)
 | mean os_2yr_alive       |    0.4184397 |   0.4055944 |   0.3823529 |
 
 ``` r
-
 clinical_long <- data.frame(
   metric = rep(clinical$metric, each = 3),
   server = rep(c("opal1", "opal2", "opal3"), times = nrow(clinical)),
@@ -314,43 +291,22 @@ if (has_ggplot2) {
 }
 ```
 
-![Faceted bar chart of site-level means for survival time and two-year
-overall survival
-status.](lung1-federated-radiomics_files/figure-html/clinical-plot-1.png)
+<img src="lung1-federated-radiomics_files/figure-html/clinical-plot-1.png" alt="Faceted bar chart of site-level means for survival time and two-year overall survival status."  />
 
 A federated `ds.glmSLMA()` model was fit with:
 
 ``` r
-
-glm_formula <- os_2yr_alive ~ original_firstorder_Energy +
-  original_shape_Compactness1 +
-  original_glrlm_RunLengthNonUniformity +
-  wavelet.HLH_glrlm_RunLengthNonUniformity +
-  age + gender_male
-glm_formula
+stats::as.formula(lung1_evidence$glm$formula)
 #> os_2yr_alive ~ original_firstorder_Energy + original_shape_Compactness1 + 
 #>     original_glrlm_RunLengthNonUniformity + wavelet.HLH_glrlm_RunLengthNonUniformity + 
 #>     age + gender_male
 ```
 
-The run produced `num.valid.studies = 3`; `<new.glm.obj>` was created
-and validated in all data sources.
+The run produced num.valid.studies = 3; `<new.glm.obj>` was created and
+validated in all data sources.
 
 ``` r
-
-glm_fe <- data.frame(
-  term = c("(Intercept)", "original_firstorder_Energy",
-           "original_shape_Compactness1",
-           "original_glrlm_RunLengthNonUniformity",
-           "wavelet.HLH_glrlm_RunLengthNonUniformity",
-           "age", "gender_male"),
-  pooled.FE = c(1.416178e-01, -8.452579e-11, 2.383309e+01,
-                8.191498e-05, -1.184013e-04, -9.693862e-03,
-                -1.464250e-01),
-  se.FE = c(9.263942e-01, 1.228317e-10, 2.154354e+01,
-            5.991988e-05, 7.716003e-05, 1.150634e-02,
-            2.446642e-01)
-)
+glm_fe <- lung1_evidence$glm$fixed_effects
 knitr::kable(glm_fe, digits = 6)
 ```
 
@@ -365,7 +321,6 @@ knitr::kable(glm_fe, digits = 6)
 | gender_male                              | -0.146425 |  0.244664 |
 
 ``` r
-
 glm_plot <- glm_fe
 glm_plot$z_score <- glm_plot$pooled.FE / glm_plot$se.FE
 glm_plot$term <- factor(glm_plot$term,
@@ -390,10 +345,7 @@ if (has_ggplot2) {
 }
 ```
 
-![Horizontal bar chart of fixed-effect coefficient divided by standard
-error for each federated GLM term, with dashed reference lines at plus
-or minus
-1.96.](lung1-federated-radiomics_files/figure-html/glm-z-plot-1.png)
+<img src="lung1-federated-radiomics_files/figure-html/glm-z-plot-1.png" alt="Horizontal bar chart of fixed-effect coefficient divided by standard error for each federated GLM term, with dashed reference lines at plus or minus 1.96."  />
 
 ## Operational Notes
 

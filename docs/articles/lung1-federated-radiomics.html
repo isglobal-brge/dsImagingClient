@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,6 +67,13 @@ runs Aerts-signature PyRadiomics extraction through
 <code>dsImaging</code> and <code>dsHPC</code>, and compares the
 federated summaries with a central PyRadiomics baseline over the same
 patients.</p>
+<p>The external anchor is the public NSCLC-Radiomics/LUNG1 collection
+and the radiomics workflow popularised by Aerts et al. The purpose here
+is narrower than re-estimating the complete prognostic modelling
+programme of that paper: the validation checks that the
+image-to-mask-to-radiomics path, executed through DataSHIELD jobs on
+separated sites, reproduces the same numerical feature summaries
+obtained by a central PyRadiomics run over the same prepared images.</p>
 <p>The default pkgdown build renders the validated results below without
 launching jobs. To execute the live demo while rendering this article,
 set <code>DSIMAGINGCLIENT_RUN_LUNG1_VIGNETTE=true</code> and point
@@ -87,26 +94,31 @@ under <code>inst/demos/lung1_federated_study</code>.</p>
 <span><span class="va">prepare_script</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo_dir</span>, <span class="st">"prepare_lung1_study.py"</span><span class="op">)</span></span>
 <span><span class="va">run_script</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo_dir</span>, <span class="st">"run_lung1_datashield.R"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>prepare_script <span class="op">=</span> <span class="va">prepare_script</span>, run_script <span class="op">=</span> <span class="va">run_script</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                                                                                                                                     prepare_script </span></span>
-<span><span class="co">#&gt; "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmp5ZQ19h/temp_libpath1366a4b99965f/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" </span></span>
-<span><span class="co">#&gt;                                                                                                                                                         run_script </span></span>
-<span><span class="co">#&gt; "/private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmp5ZQ19h/temp_libpath1366a4b99965f/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"</span></span></code></pre></div>
+<span><span class="co">#&gt;                                                                                                                            prepare_script </span></span>
+<span><span class="co">#&gt; "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" </span></span>
+<span><span class="co">#&gt;                                                                                                                                run_script </span></span>
+<span><span class="co">#&gt; "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"</span></span></code></pre></div>
 <p>Prepare the full public cohort:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">python3</span> inst/demos/lung1_federated_study/prepare_lung1_study.py <span class="dt">\</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">--workdir</span> /tmp/dsimaging_lung1_full <span class="dt">\</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">--all-patients</span></span></code></pre></div>
+<p>For a metadata-only check before downloading DICOM files:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">python3</span> inst/demos/lung1_federated_study/prepare_lung1_study.py <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">--workdir</span> /tmp/dsimaging_lung1_plan <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">--all-patients</span> <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">--dry-run</span></span></code></pre></div>
 <p>Run or resume the federated DataSHIELD pass:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="va">LUNG1_WORKDIR</span><span class="op">=</span>/tmp/dsimaging_lung1_full <span class="dt">\</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="va">LUNG1_DATASET_PREFIX</span><span class="op">=</span>lung1_full_site <span class="dt">\</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="va">LUNG1_OPAL_RESOURCE</span><span class="op">=</span>lung1_full_study <span class="dt">\</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="va">LUNG1_PUBLISH</span><span class="op">=</span>FALSE <span class="dt">\</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="va">LUNG1_RUN_JOBS</span><span class="op">=</span>FALSE <span class="dt">\</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="va">LUNG1_TIMEOUT</span><span class="op">=</span>0 <span class="dt">\</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="va">LUNG1_RUN_GLM</span><span class="op">=</span>TRUE <span class="dt">\</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="va">OPAL_USER</span><span class="op">=</span>administrator <span class="dt">\</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="va">OPAL_PASSWORD</span><span class="op">=</span>admin123 <span class="dt">\</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="ex">Rscript</span> inst/demos/lung1_federated_study/run_lung1_datashield.R</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">LUNG1_WORKDIR</span><span class="op">=</span>/tmp/dsimaging_lung1_full <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="va">LUNG1_DATASET_PREFIX</span><span class="op">=</span>lung1_full_site <span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">LUNG1_OPAL_RESOURCE</span><span class="op">=</span>lung1_full_study <span class="dt">\</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="va">LUNG1_PUBLISH</span><span class="op">=</span>FALSE <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="va">LUNG1_RUN_JOBS</span><span class="op">=</span>FALSE <span class="dt">\</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="va">LUNG1_TIMEOUT</span><span class="op">=</span>0 <span class="dt">\</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="va">LUNG1_RUN_GLM</span><span class="op">=</span>TRUE <span class="dt">\</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="va">OPAL_USER</span><span class="op">=</span>administrator <span class="dt">\</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="va">OPAL_PASSWORD</span><span class="op">=</span>admin123 <span class="dt">\</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="ex">Rscript</span> inst/demos/lung1_federated_study/run_lung1_datashield.R</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">demo_env</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_WORKDIR="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_WORKDIR"</span>,</span>
 <span>                                      <span class="st">"/tmp/dsimaging_lung1_full"</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -130,16 +142,10 @@ under <code>inst/demos/lung1_federated_study</code>.</p>
 <h2 id="validated-cohort">Validated Cohort<a class="anchor" aria-label="anchor" href="#validated-cohort"></a>
 </h2>
 <p>The final validation pass used every public LUNG1 patient that passed
-CT and <code>GTV-1</code> mask conversion: <code>422</code> patients
-split across three sites by stable patient hash.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">site_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"site_a"</span>, <span class="st">"site_b"</span>, <span class="st">"site_c"</span><span class="op">)</span>,</span>
-<span>  dataset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lung1_full_site_a"</span>, <span class="st">"lung1_full_site_b"</span>, <span class="st">"lung1_full_site_c"</span><span class="op">)</span>,</span>
-<span>  images <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">142L</span>, <span class="fl">143L</span>, <span class="fl">137L</span><span class="op">)</span>,</span>
-<span>  masks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">142L</span>, <span class="fl">143L</span>, <span class="fl">137L</span><span class="op">)</span>,</span>
-<span>  metadata_rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">142L</span>, <span class="fl">143L</span>, <span class="fl">137L</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+CT and <code>GTV-1</code> mask conversion: 422 patients split across
+three sites by stable patient hash.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">site_counts</span> <span class="op">&lt;-</span> <span class="va">lung1_evidence</span><span class="op">$</span><span class="va">site_counts</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">site_counts</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -173,7 +179,7 @@ split across three sites by stable patient hash.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">site_counts</span>,</span>
 <span>                  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">site</span>, y <span class="op">=</span> <span class="va">metadata_rows</span>, fill <span class="op">=</span> <span class="va">site</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -193,17 +199,8 @@ split across three sites by stable patient hash.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="lung1-federated-radiomics_files/figure-html/cohort-plot-1.png" class="r-plt" alt="Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142, 143, and 137 patients." width="672"></p>
 <p>Published collection assets:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">assets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  opal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span><span class="op">)</span>,</span>
-<span>  dataset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lung1_full_site_a"</span>, <span class="st">"lung1_full_site_b"</span>, <span class="st">"lung1_full_site_c"</span><span class="op">)</span>,</span>
-<span>  generation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gen_20260509_152105_9e354de9"</span>,</span>
-<span>                 <span class="st">"gen_20260509_152108_8cf5c55f"</span>,</span>
-<span>                 <span class="st">"gen_20260509_152110_b82b5785"</span><span class="op">)</span>,</span>
-<span>  asset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"asset_20260509_165902_42b9b1a5"</span>,</span>
-<span>            <span class="st">"asset_20260509_170056_0bfdbf8e"</span>,</span>
-<span>            <span class="st">"asset_20260509_170057_9a3db2ab"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">assets</span> <span class="op">&lt;-</span> <span class="va">lung1_evidence</span><span class="op">$</span><span class="va">assets</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">assets</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
@@ -242,11 +239,8 @@ split across three sites by stable patient hash.</p>
 <p>After
 <code>ds.imaging.radiomics.load_features(..., include_metadata = TRUE)</code>,
 the server-side analysis tables had these dimensions:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">loaded_dims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span>, <span class="st">"combined"</span><span class="op">)</span>,</span>
-<span>  dimensions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"142 x 20"</span>, <span class="st">"143 x 20"</span>, <span class="st">"137 x 20"</span>, <span class="st">"422 x 20"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loaded_dims</span> <span class="op">&lt;-</span> <span class="va">lung1_evidence</span><span class="op">$</span><span class="va">loaded_dimensions</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">loaded_dims</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -280,7 +274,7 @@ the server-side analysis tables had these dimensions:</p>
 signature profile to <code>sample_id</code> plus four radiomics
 features. The remaining loaded columns are clinical metadata joined by
 <code>sample_id</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
 <span>  <span class="va">comparison</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"server"</span>, <span class="st">"feature"</span>, <span class="st">"federated"</span>, <span class="st">"central"</span>,</span>
 <span>                 <span class="st">"abs_diff_fmt"</span>, <span class="st">"rel_diff_fmt"</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -404,7 +398,7 @@ features. The remaining loaded columns are clinical metadata joined by
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison</span>,</span>
 <span>                  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">central</span>, y <span class="op">=</span> <span class="va">federated</span>, color <span class="op">=</span> <span class="va">server</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -428,7 +422,7 @@ features. The remaining loaded columns are clinical metadata joined by
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey45"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png" class="r-plt" alt="Faceted scatter plot comparing central PyRadiomics feature means with federated DataSHIELD means; all points lie on the identity line." width="768"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_errors</span> <span class="op">&lt;-</span> <span class="va">comparison</span></span>
 <span><span class="va">plot_errors</span><span class="op">$</span><span class="va">abs_diff_floor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">plot_errors</span><span class="op">$</span><span class="va">abs_diff</span>, <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="va">has_ggplot2</span><span class="op">)</span> <span class="op">{</span></span>
@@ -460,13 +454,8 @@ features. The remaining loaded columns are clinical metadata joined by
 </h2>
 <p>Clinical metadata were joined to the radiomics feature table on the
 server side before analysis.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">clinical</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean survival_time_days"</span>, <span class="st">"mean os_2yr_alive"</span><span class="op">)</span>,</span>
-<span>  opal1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000.6197</span>, <span class="fl">0.4184397</span><span class="op">)</span>,</span>
-<span>  opal2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">976.9650</span>, <span class="fl">0.4055944</span><span class="op">)</span>,</span>
-<span>  opal3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">989.0803</span>, <span class="fl">0.3823529</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">clinical</span> <span class="op">&lt;-</span> <span class="va">lung1_evidence</span><span class="op">$</span><span class="va">clinical</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">clinical</span>, digits <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -490,7 +479,7 @@ server side before analysis.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clinical_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">clinical</span><span class="op">$</span><span class="va">metric</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  server <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opal1"</span>, <span class="st">"opal2"</span>, <span class="st">"opal3"</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">clinical</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -514,33 +503,16 @@ server side before analysis.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="lung1-federated-radiomics_files/figure-html/clinical-plot-1.png" class="r-plt" alt="Faceted bar chart of site-level means for survival time and two-year overall survival status." width="672"></p>
 <p>A federated <code>ds.glmSLMA()</code> model was fit with:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">glm_formula</span> <span class="op">&lt;-</span> <span class="va">os_2yr_alive</span> <span class="op">~</span> <span class="va">original_firstorder_Energy</span> <span class="op">+</span></span>
-<span>  <span class="va">original_shape_Compactness1</span> <span class="op">+</span></span>
-<span>  <span class="va">original_glrlm_RunLengthNonUniformity</span> <span class="op">+</span></span>
-<span>  <span class="va">wavelet.HLH_glrlm_RunLengthNonUniformity</span> <span class="op">+</span></span>
-<span>  <span class="va">age</span> <span class="op">+</span> <span class="va">gender_male</span></span>
-<span><span class="va">glm_formula</span></span>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="va">lung1_evidence</span><span class="op">$</span><span class="va">glm</span><span class="op">$</span><span class="va">formula</span><span class="op">)</span></span>
 <span><span class="co">#&gt; os_2yr_alive ~ original_firstorder_Energy + original_shape_Compactness1 + </span></span>
 <span><span class="co">#&gt;     original_glrlm_RunLengthNonUniformity + wavelet.HLH_glrlm_RunLengthNonUniformity + </span></span>
 <span><span class="co">#&gt;     age + gender_male</span></span></code></pre></div>
-<p>The run produced <code>num.valid.studies = 3</code>;
+<p>The run produced num.valid.studies = 3;
 <code>&lt;new.glm.obj&gt;</code> was created and validated in all data
 sources.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">glm_fe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"(Intercept)"</span>, <span class="st">"original_firstorder_Energy"</span>,</span>
-<span>           <span class="st">"original_shape_Compactness1"</span>,</span>
-<span>           <span class="st">"original_glrlm_RunLengthNonUniformity"</span>,</span>
-<span>           <span class="st">"wavelet.HLH_glrlm_RunLengthNonUniformity"</span>,</span>
-<span>           <span class="st">"age"</span>, <span class="st">"gender_male"</span><span class="op">)</span>,</span>
-<span>  pooled.FE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.416178e-01</span>, <span class="op">-</span><span class="fl">8.452579e-11</span>, <span class="fl">2.383309e+01</span>,</span>
-<span>                <span class="fl">8.191498e-05</span>, <span class="op">-</span><span class="fl">1.184013e-04</span>, <span class="op">-</span><span class="fl">9.693862e-03</span>,</span>
-<span>                <span class="op">-</span><span class="fl">1.464250e-01</span><span class="op">)</span>,</span>
-<span>  se.FE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">9.263942e-01</span>, <span class="fl">1.228317e-10</span>, <span class="fl">2.154354e+01</span>,</span>
-<span>            <span class="fl">5.991988e-05</span>, <span class="fl">7.716003e-05</span>, <span class="fl">1.150634e-02</span>,</span>
-<span>            <span class="fl">2.446642e-01</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">glm_fe</span> <span class="op">&lt;-</span> <span class="va">lung1_evidence</span><span class="op">$</span><span class="va">glm</span><span class="op">$</span><span class="va">fixed_effects</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">glm_fe</span>, digits <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -586,7 +558,7 @@ sources.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">glm_plot</span> <span class="op">&lt;-</span> <span class="va">glm_fe</span></span>
 <span><span class="va">glm_plot</span><span class="op">$</span><span class="va">z_score</span> <span class="op">&lt;-</span> <span class="va">glm_plot</span><span class="op">$</span><span class="va">pooled.FE</span> <span class="op">/</span> <span class="va">glm_plot</span><span class="op">$</span><span class="va">se.FE</span></span>
 <span><span class="va">glm_plot</span><span class="op">$</span><span class="va">term</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">glm_plot</span><span class="op">$</span><span class="va">term</span>,</span>

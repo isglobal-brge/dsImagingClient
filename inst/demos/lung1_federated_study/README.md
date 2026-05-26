@@ -5,6 +5,13 @@ It uses TCIA NSCLC-Radiomics/LUNG1 CT images, RTSTRUCT `GTV-1` tumour masks,
 clinical metadata, `dsimaging-store`, `dsImaging`, and dsHPC-backed radiomics
 jobs across three simulated Opal/Rock sites.
 
+The external reference point is the public LUNG1/NSCLC-Radiomics collection
+used in the Aerts et al. radiomics work. This demo does not attempt to recreate
+the full multi-cohort prognostic modelling study; it validates the federated
+DataSHIELD execution path by comparing dsHPC-backed PyRadiomics extraction with
+a central PyRadiomics baseline computed on the same prepared CT images and
+tumour masks.
+
 Sources:
 
 - TCIA NSCLC-Radiomics collection:
@@ -21,7 +28,7 @@ available public LUNG1 patient and keeps the natural hash-based site imbalance.
 ## Prepare Data
 
 ```bash
-/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_study.py \
+python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
   --workdir /tmp/dsimaging_lung1_study \
   --n-per-site 3
 ```
@@ -29,7 +36,8 @@ available public LUNG1 patient and keeps the natural hash-based site imbalance.
 Full-cohort plan check, without downloading DICOM data:
 
 ```bash
-/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_study.py \
+python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
+  --workdir /tmp/dsimaging_lung1_plan \
   --all-patients \
   --dry-run
 ```
@@ -37,7 +45,7 @@ Full-cohort plan check, without downloading DICOM data:
 Full-cohort preparation:
 
 ```bash
-/opt/homebrew/bin/python3.11 demos/07_lung1_federated_study/prepare_lung1_study.py \
+python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
   --workdir /tmp/dsimaging_lung1_full \
   --all-patients
 ```
@@ -53,7 +61,7 @@ to keep full-cohort runs practical; use `--keep-raw` to retain them.
 ## Run Federated Pipeline
 
 ```bash
-Rscript demos/07_lung1_federated_study/run_lung1_datashield.R
+Rscript inst/demos/lung1_federated_study/run_lung1_datashield.R
 ```
 
 The R script publishes each site with `dsimaging-admin --metadata`, registers

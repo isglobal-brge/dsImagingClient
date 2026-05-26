@@ -6,6 +6,13 @@ Dataset: TCIA NSCLC-Radiomics/LUNG1, 422 real patients with CT images and
 `GTV-1` masks that passed conversion, partitioned by stable patient hash into
 three simulated sites.
 
+External alignment: this validation uses the public LUNG1/NSCLC-Radiomics
+collection associated with the Aerts et al. radiomics study. The comparison
+reported here is deliberately an execution-equivalence check: federated
+DataSHIELD extraction and central PyRadiomics extraction are run on the same
+prepared images and tumour masks, and their feature summaries are compared
+directly.
+
 Command used for the final verification pass:
 
 ```sh
