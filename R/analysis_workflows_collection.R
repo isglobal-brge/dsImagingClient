@@ -133,7 +133,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
   # --- Step 3: Poll until completion (optional, user can Ctrl-C safely) ---
   message("Waiting for completion (Ctrl-C is safe, server continues)...")
   start_time <- Sys.time()
-  last_completed <- -1L
+  last_progress_key <- NULL
 
   repeat {
     status <- .ds_safe_aggregate(conns, "imagingRadiomicsCollectionStatusDS",
@@ -148,12 +148,21 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
     completed <- st$completed %||% 0L
     failed <- st$failed %||% 0L
     pending <- st$pending %||% 0L
+    claimed <- st$claimed %||% 0L
+    running <- st$running %||% 0L
+    retrying <- st$retrying %||% 0L
+    active_jobs <- st$active_jobs %||% NA_integer_
 
-    if (completed != last_completed) {
+    progress_key <- paste(completed, failed, pending, claimed, running,
+                          retrying, active_jobs, sep = ":")
+    if (!identical(progress_key, last_progress_key)) {
       pct <- round(completed / total * 100)
       message("  Progress: ", completed, "/", total,
-              " (", pct, "%) | Failed: ", failed, " | Pending: ", pending)
-      last_completed <- completed
+              " (", pct, "%) | Failed: ", failed,
+              " | Pending: ", pending,
+              " | Running: ", running,
+              " | Retrying: ", retrying)
+      last_progress_key <- progress_key
     }
 
     if (isTRUE(st$is_done)) {

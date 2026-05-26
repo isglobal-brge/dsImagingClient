@@ -11,19 +11,30 @@
 #' @param segmenter A segmenter from ds.imaging.segmenter.*().
 #' @param profile A radiomics profile from ds.imaging.radiomics.profile.*().
 #' @param visibility Character; job visibility label (default "private").
-#' @param symbol Character or NULL; target server-side symbol for the workflow
-#'   handle. If NULL, a temporary symbol is generated.
-#' @return A domain-mediated workflow submission handle.
+#' @param batch_size Integer; images per batch.
+#' @param poll_interval Numeric; seconds between status checks.
+#' @param timeout Numeric; max seconds to wait. Set to 0 for fire-and-forget.
+#' @param allow_partial Logical; publish with some failures.
+#' @return Named list with generation and asset information.
 #' @export
 ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id,
                                                image_asset = "images",
                                                segmenter,
                                                profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
                                                visibility = "private",
-                                               symbol = NULL) {
-  request <- list(dataset_id = dataset_id, image_asset = image_asset,
-    segmenter = segmenter, profile = profile, visibility = visibility,
-    job_id = .generate_job_id())
-  .assign_domain_workflow(conns, "imagingProcessSegmentAndExtractDS", request,
-    symbol = symbol)
+                                               batch_size = 10L,
+                                               poll_interval = 15,
+                                               timeout = 14400,
+                                               allow_partial = FALSE) {
+  ds.imaging.radiomics.process_collection(
+    conns = conns,
+    dataset_id = dataset_id,
+    segmenter = segmenter,
+    profile = profile,
+    batch_size = batch_size,
+    poll_interval = poll_interval,
+    timeout = timeout,
+    allow_partial = allow_partial,
+    visibility = visibility
+  )
 }
