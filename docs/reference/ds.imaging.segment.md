@@ -10,8 +10,9 @@ ds.imaging.segment(
   dataset_id,
   image_asset = "images",
   segmenter,
-  visibility = "global",
-  alias = NULL
+  visibility = "private",
+  alias = NULL,
+  symbol = NULL
 )
 ```
 
@@ -35,12 +36,17 @@ ds.imaging.segment(
 
 - visibility:
 
-  Character; job visibility label (default "global").
+  Character; job visibility label (default "private").
 
 - alias:
 
   Character or NULL; alias for the published mask.
 
+- symbol:
+
+  Character or NULL; target server-side symbol for the workflow handle.
+  If NULL, a temporary symbol is generated.
+
 ## Value
 
-A dshpc_submission or existing asset_id.
+A domain-mediated workflow submission handle.

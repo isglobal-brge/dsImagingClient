@@ -16,85 +16,115 @@ path, executed through DataSHIELD jobs on separated sites, reproduces
 the same numerical feature summaries obtained by a central PyRadiomics
 run over the same prepared images.
 
-The default pkgdown build renders the validated results below without
-launching jobs. To execute the live demo while rendering this article,
-set `DSIMAGINGCLIENT_RUN_LUNG1_VIGNETTE=true` and point `LUNG1_WORKDIR`
-at a prepared LUNG1 workspace.
+The 422 LUNG1 patients are split reproducibly across three DataSHIELD
+sites — Site A holds 142 patients, Site B 143 and Site C 137 — and
+published with `dsimaging-admin` into an S3/MinIO-backed layout that is
+registered as an imaging resource on each of the three Opal servers.
+Every site keeps its own CT images, `GTV-1` tumour masks and sample
+metadata. The steps below show what the researcher runs once that
+server-side configuration is in place; images and masks are resolved and
+processed at each site and never reach the client.
 
-## Running The Demo
+## Running This Validation
 
-The preparation and execution scripts are installed with the package
-under `inst/demos/lung1_federated_study`.
-
-``` r
-demo_dir <- system.file("demos", "lung1_federated_study",
-                        package = "dsImagingClient")
-if (!nzchar(demo_dir)) {
-  demo_dir <- normalizePath(file.path("..", "inst", "demos",
-                                     "lung1_federated_study"),
-                            mustWork = FALSE)
-}
-prepare_script <- file.path(demo_dir, "prepare_lung1_study.py")
-run_script <- file.path(demo_dir, "run_lung1_datashield.R")
-c(prepare_script = prepare_script, run_script = run_script)
-#>                                                                                                                            prepare_script
-#> "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py"
-#>                                                                                                                                run_script
-#> "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"
-```
-
-Prepare the full public cohort:
-
-``` bash
-python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
-  --workdir /tmp/dsimaging_lung1_full \
-  --all-patients
-```
-
-For a metadata-only check before downloading DICOM files:
-
-``` bash
-python3 inst/demos/lung1_federated_study/prepare_lung1_study.py \
-  --workdir /tmp/dsimaging_lung1_plan \
-  --all-patients \
-  --dry-run
-```
-
-Run or resume the federated DataSHIELD pass:
-
-``` bash
-LUNG1_WORKDIR=/tmp/dsimaging_lung1_full \
-LUNG1_DATASET_PREFIX=lung1_full_site \
-LUNG1_OPAL_RESOURCE=lung1_full_study \
-LUNG1_PUBLISH=FALSE \
-LUNG1_RUN_JOBS=FALSE \
-LUNG1_TIMEOUT=0 \
-LUNG1_RUN_GLM=TRUE \
-OPAL_USER=administrator \
-OPAL_PASSWORD=admin123 \
-Rscript inst/demos/lung1_federated_study/run_lung1_datashield.R
-```
+**1. Connect to the DataSHIELD nodes.** Open one session across the
+three Opal servers that register the LUNG1 imaging resource.
 
 ``` r
-demo_env <- c(
-  paste0("LUNG1_WORKDIR=", Sys.getenv("LUNG1_WORKDIR",
-                                      "/tmp/dsimaging_lung1_full")),
-  paste0("LUNG1_DATASET_PREFIX=", Sys.getenv("LUNG1_DATASET_PREFIX",
-                                             "lung1_full_site")),
-  paste0("LUNG1_OPAL_RESOURCE=", Sys.getenv("LUNG1_OPAL_RESOURCE",
-                                            "lung1_full_study")),
-  paste0("LUNG1_PUBLISH=", Sys.getenv("LUNG1_PUBLISH", "FALSE")),
-  paste0("LUNG1_RUN_JOBS=", Sys.getenv("LUNG1_RUN_JOBS", "FALSE")),
-  paste0("LUNG1_TIMEOUT=", Sys.getenv("LUNG1_TIMEOUT", "0")),
-  paste0("LUNG1_RUN_GLM=", Sys.getenv("LUNG1_RUN_GLM", "TRUE")),
-  paste0("OPAL_USER=", Sys.getenv("OPAL_USER", "administrator")),
-  paste0("OPAL_PASSWORD=", Sys.getenv("OPAL_PASSWORD", "admin123"))
+
+library(DSI)
+library(DSOpal)
+library(dsImagingClient)
+library(dsBaseClient)
+
+builder <- DSI::newDSLoginBuilder()
+builder$append(server = "opal1", url = "https://opal-node-1.example.org",
+               user = "researcher", password = "********")
+builder$append(server = "opal2", url = "https://opal-node-2.example.org",
+               user = "researcher", password = "********")
+builder$append(server = "opal3", url = "https://opal-node-3.example.org",
+               user = "researcher", password = "********")
+conns <- DSI::datashield.login(builder$build(), assign = FALSE)
+```
+
+**2. Initialise the imaging resource.** Bind the LUNG1 resource to a
+server-side handle and confirm the CT images and `GTV-1` masks are
+readable before any job runs.
+
+``` r
+
+ds.imaging.init(conns, resource = "dsdemo.lung1_study", symbol = "img")
+ds.imaging.validate(conns, "img")
+```
+
+**3. Extract the Aerts radiomics signature.** Submit one collection
+workflow over the existing tumour masks with the Aerts profile. `dsHPC`
+schedules the per-image PyRadiomics jobs at each site; the call reports
+what was queued.
+
+``` r
+
+result <- ds.imaging.radiomics.process_collection(
+  conns,
+  dataset_id = NULL,
+  segmenter  = ds.imaging.segmenter.existing_mask("masks"),
+  profile    = ds.imaging.radiomics.profile.aerts_signature(),
+  batch_size = 1L,
+  visibility = "global"
 )
-status <- system2("Rscript", run_script, env = demo_env)
-if (!identical(status, 0L)) {
-  stop("LUNG1 demo failed with exit status ", status, call. = FALSE)
-}
 ```
+
+**4. Publish and load the feature table.** Once every per-image job has
+finished, commit the completed outputs to the asset catalogue and load
+them — with the joined clinical metadata — into a server-side DataSHIELD
+table.
+
+``` r
+
+pub <- ds.imaging.radiomics.collection_publish(
+  conns,
+  generation_id = result$generation_id,
+  dataset_id    = result$dataset_id
+)
+
+ds.imaging.radiomics.load_features(
+  conns,
+  dataset_id       = pub$dataset_id,
+  asset_id         = pub$asset_id,
+  symbol           = "rad",
+  include_metadata = TRUE,
+  syntactic_names  = TRUE
+)
+```
+
+**5. Analyse the federated feature table.** `rad` is now an ordinary
+server-side DataSHIELD table. Check its dimensions, summarise the Aerts
+features and fit a federated two-year-survival GLM from the features and
+clinical covariates.
+
+``` r
+
+ds.dim("rad", datasources = conns)
+ds.mean("rad$original_firstorder_Energy", datasources = conns)
+
+ds.glmSLMA(
+  formula = os_2yr_alive ~ original_firstorder_Energy +
+    original_shape_Compactness1 +
+    original_glrlm_RunLengthNonUniformity +
+    wavelet.HLH_glrlm_RunLengthNonUniformity +
+    age + gender_male,
+  family      = "binomial",
+  dataName    = "rad",
+  datasources = conns
+)
+
+DSI::datashield.logout(conns)
+```
+
+## Recorded Results
+
+The values below come from the committed evidence artifact for the run
+described above; no live servers are contacted when the article renders.
 
 ## Validated Cohort
 
@@ -103,6 +133,7 @@ and `GTV-1` mask conversion: 422 patients split across three sites by
 stable patient hash.
 
 ``` r
+
 site_counts <- lung1_evidence$site_counts
 knitr::kable(site_counts)
 ```
@@ -114,6 +145,7 @@ knitr::kable(site_counts)
 | site_c | lung1_full_site_c |    137 |   137 |           137 |
 
 ``` r
+
 if (has_ggplot2) {
   ggplot2::ggplot(site_counts,
                   ggplot2::aes(x = site, y = metadata_rows, fill = site)) +
@@ -133,11 +165,14 @@ if (has_ggplot2) {
 }
 ```
 
-<img src="lung1-federated-radiomics_files/figure-html/cohort-plot-1.png" alt="Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142, 143, and 137 patients."  />
+![Bar chart showing the three simulated LUNG1 DataSHIELD sites with 142,
+143, and 137
+patients.](lung1-federated-radiomics_files/figure-html/cohort-plot-1.png)
 
 Published collection assets:
 
 ``` r
+
 assets <- lung1_evidence$assets
 knitr::kable(assets)
 ```
@@ -153,6 +188,7 @@ After
 server-side analysis tables had these dimensions:
 
 ``` r
+
 loaded_dims <- lung1_evidence$loaded_dimensions
 knitr::kable(loaded_dims)
 ```
@@ -171,6 +207,7 @@ signature profile to `sample_id` plus four radiomics features. The
 remaining loaded columns are clinical metadata joined by `sample_id`.
 
 ``` r
+
 knitr::kable(
   comparison[, c("server", "feature", "federated", "central",
                  "abs_diff_fmt", "rel_diff_fmt")],
@@ -196,6 +233,7 @@ knitr::kable(
 | opal3 | wavelet.HLH_glrlm_RunLengthNonUniformity | 1.137901e+04 | 1.137901e+04 | 7.276e-12 | 6.394e-16 |
 
 ``` r
+
 if (has_ggplot2) {
   ggplot2::ggplot(comparison,
                   ggplot2::aes(x = central, y = federated, color = server)) +
@@ -220,9 +258,12 @@ if (has_ggplot2) {
 }
 ```
 
-<img src="lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png" alt="Faceted scatter plot comparing central PyRadiomics feature means with federated DataSHIELD means; all points lie on the identity line."  />
+![Faceted scatter plot comparing central PyRadiomics feature means with
+federated DataSHIELD means; all points lie on the identity
+line.](lung1-federated-radiomics_files/figure-html/federated-central-plot-1.png)
 
 ``` r
+
 plot_errors <- comparison
 plot_errors$abs_diff_floor <- pmax(plot_errors$abs_diff, .Machine$double.eps)
 if (has_ggplot2) {
@@ -247,7 +288,9 @@ if (has_ggplot2) {
 }
 ```
 
-<img src="lung1-federated-radiomics_files/figure-html/absolute-error-plot-1.png" alt="Grouped bar chart on a log scale showing very small absolute differences between federated and central feature means."  />
+![Grouped bar chart on a log scale showing very small absolute
+differences between federated and central feature
+means.](lung1-federated-radiomics_files/figure-html/absolute-error-plot-1.png)
 
 Maximum absolute difference: 9.537e-07. Maximum relative difference:
 4.794e-15.
@@ -258,6 +301,7 @@ Clinical metadata were joined to the radiomics feature table on the
 server side before analysis.
 
 ``` r
+
 clinical <- lung1_evidence$clinical
 knitr::kable(clinical, digits = 7)
 ```
@@ -268,6 +312,7 @@ knitr::kable(clinical, digits = 7)
 | mean os_2yr_alive       |    0.4184397 |   0.4055944 |   0.3823529 |
 
 ``` r
+
 clinical_long <- data.frame(
   metric = rep(clinical$metric, each = 3),
   server = rep(c("opal1", "opal2", "opal3"), times = nrow(clinical)),
@@ -291,11 +336,16 @@ if (has_ggplot2) {
 }
 ```
 
-<img src="lung1-federated-radiomics_files/figure-html/clinical-plot-1.png" alt="Faceted bar chart of site-level means for survival time and two-year overall survival status."  />
+![Faceted bar chart of site-level means for survival time and two-year
+overall survival
+status.](lung1-federated-radiomics_files/figure-html/clinical-plot-1.png)
 
-A federated `ds.glmSLMA()` model was fit with:
+A federated
+[`ds.glmSLMA()`](https://rdrr.io/pkg/dsBaseClient/man/ds.glmSLMA.html)
+model was fit with:
 
 ``` r
+
 stats::as.formula(lung1_evidence$glm$formula)
 #> os_2yr_alive ~ original_firstorder_Energy + original_shape_Compactness1 + 
 #>     original_glrlm_RunLengthNonUniformity + wavelet.HLH_glrlm_RunLengthNonUniformity + 
@@ -306,6 +356,7 @@ The run produced num.valid.studies = 3; `<new.glm.obj>` was created and
 validated in all data sources.
 
 ``` r
+
 glm_fe <- lung1_evidence$glm$fixed_effects
 knitr::kable(glm_fe, digits = 6)
 ```
@@ -321,6 +372,7 @@ knitr::kable(glm_fe, digits = 6)
 | gender_male                              | -0.146425 |  0.244664 |
 
 ``` r
+
 glm_plot <- glm_fe
 glm_plot$z_score <- glm_plot$pooled.FE / glm_plot$se.FE
 glm_plot$term <- factor(glm_plot$term,
@@ -345,16 +397,15 @@ if (has_ggplot2) {
 }
 ```
 
-<img src="lung1-federated-radiomics_files/figure-html/glm-z-plot-1.png" alt="Horizontal bar chart of fixed-effect coefficient divided by standard error for each federated GLM term, with dashed reference lines at plus or minus 1.96."  />
+![Horizontal bar chart of fixed-effect coefficient divided by standard
+error for each federated GLM term, with dashed reference lines at plus
+or minus
+1.96.](lung1-federated-radiomics_files/figure-html/glm-z-plot-1.png)
 
 ## Operational Notes
 
-- The full run is resumable. DICOM downloads, NIfTI/mask conversion,
-  central PyRadiomics extraction, DataSHIELD job submission, and
-  collection publishing can be resumed from the same `LUNG1_WORKDIR`.
 - `process_collection()` reports disclosure-bucketed metadata, so its
-  status may show `128` rather than exact per-site counts.
-  `ds.dim("rad")` and the local manifest are the engineering checks for
-  exact dimensions.
+  status may show a rounded bucket rather than exact per-site counts.
+  `ds.dim("rad")` is the server-side check for exact loaded dimensions.
 - Admin job listing and cancellation use `dshpc.admin_key` or
   `DSHPC_ADMIN_KEY`; wrong keys are rejected by all sites.

@@ -58,61 +58,112 @@ TRUE`: dataset validation passed on all three servers and
 all six workflow families completed with the expected ten local samples per
 site.
 
-## Running The Demo
+The three synthetic collections are published with `dsimaging-admin` into the
+same S3/MinIO layout as the LUNG1 study, and each Opal resolves the shared
+`r evidence$resource` resource to its own local dataset — `imaging_demo_a`,
+`imaging_demo_b` and `imaging_demo_c`. The analyst therefore works with a single
+resource handle while every site keeps its own images, masks and metadata. The
+steps below show what the researcher runs once that configuration is in place.
 
-The preparation and execution scripts are installed with the package under
-`inst/demos/imaging_demo_validation`.
+## Running This Validation
 
-```{r demo-paths}
-demo_dir <- system.file("demos", "imaging_demo_validation",
-                        package = "dsImagingClient")
-if (!nzchar(demo_dir)) {
-  demo_dir <- normalizePath(file.path("..", "inst", "demos",
-                                     "imaging_demo_validation"),
-                            mustWork = FALSE)
+**1. Connect to the DataSHIELD nodes.** Open one session across the three Opal
+servers that register the validation resource.
+
+```{r connect, eval=FALSE}
+library(DSI)
+library(DSOpal)
+library(dsImagingClient)
+library(dsBaseClient)
+
+builder <- DSI::newDSLoginBuilder()
+builder$append(server = "opal1", url = "https://opal-node-1.example.org",
+               user = "researcher", password = "********")
+builder$append(server = "opal2", url = "https://opal-node-2.example.org",
+               user = "researcher", password = "********")
+builder$append(server = "opal3", url = "https://opal-node-3.example.org",
+               user = "researcher", password = "********")
+conns <- DSI::datashield.login(builder$build(), assign = FALSE)
+```
+
+**2. Initialise the resource and resolve each site's dataset.** Bind the shared
+resource to a handle, confirm the images and masks validate, and read the
+per-site dataset identifier that each Opal resolves the resource to.
+
+```{r init, eval=FALSE}
+ds.imaging.init(conns, resource = "dsdemo.imaging_demo", symbol = "img")
+ds.imaging.validate(conns, "img")
+
+dataset_ids <- vapply(ds.imaging.metadata(conns, "img"),
+                      function(m) m$dataset_id, character(1))
+```
+
+**3. Run the six imaging workflows.** Submit each workflow family to every site.
+`dsHPC` executes the runners inside the Rock workers and publishes the derived
+assets back into each site's catalogue.
+
+```{r workflows, eval=FALSE}
+for (srv in names(conns)) {
+  cx  <- conns[srv]
+  did <- dataset_ids[[srv]]
+
+  ds.imaging.qc.metrics(
+    cx, dataset_id = did, image_asset = "images", mask_asset = "masks",
+    output_asset = "demo_qc_metrics", visibility = "global"
+  )
+  ds.imaging.mask.operation(
+    cx, dataset_id = did, operation = "connected_components",
+    mask_asset = "masks", reference_asset = "images",
+    min_voxels = 5L, max_components = 1L,
+    output_asset = "demo_masks_cc", visibility = "global"
+  )
+  ds.imaging.spatial.process(
+    cx, dataset_id = did, image_asset = "images",
+    operations = "crop_to_mask", mask_asset = "masks",
+    output_asset = "demo_crop_to_mask", visibility = "global"
+  )
+  ds.imaging.embeddings.extract(
+    cx, dataset_id = did, image_asset = "images",
+    model = "intensity_histogram", bins = 16L,
+    output_asset = "demo_embeddings", visibility = "global"
+  )
+  ds.imaging.radiomics.process_collection(
+    cx, dataset_id = did,
+    segmenter = ds.imaging.segmenter.existing_mask("masks"),
+    profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
+    visibility = "global"
+  )
+  ds.imaging.radiomics.segment_and_extract(
+    cx, dataset_id = did,
+    segmenter = ds.imaging.segmenter.ct_lung_threshold(
+      threshold = -320, max_components = 2L, min_voxels = 100L
+    ),
+    profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
+    visibility = "global"
+  )
 }
-prepare_script <- file.path(demo_dir, "prepare_imaging_demo.py")
-run_script <- file.path(demo_dir, "run_imaging_demo_validation.R")
-c(prepare_script = prepare_script, run_script = run_script)
 ```
 
-Prepare the three site folders:
+**4. Load a published asset and inspect it.** Once the jobs finish, load any
+published asset server-side and summarise it with ordinary DataSHIELD functions.
 
-```{bash prepare-demo, eval=FALSE}
-python3 inst/demos/imaging_demo_validation/prepare_imaging_demo.py \
-  --workdir /tmp/dsimaging_imaging_demo \
-  --cases-per-site 10 \
-  --replace
-```
-
-Publish the datasets to `dsimaging-store`, register `dsdemo.imaging_demo` on
-each Opal server, and run the validation jobs:
-
-```{bash run-demo, eval=FALSE}
-IMAGING_DEMO_WORKDIR=/tmp/dsimaging_imaging_demo \
-IMAGING_DEMO_REPLACE=TRUE \
-IMAGING_DEMO_PUBLISH=TRUE \
-IMAGING_DEMO_RUN_JOBS=TRUE \
-OPAL_USER=administrator \
-OPAL_PASSWORD=admin123 \
-Rscript inst/demos/imaging_demo_validation/run_imaging_demo_validation.R
-```
-
-```{r run-live-demo, eval=identical(tolower(Sys.getenv("DSIMAGINGCLIENT_RUN_IMAGING_DEMO_VIGNETTE")), "true")}
-demo_env <- c(
-  paste0("IMAGING_DEMO_WORKDIR=", Sys.getenv("IMAGING_DEMO_WORKDIR",
-                                            "/tmp/dsimaging_imaging_demo")),
-  paste0("IMAGING_DEMO_REPLACE=", Sys.getenv("IMAGING_DEMO_REPLACE", "FALSE")),
-  paste0("IMAGING_DEMO_PUBLISH=", Sys.getenv("IMAGING_DEMO_PUBLISH", "FALSE")),
-  paste0("IMAGING_DEMO_RUN_JOBS=", Sys.getenv("IMAGING_DEMO_RUN_JOBS", "FALSE")),
-  paste0("OPAL_USER=", Sys.getenv("OPAL_USER", "administrator")),
-  paste0("OPAL_PASSWORD=", Sys.getenv("OPAL_PASSWORD", "admin123"))
-)
-status <- system2("Rscript", run_script, env = demo_env)
-if (!identical(status, 0L)) {
-  stop("dsImaging demo failed with exit status ", status, call. = FALSE)
+```{r inspect, eval=FALSE}
+for (srv in names(conns)) {
+  ds.imaging.load_asset(conns[srv], dataset_ids[[srv]], "demo_qc_metrics",
+                        symbol = "qc", include_metadata = TRUE,
+                        syntactic_names = TRUE)
 }
+
+ds.dim("qc", datasources = conns)
+ds.mean("qc$mask_volume", datasources = conns)
+
+DSI::datashield.logout(conns)
 ```
+
+## Recorded Results
+
+The values below come from the committed evidence artifact for the run described
+above; no live servers are contacted when the article renders.
 
 ## Site Layout
 
@@ -154,11 +205,10 @@ it shows the kind of local image-mask relation checked inside each site before
 only approved derived artefacts and aggregate summaries are exposed.
 
 ```{r mask-overlay, fig.width=8.5, fig.alt="Three synthetic CT slices, one per site, with local ROI masks overlaid in red."}
-overlay <- system.file("extdata", "imaging_demo_mask_overlay.png",
-                       package = "dsImagingClient")
-if (!nzchar(overlay)) {
-  overlay <- file.path("..", "inst", "extdata",
-                       "imaging_demo_mask_overlay.png")
+overlay <- "imaging_demo_mask_overlay.png"
+if (!file.exists(overlay)) {
+  overlay <- system.file("extdata", "imaging_demo_mask_overlay.png",
+                         package = "dsImagingClient")
 }
 knitr::include_graphics(overlay)
 ```

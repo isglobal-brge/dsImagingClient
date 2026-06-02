@@ -1,14 +1,19 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/404.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/LICENSE-text.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/articles/imaging-demo-validation.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/articles/index.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/articles/lung1-federated-radiomics.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/authors.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/index.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-assign_domain_workflow.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-compute_derivation_hash.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-ds_encode.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-ds_first_result.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-ds_safe_aggregate.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-generate_job_id.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-generate_symbol.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/dot-resolve_content_hash.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.aliases.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.asset.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.assets.html</loc></url>
@@ -17,6 +22,7 @@
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.check_exists.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.datasets.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.dicom.convert.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.embeddings.extract.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.init.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.jobs.html</loc></url>
@@ -29,6 +35,7 @@
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.models.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.preprocess.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.metrics.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.visuals.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_cancel.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_publish.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_recover.html</loc></url>
@@ -43,6 +50,8 @@
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.ibsi_mr_3d.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.voxel_firstorder.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.segment_and_extract.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.rt.convert.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.rt.dose.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segment.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.ct_lung_threshold.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.existing_mask.html</loc></url>
@@ -50,7 +59,10 @@
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.monai_bundle.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.nnunet.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.totalsegmentator.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.spatial.process.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.summary.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.validate.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.wsi.tile.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/index.html</loc></url>
 </urlset>
+

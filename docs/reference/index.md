@@ -18,6 +18,8 @@
   : List Available Imaging Datasets
 - [`ds.imaging.dicom.convert()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.dicom.convert.md)
   : Convert DICOM series to NIfTI images
+- [`ds.imaging.embeddings.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.embeddings.extract.md)
+  : Extract image embeddings
 - [`ds.imaging.init()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.init.md)
   : Initialize Imaging Dataset Handle
 - [`ds.imaging.install_model()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.md)
@@ -43,6 +45,8 @@
   : Preprocess image assets
 - [`ds.imaging.qc.metrics()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.metrics.md)
   : Compute image and mask QC metrics
+- [`ds.imaging.qc.visuals()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.visuals.md)
+  : Generate non-disclosive QC thumbnails and overlays
 - [`ds.imaging.radiomics.collection_cancel()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_cancel.md)
   : Cancel a running collection generation (admin only)
 - [`ds.imaging.radiomics.collection_publish()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_publish.md)
@@ -71,6 +75,10 @@
   : Voxel-based feature map (firstorder only)
 - [`ds.imaging.radiomics.segment_and_extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.segment_and_extract.md)
   : Segment images then extract radiomics features
+- [`ds.imaging.rt.convert()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.rt.convert.md)
+  : Convert RTSTRUCT or DICOM SEG assets into masks
+- [`ds.imaging.rt.dose()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.rt.dose.md)
+  : Run RTDOSE and RTPLAN summaries
 - [`ds.imaging.segment()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segment.md)
   : Segment images in a dataset
 - [`ds.imaging.segmenter.ct_lung_threshold()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.ct_lung_threshold.md)
@@ -85,7 +93,11 @@
   : nnU-Net v2 segmenter
 - [`ds.imaging.segmenter.totalsegmentator()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segmenter.totalsegmentator.md)
   : TotalSegmentator segmenter
+- [`ds.imaging.spatial.process()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.spatial.process.md)
+  : Run spatial image operations
 - [`ds.imaging.summary()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.summary.md)
   : Print a summary of radiomics activity
 - [`ds.imaging.validate()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.validate.md)
   : Validate Imaging Dataset
+- [`ds.imaging.wsi.tile()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.wsi.tile.md)
+  : Tile WSI/pathology images

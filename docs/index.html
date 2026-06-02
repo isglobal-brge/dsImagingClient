@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="DataSHIELD Client for Clinical Imaging Workflows">
-<meta name="description" content="Client-side DataSHIELD package for clinical imaging. Provides functions to initialize imaging handles, query dataset metadata and asset catalogs, define DICOM conversion, preprocessing, mask/ROI, QC, segmentation, and radiomics workflows, submit dsHPC-backed imaging jobs, monitor per-image collection processing, and discover derived masks and radiomic feature tables.">
-<meta property="og:description" content="Client-side DataSHIELD package for clinical imaging. Provides functions to initialize imaging handles, query dataset metadata and asset catalogs, define DICOM conversion, preprocessing, mask/ROI, QC, segmentation, and radiomics workflows, submit dsHPC-backed imaging jobs, monitor per-image collection processing, and discover derived masks and radiomic feature tables.">
+<meta name="description" content="Client-side DataSHIELD package for clinical imaging. Provides functions to initialize imaging handles, query dataset metadata and asset catalogs, define DICOM conversion, preprocessing, mask/ROI, QC, segmentation, and radiomics workflows, invoke domain-mediated server-side dsImaging methods backed by dsHPC, monitor per-image collection processing, and discover derived masks and radiomic feature tables.">
+<meta property="og:description" content="Client-side DataSHIELD package for clinical imaging. Provides functions to initialize imaging handles, query dataset metadata and asset catalogs, define DICOM conversion, preprocessing, mask/ROI, QC, segmentation, and radiomics workflows, invoke domain-mediated server-side dsImaging methods backed by dsHPC, monitor per-image collection processing, and discover derived masks and radiomic feature tables.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,6 +112,12 @@
 <li><code><a href="reference/ds.imaging.preprocess.html">ds.imaging.preprocess()</a></code></li>
 <li><code><a href="reference/ds.imaging.mask.operation.html">ds.imaging.mask.operation()</a></code></li>
 <li><code><a href="reference/ds.imaging.qc.metrics.html">ds.imaging.qc.metrics()</a></code></li>
+<li><code><a href="reference/ds.imaging.qc.visuals.html">ds.imaging.qc.visuals()</a></code></li>
+<li><code><a href="reference/ds.imaging.rt.convert.html">ds.imaging.rt.convert()</a></code></li>
+<li><code><a href="reference/ds.imaging.rt.dose.html">ds.imaging.rt.dose()</a></code></li>
+<li><code><a href="reference/ds.imaging.spatial.process.html">ds.imaging.spatial.process()</a></code></li>
+<li><code><a href="reference/ds.imaging.wsi.tile.html">ds.imaging.wsi.tile()</a></code></li>
+<li><code><a href="reference/ds.imaging.embeddings.extract.html">ds.imaging.embeddings.extract()</a></code></li>
 <li><code><a href="reference/ds.imaging.segment.html">ds.imaging.segment()</a></code></li>
 <li><code><a href="reference/ds.imaging.radiomics.extract.html">ds.imaging.radiomics.extract()</a></code></li>
 <li><code><a href="reference/ds.imaging.radiomics.segment_and_extract.html">ds.imaging.radiomics.segment_and_extract()</a></code></li>
@@ -144,13 +150,30 @@
 <span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">11</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/ds.imaging.qc.metrics.html">ds.imaging.qc.metrics</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/ds.imaging.qc.metrics.html">ds.imaging.qc.metrics</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/ds.imaging.qc.visuals.html">ds.imaging.qc.visuals</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.embeddings.extract.html">ds.imaging.embeddings.extract</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.spatial.process.html">ds.imaging.spatial.process</a></span><span class="op">(</span></span>
+<span>  <span class="va">conns</span>,</span>
+<span>  <span class="st">"imgct_demo"</span>,</span>
+<span>  operations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"resample"</span>, <span class="st">"crop_to_mask"</span><span class="op">)</span>,</span>
+<span>  mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span>,</span>
+<span>  spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Radiotherapy assets can become reusable masks/tables.</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.rt.convert.html">ds.imaging.rt.convert</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"lung1"</span>, rt_asset <span class="op">=</span> <span class="st">"rt_struct"</span>, rois <span class="op">=</span> <span class="st">"GTV-1"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.rt.dose.html">ds.imaging.rt.dose</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"lung1"</span>, mask_asset <span class="op">=</span> <span class="st">"rt_masks"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># WSI/pathology studies can publish tile manifests and optional tile PNGs.</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.wsi.tile.html">ds.imaging.wsi.tile</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"pathology_demo"</span>, tile_size <span class="op">=</span> <span class="fl">512</span>, max_tiles <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 <p>The public client surface is <code>ds.imaging.*</code>; the former <code>ds.radiomics.*</code> and <code>ds.segmenter.*</code> compatibility wrappers have been retired before production use.</p>
 </div>
 <div class="section level2">
 <h2 id="public-lung1-study-demo">Public LUNG1 Study Demo<a class="anchor" aria-label="anchor" href="#public-lung1-study-demo"></a>
 </h2>
-<p>A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled under <code>inst/demos/lung1_federated_study</code>. It prepares CT + RTSTRUCT <code>GTV-1</code> masks, publishes three simulated sites with <code>dsimaging-admin</code>, runs dsHPC-backed Aerts radiomics through <code>dsImaging</code>, and compares the federated DataSHIELD feature summaries with a central PyRadiomics baseline.</p>
+<p>A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled under <code>inst/demos/lung1_federated_study</code>. It prepares CT + RTSTRUCT <code>GTV-1</code> masks, publishes three simulated sites with <code>dsimaging-admin</code>, runs dsHPC-backed Aerts radiomics through <code>dsImaging</code>, and compares the federated DataSHIELD feature summaries with a central PyRadiomics baseline. The full validation path uses 422 public LUNG1 patients that passed conversion and is aligned with the public Aerts/LUNG1 radiomics workflow rather than with a synthetic imaging fixture.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

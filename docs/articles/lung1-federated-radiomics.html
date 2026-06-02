@@ -74,69 +74,100 @@ programme of that paper: the validation checks that the
 image-to-mask-to-radiomics path, executed through DataSHIELD jobs on
 separated sites, reproduces the same numerical feature summaries
 obtained by a central PyRadiomics run over the same prepared images.</p>
-<p>The default pkgdown build renders the validated results below without
-launching jobs. To execute the live demo while rendering this article,
-set <code>DSIMAGINGCLIENT_RUN_LUNG1_VIGNETTE=true</code> and point
-<code>LUNG1_WORKDIR</code> at a prepared LUNG1 workspace.</p>
+<p>The 422 LUNG1 patients are split reproducibly across three DataSHIELD
+sites — Site A holds 142 patients, Site B 143 and Site C 137 — and
+published with <code>dsimaging-admin</code> into an S3/MinIO-backed
+layout that is registered as an imaging resource on each of the three
+Opal servers. Every site keeps its own CT images, <code>GTV-1</code>
+tumour masks and sample metadata. The steps below show what the
+researcher runs once that server-side configuration is in place; images
+and masks are resolved and processed at each site and never reach the
+client.</p>
 <div class="section level2">
-<h2 id="running-the-demo">Running The Demo<a class="anchor" aria-label="anchor" href="#running-the-demo"></a>
+<h2 id="running-this-validation">Running This Validation<a class="anchor" aria-label="anchor" href="#running-this-validation"></a>
 </h2>
-<p>The preparation and execution scripts are installed with the package
-under <code>inst/demos/lung1_federated_study</code>.</p>
+<p><strong>1. Connect to the DataSHIELD nodes.</strong> Open one session
+across the three Opal servers that register the LUNG1 imaging
+resource.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">demo_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"demos"</span>, <span class="st">"lung1_federated_study"</span>,</span>
-<span>                        package <span class="op">=</span> <span class="st">"dsImagingClient"</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">demo_dir</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">demo_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">".."</span>, <span class="st">"inst"</span>, <span class="st">"demos"</span>,</span>
-<span>                                     <span class="st">"lung1_federated_study"</span><span class="op">)</span>,</span>
-<span>                            mustWork <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="va">prepare_script</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo_dir</span>, <span class="st">"prepare_lung1_study.py"</span><span class="op">)</span></span>
-<span><span class="va">run_script</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">demo_dir</span>, <span class="st">"run_lung1_datashield.R"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>prepare_script <span class="op">=</span> <span class="va">prepare_script</span>, run_script <span class="op">=</span> <span class="va">run_script</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                                                                                                            prepare_script </span></span>
-<span><span class="co">#&gt; "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/prepare_lung1_study.py" </span></span>
-<span><span class="co">#&gt;                                                                                                                                run_script </span></span>
-<span><span class="co">#&gt; "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/dsImagingClient/demos/lung1_federated_study/run_lung1_datashield.R"</span></span></code></pre></div>
-<p>Prepare the full public cohort:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">python3</span> inst/demos/lung1_federated_study/prepare_lung1_study.py <span class="dt">\</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">--workdir</span> /tmp/dsimaging_lung1_full <span class="dt">\</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">--all-patients</span></span></code></pre></div>
-<p>For a metadata-only check before downloading DICOM files:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">python3</span> inst/demos/lung1_federated_study/prepare_lung1_study.py <span class="dt">\</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">--workdir</span> /tmp/dsimaging_lung1_plan <span class="dt">\</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">--all-patients</span> <span class="dt">\</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">--dry-run</span></span></code></pre></div>
-<p>Run or resume the federated DataSHIELD pass:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">LUNG1_WORKDIR</span><span class="op">=</span>/tmp/dsimaging_lung1_full <span class="dt">\</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="va">LUNG1_DATASET_PREFIX</span><span class="op">=</span>lung1_full_site <span class="dt">\</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="va">LUNG1_OPAL_RESOURCE</span><span class="op">=</span>lung1_full_study <span class="dt">\</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="va">LUNG1_PUBLISH</span><span class="op">=</span>FALSE <span class="dt">\</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="va">LUNG1_RUN_JOBS</span><span class="op">=</span>FALSE <span class="dt">\</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="va">LUNG1_TIMEOUT</span><span class="op">=</span>0 <span class="dt">\</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="va">LUNG1_RUN_GLM</span><span class="op">=</span>TRUE <span class="dt">\</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="va">OPAL_USER</span><span class="op">=</span>administrator <span class="dt">\</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="va">OPAL_PASSWORD</span><span class="op">=</span>admin123 <span class="dt">\</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="ex">Rscript</span> inst/demos/lung1_federated_study/run_lung1_datashield.R</span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">demo_env</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_WORKDIR="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_WORKDIR"</span>,</span>
-<span>                                      <span class="st">"/tmp/dsimaging_lung1_full"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_DATASET_PREFIX="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_DATASET_PREFIX"</span>,</span>
-<span>                                             <span class="st">"lung1_full_site"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_OPAL_RESOURCE="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_OPAL_RESOURCE"</span>,</span>
-<span>                                            <span class="st">"lung1_full_study"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_PUBLISH="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_PUBLISH"</span>, <span class="st">"FALSE"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_RUN_JOBS="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_RUN_JOBS"</span>, <span class="st">"FALSE"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_TIMEOUT="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_TIMEOUT"</span>, <span class="st">"0"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"LUNG1_RUN_GLM="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"LUNG1_RUN_GLM"</span>, <span class="st">"TRUE"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"OPAL_USER="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPAL_USER"</span>, <span class="st">"administrator"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"OPAL_PASSWORD="</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPAL_PASSWORD"</span>, <span class="st">"admin123"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/datashield/DSI/" class="external-link">DSI</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/datashield/DSOpal/" class="external-link">DSOpal</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://isglobal-brge.github.io/dsImagingClient/">dsImagingClient</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">dsBaseClient</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">builder</span> <span class="op">&lt;-</span> <span class="fu">DSI</span><span class="fu">::</span><span class="fu"><a href="https://datashield.github.io/DSI/reference/newDSLoginBuilder.html" class="external-link">newDSLoginBuilder</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">builder</span><span class="op">$</span><span class="fu">append</span><span class="op">(</span>server <span class="op">=</span> <span class="st">"opal1"</span>, url <span class="op">=</span> <span class="st">"https://opal-node-1.example.org"</span>,</span>
+<span>               user <span class="op">=</span> <span class="st">"researcher"</span>, password <span class="op">=</span> <span class="st">"********"</span><span class="op">)</span></span>
+<span><span class="va">builder</span><span class="op">$</span><span class="fu">append</span><span class="op">(</span>server <span class="op">=</span> <span class="st">"opal2"</span>, url <span class="op">=</span> <span class="st">"https://opal-node-2.example.org"</span>,</span>
+<span>               user <span class="op">=</span> <span class="st">"researcher"</span>, password <span class="op">=</span> <span class="st">"********"</span><span class="op">)</span></span>
+<span><span class="va">builder</span><span class="op">$</span><span class="fu">append</span><span class="op">(</span>server <span class="op">=</span> <span class="st">"opal3"</span>, url <span class="op">=</span> <span class="st">"https://opal-node-3.example.org"</span>,</span>
+<span>               user <span class="op">=</span> <span class="st">"researcher"</span>, password <span class="op">=</span> <span class="st">"********"</span><span class="op">)</span></span>
+<span><span class="va">conns</span> <span class="op">&lt;-</span> <span class="fu">DSI</span><span class="fu">::</span><span class="fu"><a href="https://datashield.github.io/DSI/reference/datashield.login.html" class="external-link">datashield.login</a></span><span class="op">(</span><span class="va">builder</span><span class="op">$</span><span class="fu">build</span><span class="op">(</span><span class="op">)</span>, assign <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><strong>2. Initialise the imaging resource.</strong> Bind the LUNG1
+resource to a server-side handle and confirm the CT images and
+<code>GTV-1</code> masks are readable before any job runs.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ds.imaging.init.html">ds.imaging.init</a></span><span class="op">(</span><span class="va">conns</span>, resource <span class="op">=</span> <span class="st">"dsdemo.lung1_study"</span>, symbol <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ds.imaging.validate.html">ds.imaging.validate</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"img"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>3. Extract the Aerts radiomics signature.</strong> Submit one
+collection workflow over the existing tumour masks with the Aerts
+profile. <code>dsHPC</code> schedules the per-image PyRadiomics jobs at
+each site; the call reports what was queued.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.process_collection.html">ds.imaging.radiomics.process_collection</a></span><span class="op">(</span></span>
+<span>  <span class="va">conns</span>,</span>
+<span>  dataset_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  segmenter  <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.segmenter.existing_mask.html">ds.imaging.segmenter.existing_mask</a></span><span class="op">(</span><span class="st">"masks"</span><span class="op">)</span>,</span>
+<span>  profile    <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.profile.aerts_signature.html">ds.imaging.radiomics.profile.aerts_signature</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>4. Publish and load the feature table.</strong> Once every
+per-image job has finished, commit the completed outputs to the asset
+catalogue and load them — with the joined clinical metadata — into a
+server-side DataSHIELD table.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pub</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.collection_publish.html">ds.imaging.radiomics.collection_publish</a></span><span class="op">(</span></span>
+<span>  <span class="va">conns</span>,</span>
+<span>  generation_id <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">generation_id</span>,</span>
+<span>  dataset_id    <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">dataset_id</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2</a></span><span class="op">(</span><span class="st">"Rscript"</span>, <span class="va">run_script</span>, env <span class="op">=</span> <span class="va">demo_env</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">status</span>, <span class="fl">0L</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"LUNG1 demo failed with exit status "</span>, <span class="va">status</span>, call. <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<span></span>
+<span><span class="fu"><a href="../reference/ds.imaging.load_asset.html">ds.imaging.radiomics.load_features</a></span><span class="op">(</span></span>
+<span>  <span class="va">conns</span>,</span>
+<span>  dataset_id       <span class="op">=</span> <span class="va">pub</span><span class="op">$</span><span class="va">dataset_id</span>,</span>
+<span>  asset_id         <span class="op">=</span> <span class="va">pub</span><span class="op">$</span><span class="va">asset_id</span>,</span>
+<span>  symbol           <span class="op">=</span> <span class="st">"rad"</span>,</span>
+<span>  include_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  syntactic_names  <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>5. Analyse the federated feature table.</strong>
+<code>rad</code> is now an ordinary server-side DataSHIELD table. Check
+its dimensions, summarise the Aerts features and fit a federated
+two-year-survival GLM from the features and clinical covariates.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/dsBaseClient/man/ds.dim.html" class="external-link">ds.dim</a></span><span class="op">(</span><span class="st">"rad"</span>, datasources <span class="op">=</span> <span class="va">conns</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/dsBaseClient/man/ds.mean.html" class="external-link">ds.mean</a></span><span class="op">(</span><span class="st">"rad$original_firstorder_Energy"</span>, datasources <span class="op">=</span> <span class="va">conns</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/dsBaseClient/man/ds.glmSLMA.html" class="external-link">ds.glmSLMA</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">os_2yr_alive</span> <span class="op">~</span> <span class="va">original_firstorder_Energy</span> <span class="op">+</span></span>
+<span>    <span class="va">original_shape_Compactness1</span> <span class="op">+</span></span>
+<span>    <span class="va">original_glrlm_RunLengthNonUniformity</span> <span class="op">+</span></span>
+<span>    <span class="va">wavelet.HLH_glrlm_RunLengthNonUniformity</span> <span class="op">+</span></span>
+<span>    <span class="va">age</span> <span class="op">+</span> <span class="va">gender_male</span>,</span>
+<span>  family      <span class="op">=</span> <span class="st">"binomial"</span>,</span>
+<span>  dataName    <span class="op">=</span> <span class="st">"rad"</span>,</span>
+<span>  datasources <span class="op">=</span> <span class="va">conns</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">DSI</span><span class="fu">::</span><span class="fu"><a href="https://datashield.github.io/DSI/reference/datashield.logout.html" class="external-link">datashield.logout</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="recorded-results">Recorded Results<a class="anchor" aria-label="anchor" href="#recorded-results"></a>
+</h2>
+<p>The values below come from the committed evidence artifact for the
+run described above; no live servers are contacted when the article
+renders.</p>
 </div>
 <div class="section level2">
 <h2 id="validated-cohort">Validated Cohort<a class="anchor" aria-label="anchor" href="#validated-cohort"></a>
@@ -502,7 +533,7 @@ server side before analysis.</p>
 <span>          ylab <span class="op">=</span> <span class="st">"Site mean"</span>, main <span class="op">=</span> <span class="st">"Clinical metadata site means"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="lung1-federated-radiomics_files/figure-html/clinical-plot-1.png" class="r-plt" alt="Faceted bar chart of site-level means for survival time and two-year overall survival status." width="672"></p>
-<p>A federated <code>ds.glmSLMA()</code> model was fit with:</p>
+<p>A federated <code><a href="https://rdrr.io/pkg/dsBaseClient/man/ds.glmSLMA.html" class="external-link">ds.glmSLMA()</a></code> model was fit with:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="va">lung1_evidence</span><span class="op">$</span><span class="va">glm</span><span class="op">$</span><span class="va">formula</span><span class="op">)</span></span>
 <span><span class="co">#&gt; os_2yr_alive ~ original_firstorder_Energy + original_shape_Compactness1 + </span></span>
@@ -587,15 +618,11 @@ sources.</p>
 <h2 id="operational-notes">Operational Notes<a class="anchor" aria-label="anchor" href="#operational-notes"></a>
 </h2>
 <ul>
-<li>The full run is resumable. DICOM downloads, NIfTI/mask conversion,
-central PyRadiomics extraction, DataSHIELD job submission, and
-collection publishing can be resumed from the same
-<code>LUNG1_WORKDIR</code>.</li>
 <li>
 <code>process_collection()</code> reports disclosure-bucketed
-metadata, so its status may show <code>128</code> rather than exact
-per-site counts. <code>ds.dim("rad")</code> and the local manifest are
-the engineering checks for exact dimensions.</li>
+metadata, so its status may show a rounded bucket rather than exact
+per-site counts. <code>ds.dim("rad")</code> is the server-side check for
+exact loaded dimensions.</li>
 <li>Admin job listing and cancellation use <code>dshpc.admin_key</code>
 or <code>DSHPC_ADMIN_KEY</code>; wrong keys are rejected by all
 sites.</li>
