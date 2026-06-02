@@ -12,7 +12,8 @@ ds.imaging.radiomics.segment_and_extract(
   image_asset = "images",
   segmenter,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-  visibility = "global"
+  visibility = "private",
+  symbol = NULL
 )
 ```
 
@@ -40,8 +41,13 @@ ds.imaging.radiomics.segment_and_extract(
 
 - visibility:
 
-  Character; job visibility label (default "global").
+  Character; job visibility label (default "private").
+
+- symbol:
+
+  Character or NULL; target server-side symbol for the workflow handle.
+  If NULL, a temporary symbol is generated.
 
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

@@ -15,7 +15,7 @@ ds.imaging.radiomics.process_collection(
   poll_interval = 15,
   timeout = 14400,
   allow_partial = FALSE,
-  visibility = "global"
+  visibility = "private"
 )
 ```
 
@@ -56,7 +56,7 @@ ds.imaging.radiomics.process_collection(
 
 - visibility:
 
-  Character; asset visibility (default "global").
+  Character; asset visibility (default "private").
 
 ## Value
 

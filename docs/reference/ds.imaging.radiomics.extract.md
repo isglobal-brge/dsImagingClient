@@ -12,8 +12,9 @@ ds.imaging.radiomics.extract(
   image_asset = "images",
   mask_asset,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-  visibility = "global",
-  alias = NULL
+  visibility = "private",
+  alias = NULL,
+  symbol = NULL
 )
 ```
 
@@ -41,12 +42,17 @@ ds.imaging.radiomics.extract(
 
 - visibility:
 
-  Character; job visibility label (default "global").
+  Character; job visibility label (default "private").
 
 - alias:
 
   Character or NULL; alias for the published feature table.
 
+- symbol:
+
+  Character or NULL; target server-side symbol for the workflow handle.
+  If NULL, a temporary symbol is generated.
+
 ## Value
 
-A dshpc_submission or existing asset_id if deduplicated.
+A domain-mediated workflow submission handle.

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,8 +44,9 @@
 <span>  <span class="va">dataset_id</span>,</span>
 <span>  image_asset <span class="op">=</span> <span class="st">"images"</span>,</span>
 <span>  <span class="va">segmenter</span>,</span>
-<span>  visibility <span class="op">=</span> <span class="st">"global"</span>,</span>
-<span>  alias <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  visibility <span class="op">=</span> <span class="st">"private"</span>,</span>
+<span>  alias <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  symbol <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -70,16 +71,21 @@
 
 
 <dt id="arg-visibility">visibility<a class="anchor" aria-label="anchor" href="#arg-visibility"></a></dt>
-<dd><p>Character; job visibility label (default "global").</p></dd>
+<dd><p>Character; job visibility label (default "private").</p></dd>
 
 
 <dt id="arg-alias">alias<a class="anchor" aria-label="anchor" href="#arg-alias"></a></dt>
 <dd><p>Character or NULL; alias for the published mask.</p></dd>
 
+
+<dt id="arg-symbol">symbol<a class="anchor" aria-label="anchor" href="#arg-symbol"></a></dt>
+<dd><p>Character or NULL; target server-side symbol for the workflow
+handle. If NULL, a temporary symbol is generated.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A dshpc_submission or existing asset_id.</p>
+    <p>A domain-mediated workflow submission handle.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

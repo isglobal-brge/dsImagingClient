@@ -88,6 +88,12 @@ segmenter <- ds.imaging.segmenter.existing_mask("masks")
 - [`ds.imaging.preprocess()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.preprocess.md)
 - [`ds.imaging.mask.operation()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.mask.operation.md)
 - [`ds.imaging.qc.metrics()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.metrics.md)
+- [`ds.imaging.qc.visuals()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.visuals.md)
+- [`ds.imaging.rt.convert()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.rt.convert.md)
+- [`ds.imaging.rt.dose()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.rt.dose.md)
+- [`ds.imaging.spatial.process()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.spatial.process.md)
+- [`ds.imaging.wsi.tile()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.wsi.tile.md)
+- [`ds.imaging.embeddings.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.embeddings.extract.md)
 - [`ds.imaging.segment()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.segment.md)
 - [`ds.imaging.radiomics.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.extract.md)
 - [`ds.imaging.radiomics.segment_and_extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.segment_and_extract.md)
@@ -120,6 +126,23 @@ ds.imaging.mask.operation(
 )
 
 ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
+
+ds.imaging.qc.visuals(conns, "imgct_demo", mask_asset = "lung_masks")
+ds.imaging.embeddings.extract(conns, "imgct_demo")
+ds.imaging.spatial.process(
+  conns,
+  "imgct_demo",
+  operations = c("resample", "crop_to_mask"),
+  mask_asset = "lung_masks",
+  spacing = c(1, 1, 1)
+)
+
+# Radiotherapy assets can become reusable masks/tables.
+ds.imaging.rt.convert(conns, "lung1", rt_asset = "rt_struct", rois = "GTV-1")
+ds.imaging.rt.dose(conns, "lung1", mask_asset = "rt_masks")
+
+# WSI/pathology studies can publish tile manifests and optional tile PNGs.
+ds.imaging.wsi.tile(conns, "pathology_demo", tile_size = 512, max_tiles = 1000)
 ```
 
 The public client surface is `ds.imaging.*`; the former `ds.radiomics.*`
@@ -133,4 +156,7 @@ bundled under `inst/demos/lung1_federated_study`. It prepares CT +
 RTSTRUCT `GTV-1` masks, publishes three simulated sites with
 `dsimaging-admin`, runs dsHPC-backed Aerts radiomics through
 `dsImaging`, and compares the federated DataSHIELD feature summaries
-with a central PyRadiomics baseline.
+with a central PyRadiomics baseline. The full validation path uses 422
+public LUNG1 patients that passed conversion and is aligned with the
+public Aerts/LUNG1 radiomics workflow rather than with a synthetic
+imaging fixture.

@@ -7,3 +7,4 @@ articles:
 - title: Federated imaging demos
   contents:
   - lung1-federated-radiomics
+  - imaging-demo-validation
