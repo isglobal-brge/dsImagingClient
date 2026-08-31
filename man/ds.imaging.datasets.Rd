@@ -16,3 +16,9 @@ Named list of per-server data.frames with available datasets.
 Calls \code{imagingListDatasetsDS()} on each server to retrieve the
 list of available imaging datasets.
 }
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.datasets(conns)
+}
+}

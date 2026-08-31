@@ -48,3 +48,22 @@ The server is self-sustaining: after the first batch is submitted,
 completed jobs automatically trigger submission of the next batch.
 The user can safely disconnect and reconnect later.
 }
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+res <- ds.imaging.radiomics.process_collection(
+  conns,
+  dataset_id = "lung_ct_v1",
+  segmenter = ds.imaging.segmenter.existing_mask("masks"),
+  profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
+  batch_size = 4L)
+res$asset_id
+
+# Fire and forget: kick off and reconnect later
+kicked <- ds.imaging.radiomics.process_collection(
+  conns, dataset_id = "lung_ct_v1",
+  segmenter = ds.imaging.segmenter.existing_mask("masks"),
+  timeout = 0)
+ds.imaging.radiomics.collection_status(conns, kicked$generation_id)
+}
+}

@@ -49,3 +49,11 @@ Invisibly TRUE.
 Assigns a server-side feature table asset, such as a radiomics collection,
 into the DataSHIELD session so standard analysis packages can operate on it.
 }
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.radiomics.load_features(conns, dataset_id = "lung_ct_v1",
+  asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics")
+dsBaseClient::ds.dim("radiomics", datasources = conns)
+}
+}

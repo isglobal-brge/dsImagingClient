@@ -3,7 +3,12 @@
 
 #' List radiomics jobs
 #' @param conns DSI connections object.
-#' @return A dshpc_result.
+#' @return A dshpc_result; printed as a formatted job table.
+#' @examples
+#' \donttest{
+#' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
+#' ds.imaging.jobs(conns)
+#' }
 #' @export
 ds.imaging.jobs <- function(conns) {
   dsHPCClient::ds.hpc.list(conns, label = "dsImaging")

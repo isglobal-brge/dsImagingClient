@@ -21,3 +21,11 @@ Named list of per-server data.frames.
 Shows all registered assets (masks, radiomics tables, embeddings, etc.)
 with their kind, description, derivation hash, and provenance summary.
 }
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+cat_res <- ds.imaging.catalog(conns, "lung_ct_v1")
+cat_res$site1[, c("asset_id", "kind", "created_at")]
+ds.imaging.catalog(conns, "lung_ct_v1", kind = "radiomics_collection")
+}
+}

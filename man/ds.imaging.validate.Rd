@@ -19,3 +19,10 @@ Named list of per-server validation results.
 Calls \code{imagingValidateDS()} on each server to run security and
 integrity checks on the imaging dataset.
 }
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
+str(ds.imaging.validate(conns, "img"))
+}
+}

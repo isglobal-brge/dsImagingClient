@@ -10,6 +10,12 @@
 #' @param symbol Character; symbol name for the imaging handle
 #'   (default \code{"imaging"}).
 #' @return Named list of per-server results (invisible).
+#' @examples
+#' \donttest{
+#' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
+#' ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
+#' ds.imaging.metadata(conns, "img")
+#' }
 #' @export
 ds.imaging.init <- function(conns, resource, symbol = "img") {
   # NOTE: symbol defaults to "img" so the server-side handle key

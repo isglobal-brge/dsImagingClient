@@ -10,8 +10,14 @@ ds.imaging.jobs(conns)
 \item{conns}{DSI connections object.}
 }
 \value{
-A dshpc_result.
+A dshpc_result; printed as a formatted job table.
 }
 \description{
 List radiomics jobs
+}
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.jobs(conns)
+}
 }

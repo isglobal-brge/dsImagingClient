@@ -19,3 +19,10 @@ Named list of per-server metadata.
 Calls \code{imagingMetadataDS()} on each server to retrieve
 disclosure-safe metadata about the imaging dataset.
 }
+\examples{
+\donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
+str(ds.imaging.metadata(conns, "img"))
+}
+}

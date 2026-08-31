@@ -11,7 +11,10 @@ ds.imaging.radiomics.segment_and_extract(
   segmenter,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
   visibility = "private",
-  symbol = NULL
+  batch_size = 10L,
+  poll_interval = 15,
+  timeout = 14400,
+  allow_partial = FALSE
 )
 }
 \arguments{
@@ -27,11 +30,16 @@ ds.imaging.radiomics.segment_and_extract(
 
 \item{visibility}{Character; job visibility label (default "private").}
 
-\item{symbol}{Character or NULL; target server-side symbol for the workflow
-handle. If NULL, a temporary symbol is generated.}
+\item{batch_size}{Integer; images per batch.}
+
+\item{poll_interval}{Numeric; seconds between status checks.}
+
+\item{timeout}{Numeric; max seconds to wait. Set to 0 for fire-and-forget.}
+
+\item{allow_partial}{Logical; publish with some failures.}
 }
 \value{
-A domain-mediated workflow submission handle.
+Named list with generation and asset information.
 }
 \description{
 Chains segmentation and extraction into a single job.

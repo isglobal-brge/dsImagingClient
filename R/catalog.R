@@ -11,6 +11,13 @@
 #' @param kind Character or NULL; filter by kind (e.g. "feature_table",
 #'   "mask_root", "embedding_table").
 #' @return Named list of per-server data.frames.
+#' @examples
+#' \donttest{
+#' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
+#' cat_res <- ds.imaging.catalog(conns, "lung_ct_v1")
+#' cat_res$site1[, c("asset_id", "kind", "created_at")]
+#' ds.imaging.catalog(conns, "lung_ct_v1", kind = "radiomics_collection")
+#' }
 #' @export
 ds.imaging.catalog <- function(conns, dataset_id, kind = NULL) {
   if (is.null(kind)) {
@@ -54,6 +61,13 @@ ds.imaging.asset <- function(conns, asset_id, dataset_id = NULL) {
 #' @param syntactic_names Logical; if TRUE, repair server-side column names for
 #'   formula-based DataSHIELD models.
 #' @return Invisibly TRUE.
+#' @examples
+#' \donttest{
+#' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
+#' ds.imaging.radiomics.load_features(conns, dataset_id = "lung_ct_v1",
+#'   asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics")
+#' dsBaseClient::ds.dim("radiomics", datasources = conns)
+#' }
 #' @export
 ds.imaging.load_asset <- function(conns, dataset_id, asset_id,
                                   symbol = "imaging_features",

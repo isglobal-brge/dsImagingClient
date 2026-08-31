@@ -29,6 +29,24 @@
 #' @param allow_partial Logical; publish with some failures (default FALSE).
 #' @param visibility Character; asset visibility (default "private").
 #' @return Named list with generation_id, asset_id (if completed), summary.
+#' @examples
+#' \donttest{
+#' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
+#' res <- ds.imaging.radiomics.process_collection(
+#'   conns,
+#'   dataset_id = "lung_ct_v1",
+#'   segmenter = ds.imaging.segmenter.existing_mask("masks"),
+#'   profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
+#'   batch_size = 4L)
+#' res$asset_id
+#'
+#' # Fire and forget: kick off and reconnect later
+#' kicked <- ds.imaging.radiomics.process_collection(
+#'   conns, dataset_id = "lung_ct_v1",
+#'   segmenter = ds.imaging.segmenter.existing_mask("masks"),
+#'   timeout = 0)
+#' ds.imaging.radiomics.collection_status(conns, kicked$generation_id)
+#' }
 #' @export
 ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
                                              segmenter,

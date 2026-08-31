@@ -90,6 +90,13 @@
       errors[[srv]] <<- e$message
     })
   }
+  # Surface per-server failures at call time; they are also kept in the
+  # "ds_errors" attribute for programmatic access (.ds_first_result and
+  # dsHPCClient's print method render it).
+  for (srv in names(errors)) {
+    warning("dsImaging call failed on server '", srv, "': ", errors[[srv]],
+            call. = FALSE)
+  }
   if (length(errors) > 0) {
     attr(results, "ds_errors") <- errors
   }
