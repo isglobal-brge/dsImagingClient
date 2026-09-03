@@ -12,10 +12,12 @@ ds.imaging.init(conns, resource, symbol = "img")
 \item{resource}{Character; name of the Opal resource to assign.}
 
 \item{symbol}{Character; symbol name for the imaging handle
-(default \code{"imaging"}).}
+(default \code{"img"}).}
 }
 \value{
-Named list of per-server results (invisible).
+\code{TRUE}, invisibly. The initialized imaging object remains on
+every server under \code{symbol} for imaging operations or independent
+downstream consumers.
 }
 \description{
 Assigns an imaging resource on each server and creates an imaging

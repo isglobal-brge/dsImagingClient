@@ -8,8 +8,10 @@
 #' @param conns DSI connections object.
 #' @param resource Character; name of the Opal resource to assign.
 #' @param symbol Character; symbol name for the imaging handle
-#'   (default \code{"imaging"}).
-#' @return Named list of per-server results (invisible).
+#'   (default \code{"img"}).
+#' @return \code{TRUE}, invisibly. The initialized imaging object remains on
+#'   every server under \code{symbol} for imaging operations or independent
+#'   downstream consumers.
 #' @examples
 #' \donttest{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
