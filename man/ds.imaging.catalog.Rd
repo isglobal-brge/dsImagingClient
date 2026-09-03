@@ -25,7 +25,7 @@ Shows all registered assets (masks, radiomics tables, embeddings, etc.)
 with their kind, description, derivation hash, and provenance summary.
 }
 \examples{
-\donttest{
+\dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 cat_res <- ds.imaging.catalog(conns, handle = "img")
 cat_res$site1[, c("asset_id", "kind", "created_at")]

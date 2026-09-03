@@ -9,7 +9,7 @@ with their kind, description, derivation hash, and provenance summary."></head><
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,15 +75,12 @@ ignored. The dataset is resolved from <code>handle</code>.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># conns &lt;- DSI::datashield.login(...)  # live DataSHIELD session</span></span></span>
 <span class="r-in"><span><span class="va">cat_res</span> <span class="op">&lt;-</span> <span class="fu">ds.imaging.catalog</span><span class="op">(</span><span class="va">conns</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'conns' not found</span>
 <span class="r-in"><span><span class="va">cat_res</span><span class="op">$</span><span class="va">site1</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"asset_id"</span>, <span class="st">"kind"</span>, <span class="st">"created_at"</span><span class="op">)</span><span class="op">]</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'cat_res' not found</span>
 <span class="r-in"><span><span class="fu">ds.imaging.catalog</span><span class="op">(</span><span class="va">conns</span>, kind <span class="op">=</span> <span class="st">"radiomics_collection"</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'conns' not found</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

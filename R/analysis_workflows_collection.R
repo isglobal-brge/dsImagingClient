@@ -27,7 +27,7 @@
 #' @return A workflow submission handle when \code{timeout = 0}; otherwise the
 #'   publication response.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 #' kicked <- ds.imaging.radiomics.process_collection(
 #'   conns,

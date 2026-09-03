@@ -24,7 +24,7 @@ Assigns an imaging resource on each server and creates an imaging
 handle via \code{imagingInitDS()}.
 }
 \examples{
-\donttest{
+\dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
 ds.imaging.metadata(conns, "img")

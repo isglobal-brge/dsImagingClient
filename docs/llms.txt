@@ -189,6 +189,10 @@ imaging fixture.
   : Convert one-file DICOM samples to NIfTI images
 - [`ds.imaging.embeddings.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.embeddings.extract.md)
   : Extract image embeddings
+- [`ds.imaging.feature_view()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.feature_view.md)
+  : Create an opaque imaging feature view for dsFlower
+- [`ds.imaging.feature_view.destroy()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.feature_view.destroy.md)
+  : Destroy an opaque imaging feature view
 - [`ds.imaging.init()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.init.md)
   : Initialize Imaging Dataset Handle
 - [`ds.imaging.install_model()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.md)

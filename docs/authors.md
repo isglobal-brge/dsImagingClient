@@ -15,13 +15,13 @@ Source:
 
 Sarrat González D, Escribà-Montagut X, González J (2026).
 *dsImagingClient: DataSHIELD Client for Clinical Imaging Workflows*. R
-package version 0.3.2,
+package version 0.3.3,
 <https://isglobal-brge.github.io/dsImagingClient/>.
 
     @Manual{,
       title = {dsImagingClient: DataSHIELD Client for Clinical Imaging Workflows},
       author = {David {Sarrat González} and Xavier Escribà-Montagut and Juan R González},
       year = {2026},
-      note = {R package version 0.3.2},
+      note = {R package version 0.3.3},
       url = {https://isglobal-brge.github.io/dsImagingClient/},
     }

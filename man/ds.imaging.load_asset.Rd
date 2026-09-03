@@ -57,7 +57,7 @@ Assigns a server-side feature table asset, such as a radiomics collection,
 into the DataSHIELD session so standard analysis packages can operate on it.
 }
 \examples{
-\donttest{
+\dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.radiomics.load_features(conns,
   asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics",

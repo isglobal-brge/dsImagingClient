@@ -163,11 +163,14 @@ test_that("asset loading is scoped to the initialized handle", {
     .package = "DSI"
   )
   ds.imaging.radiomics.load_features(list(server_1 = list()), "lung1",
-    "radiomics", handle = "study")
+    "radiomics", columns = c("mean", "energy"), handle = "study")
   expect_equal(assigned$symbol, "radiomics")
   expect_equal(as.character(assigned$expr[[1L]]), "imagingLoadAssetDS")
   expect_equal(assigned$expr[[2L]], "study")
   expect_equal(assigned$expr[[3L]], "radiomics")
+  expect_identical(
+    assigned$expr[[4L]],
+    dsImagingClient:::.ds_encode(c("mean", "energy")))
 })
 
 test_that("collection workflow is assigned once and carries no discovery data", {

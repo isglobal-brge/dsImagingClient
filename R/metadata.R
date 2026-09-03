@@ -10,7 +10,7 @@
 #'   (default \code{"img"}).
 #' @return Named list of per-server metadata.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 #' ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
 #' str(ds.imaging.metadata(conns, "img"))

@@ -27,6 +27,8 @@
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.destroy.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.dicom.convert.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.embeddings.extract.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.feature_view.destroy.html</loc></url>
+<url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.feature_view.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.init.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.jobs.html</loc></url>
@@ -72,4 +74,3 @@
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.wsi.tile.html</loc></url>
 <url><loc>https://isglobal-brge.github.io/dsImagingClient/reference/index.html</loc></url>
 </urlset>
-

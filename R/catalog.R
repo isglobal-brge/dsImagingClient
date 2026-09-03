@@ -14,7 +14,7 @@
 #' @param handle Character; initialized imaging handle (default \code{"img"}).
 #' @return Named list of per-server data.frames.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 #' cat_res <- ds.imaging.catalog(conns, handle = "img")
 #' cat_res$site1[, c("asset_id", "kind", "created_at")]
@@ -62,7 +62,7 @@ ds.imaging.asset <- function(conns, asset_id, dataset_id = NULL) {
 #' @param handle Character; initialized imaging handle (default \code{"img"}).
 #' @return Invisibly TRUE.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 #' ds.imaging.radiomics.load_features(conns,
 #'   asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics",
@@ -76,6 +76,7 @@ ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
                                   syntactic_names = FALSE,
                                   handle = "img") {
   asset_ids <- .imaging_asset_ids_by_server(conns, asset_id)
+  columns_arg <- if (is.null(columns)) NULL else .ds_encode(columns)
   .imaging_require_symbol_absent(conns, symbol)
   assigned <- character()
   on.exit({
@@ -91,13 +92,85 @@ ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
       function(success, error) {
         DSI::datashield.assign.expr(
           conns[host], symbol = symbol,
-          expr = call("imagingLoadAssetDS", handle, asset_ids[[host]], columns,
+          expr = call("imagingLoadAssetDS", handle, asset_ids[[host]], columns_arg,
                       include_metadata, syntactic_names),
           success = success, error = error, errors.print = FALSE)
       })
     assigned <- c(assigned, host)
   }
   assigned <- character()
+  invisible(TRUE)
+}
+
+#' Create an opaque imaging feature view for dsFlower
+#'
+#' Assigns a complete radiomics/feature asset behind a session-bound capability.
+#' Unlike \code{ds.imaging.load_asset()}, this never places a data.frame in the
+#' workspace: dsFlower receives the patient mapping only through dsImaging's
+#' trusted same-session resolver.
+#'
+#' @param conns DSI connections object.
+#' @param asset_id Character asset id/alias used on every server, a named list
+#'   with one id per server, or a workflow-status result.
+#' @param symbol Character; target feature-view symbol.
+#' @param columns Optional public feature-column selection.
+#' @param handle Character; initialized imaging handle.
+#' @return Invisibly TRUE.
+#' @export
+ds.imaging.feature_view <- function(conns, asset_id,
+                                    symbol = "imaging_features",
+                                    columns = NULL, handle = "img") {
+  asset_ids <- .imaging_asset_ids_by_server(conns, asset_id)
+  columns_arg <- if (is.null(columns)) NULL else .ds_encode(columns)
+  .imaging_require_symbol_absent(conns, symbol)
+  assigned <- character()
+  completed <- FALSE
+  on.exit({
+    if (!completed && length(assigned)) {
+      rollback <- tryCatch(
+        .imaging_destroy_exact(
+          conns[assigned], symbol, "imagingFeatureViewDestroyDS"),
+        error = function(e) list(failures = "feature-view-state"))
+      if (length(rollback$failures)) {
+        tryCatch(warning(
+          "Imaging feature-view rollback was incomplete on: ",
+          paste(rollback$failures, collapse = ", "),
+          ". Retry ds.imaging.feature_view.destroy().", call. = FALSE),
+          error = function(e) NULL)
+      }
+    }
+  }, add = TRUE)
+  for (host in names(asset_ids)) {
+    .imaging_assign_exact(conns[host], "Imaging feature-view assignment",
+      function(success, error) {
+        DSI::datashield.assign.expr(
+          conns[host], symbol = symbol,
+          expr = call(
+            "imagingFeatureViewDS", handle, asset_ids[[host]], columns_arg),
+          success = success, error = error, errors.print = FALSE)
+      })
+    assigned <- c(assigned, host)
+  }
+  completed <- TRUE
+  invisible(TRUE)
+}
+
+#' Destroy an opaque imaging feature view
+#'
+#' @param conns DSI connections object.
+#' @param symbol Character; assigned feature-view symbol.
+#' @return Invisibly TRUE.
+#' @export
+ds.imaging.feature_view.destroy <- function(
+    conns, symbol = "imaging_features") {
+  report <- .imaging_destroy_exact(
+    conns, symbol, "imagingFeatureViewDestroyDS")
+  if (length(report$failures)) {
+    stop("dsImaging feature-view destruction failed on: ",
+      paste(report$failures, collapse = ", "),
+      ". Successful or absent nodes were skipped; retry with the same symbol.",
+      call. = FALSE)
+  }
   invisible(TRUE)
 }
 

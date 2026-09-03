@@ -101,6 +101,7 @@ def prepare(workdir: Path, cases_per_site: int, seed: int, replace: bool) -> Non
             rows.append(
                 {
                     "sample_id": sample_id,
+                    "patient_id": f"{site}_patient_{case_idx:02d}",
                     "site": site,
                     "dataset_id": dataset_id,
                     "age": 55 + site_idx * 3 + case_idx,

@@ -22,9 +22,8 @@ dsImaging submission and use its domain-specific status method instead.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.jobs(conns)
-#> Error: Cross-workflow job listing is retired. Keep each dsImaging workflow symbol and use its domain-specific status method.
-# }
+} # }
 ```

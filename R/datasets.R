@@ -8,7 +8,7 @@
 #' @param conns DSI connections object.
 #' @return This function always errors with migration guidance.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 #' ds.imaging.init(conns, resource = "PROJECT.images", symbol = "img")
 #' ds.imaging.metadata(conns, handle = "img")

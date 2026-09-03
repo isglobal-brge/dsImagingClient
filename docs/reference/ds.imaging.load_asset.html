@@ -9,7 +9,7 @@ into the DataSHIELD session so standard analysis packages can operate on it."></
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,13 +114,12 @@ formula-based DataSHIELD models.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># conns &lt;- DSI::datashield.login(...)  # live DataSHIELD session</span></span></span>
 <span class="r-in"><span><span class="fu">ds.imaging.radiomics.load_features</span><span class="op">(</span><span class="va">conns</span>,</span></span>
 <span class="r-in"><span>  asset_id <span class="op">=</span> <span class="st">"asset_20260831_134344_b7b9f89e"</span>, symbol <span class="op">=</span> <span class="st">"radiomics"</span>,</span></span>
 <span class="r-in"><span>  handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'conns' not found</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

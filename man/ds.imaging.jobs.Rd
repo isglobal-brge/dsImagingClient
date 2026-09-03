@@ -17,7 +17,7 @@ dsImaging submission and use its domain-specific status method instead.
 Legacy cross-workflow job listing
 }
 \examples{
-\donttest{
+\dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.jobs(conns)
 }

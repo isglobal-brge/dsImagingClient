@@ -85,7 +85,7 @@ publish_site <- function(row) {
     "--source", source_dir,
     "--metadata", metadata,
     "--modality", "ct",
-    "--no-atomic",
+    "--privacy-unit-column", "patient_id",
     "--skip-dicom-checks"
   ))
 }

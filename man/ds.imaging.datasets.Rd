@@ -17,7 +17,7 @@ Imaging access is capability-scoped to a resource initialized with
 \code{ds.imaging.init()}. Global registry enumeration is not available.
 }
 \examples{
-\donttest{
+\dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.init(conns, resource = "PROJECT.images", symbol = "img")
 ds.imaging.metadata(conns, handle = "img")

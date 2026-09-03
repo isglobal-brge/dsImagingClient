@@ -1,3 +1,13 @@
+# dsImagingClient 0.3.3
+
+* Added `ds.imaging.feature_view()` and its exact cleanup helper so complete
+  derived feature assets can be handed to dsFlower as opaque, patient-bound
+  session capabilities without exposing a data frame in the workspace.
+  Multi-column selections are encoded as one literal transport argument, so
+  they remain usable with the server's strict expression boundary.
+* The packaged validation demo now publishes atomically and includes the
+  mandatory patient identifier used by the current collection contract.
+
 # dsImagingClient 0.3.2
 
 * `ds.imaging.radiomics.segment_and_extract()` now calls the dedicated

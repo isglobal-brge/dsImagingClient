@@ -23,13 +23,9 @@ This function always errors with migration guidance.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.init(conns, resource = "PROJECT.images", symbol = "img")
-#> Warning: restarting interrupted promise evaluation
-#> Warning: restarting interrupted promise evaluation
-#> Error: object 'conns' not found
 ds.imaging.metadata(conns, handle = "img")
-#> Error: object 'conns' not found
-# }
+} # }
 ```

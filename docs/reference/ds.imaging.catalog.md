@@ -36,13 +36,10 @@ Named list of per-server data.frames.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 cat_res <- ds.imaging.catalog(conns, handle = "img")
-#> Error: object 'conns' not found
 cat_res$site1[, c("asset_id", "kind", "created_at")]
-#> Error: object 'cat_res' not found
 ds.imaging.catalog(conns, kind = "radiomics_collection", handle = "img")
-#> Error: object 'conns' not found
-# }
+} # }
 ```

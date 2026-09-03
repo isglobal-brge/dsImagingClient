@@ -32,13 +32,9 @@ consumers.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
-#> Warning: restarting interrupted promise evaluation
-#> Warning: restarting interrupted promise evaluation
-#> Error: object 'conns' not found
 ds.imaging.metadata(conns, "img")
-#> Error: object 'conns' not found
-# }
+} # }
 ```

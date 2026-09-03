@@ -76,11 +76,10 @@ Invisibly TRUE.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 ds.imaging.radiomics.load_features(conns,
   asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics",
   handle = "img")
-#> Error: object 'conns' not found
-# }
+} # }
 ```

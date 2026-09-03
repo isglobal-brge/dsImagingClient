@@ -13,7 +13,7 @@
 #'   every server under \code{symbol} for imaging operations or independent
 #'   downstream consumers.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 #' ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
 #' ds.imaging.metadata(conns, "img")
@@ -197,7 +197,9 @@ ds.imaging.destroy <- function(conns, symbol = "img") {
 .imaging_destroy_exact <- function(conns, symbol, method) {
   symbol <- .imaging_validate_symbol(symbol)
   if (!is.character(method) || length(method) != 1L || is.na(method) ||
-      !method %in% c("imagingDestroyDS", "imagingWorkflowDestroyDS")) {
+      !method %in% c(
+        "imagingDestroyDS", "imagingWorkflowDestroyDS",
+        "imagingFeatureViewDestroyDS")) {
     stop("Unknown dsImaging destroy method.", call. = FALSE)
   }
   hosts <- names(conns)

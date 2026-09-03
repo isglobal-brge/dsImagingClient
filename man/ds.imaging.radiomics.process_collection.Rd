@@ -52,7 +52,7 @@ optionally polls its server-side workflow symbol until processing completes.
 The user can safely disconnect and reconnect with the returned symbol.
 }
 \examples{
-\donttest{
+\dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 kicked <- ds.imaging.radiomics.process_collection(
   conns,

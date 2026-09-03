@@ -76,20 +76,14 @@ publication response.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
 kicked <- ds.imaging.radiomics.process_collection(
   conns,
   segmenter = ds.imaging.segmenter.existing_mask("masks"),
   profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
   timeout = 0)
-#> Warning: restarting interrupted promise evaluation
-#> Warning: restarting interrupted promise evaluation
-#> Warning: restarting interrupted promise evaluation
-#> Error: object 'conns' not found
 ds.imaging.radiomics.collection_status(conns, kicked$symbol)
-#> Error: object 'kicked' not found
 ds.imaging.radiomics.collection_publish(conns, kicked$symbol)
-#> Error: object 'kicked' not found
-# }
+} # }
 ```
