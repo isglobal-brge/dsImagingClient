@@ -2,17 +2,20 @@
 % Please edit documentation in R/catalog.R
 \name{ds.imaging.catalog}
 \alias{ds.imaging.catalog}
-\title{List derived assets for a dataset}
+\title{List derived assets for an initialized imaging handle}
 \usage{
-ds.imaging.catalog(conns, dataset_id, kind = NULL)
+ds.imaging.catalog(conns, dataset_id = NULL, kind = NULL, handle = "img")
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; the dataset identifier.}
+\item{dataset_id}{Character or NULL; retained for source compatibility and
+ignored. The dataset is resolved from \code{handle}.}
 
 \item{kind}{Character or NULL; filter by kind (e.g. "feature_table",
 "mask_root", "embedding_table").}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
 Named list of per-server data.frames.
@@ -24,8 +27,8 @@ with their kind, description, derivation hash, and provenance summary.
 \examples{
 \donttest{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
-cat_res <- ds.imaging.catalog(conns, "lung_ct_v1")
+cat_res <- ds.imaging.catalog(conns, handle = "img")
 cat_res$site1[, c("asset_id", "kind", "created_at")]
-ds.imaging.catalog(conns, "lung_ct_v1", kind = "radiomics_collection")
+ds.imaging.catalog(conns, kind = "radiomics_collection", handle = "img")
 }
 }

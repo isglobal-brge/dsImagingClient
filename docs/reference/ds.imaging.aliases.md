@@ -1,4 +1,4 @@
-# List aliases for a dataset
+# Legacy dataset alias listing
 
 Shows human-friendly names pointing to specific asset versions. Example:
 "default_lung_mask" -\> asset_20260319\_...
@@ -21,4 +21,4 @@ ds.imaging.aliases(conns, dataset_id)
 
 ## Value
 
-Named list of per-server data.frames.
+This function always errors with migration guidance.

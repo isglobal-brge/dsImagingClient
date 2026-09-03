@@ -1,6 +1,7 @@
-# Resolve a resource content hash from DataSHIELD servers
+# Resolve a resource content hash through an explicitly configured resolver
 
-Resolve a resource content hash from DataSHIELD servers
+Resolve a resource content hash through an explicitly configured
+resolver
 
 ## Usage
 

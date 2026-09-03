@@ -2,37 +2,41 @@
 % Please edit documentation in R/analysis_workflows_clinical.R
 \name{ds.imaging.dicom.convert}
 \alias{ds.imaging.dicom.convert}
-\title{Convert DICOM series to NIfTI images}
+\title{Convert one-file DICOM samples to NIfTI images}
 \usage{
 ds.imaging.dicom.convert(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   dicom_asset = "dicom",
   output_asset = "nifti_images",
-  converter = "auto",
+  converter = "simpleitk",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{dicom_asset}{Character; manifest asset containing DICOM series.}
 
 \item{output_asset}{Character; name for the published NIfTI image asset.}
 
-\item{converter}{Character; \code{"auto"}, \code{"dcm2niix"}, or \code{"simpleitk"}.}
+\item{converter}{Character; currently only \code{"simpleitk"}.}
 
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
-Submits a dsHPC-backed conversion job. The runner uses \code{dcm2niix} when
-available and falls back to SimpleITK series reading.
+Submits a dsHPC-backed SimpleITK conversion job. Each admitted patient
+sample must map to one DICOM file; multi-file series fail closed.
 }

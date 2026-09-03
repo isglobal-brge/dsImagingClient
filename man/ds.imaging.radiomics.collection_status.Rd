@@ -2,19 +2,21 @@
 % Please edit documentation in R/analysis_workflows_collection.R
 \name{ds.imaging.radiomics.collection_status}
 \alias{ds.imaging.radiomics.collection_status}
-\title{Check status of a running collection processing generation}
+\title{Check status of a collection workflow}
 \usage{
-ds.imaging.radiomics.collection_status(conns, generation_id)
+ds.imaging.radiomics.collection_status(conns, symbol)
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{generation_id}{Character; the generation_id from a prior kick-off.}
+\item{symbol}{Character; server-side collection workflow symbol.}
 }
 \value{
-Named list with progress info.
+A list containing \code{state}, \code{is_done}, and optionally
+\code{asset_id}; or a named list of these responses for multiple servers.
 }
 \description{
-Use this to check on a generation that was kicked off earlier,
-especially after a fire-and-forget call or reconnecting to a session.
+Use this with the symbol returned by
+\code{ds.imaging.radiomics.process_collection()}, including after reconnecting
+to a session.
 }

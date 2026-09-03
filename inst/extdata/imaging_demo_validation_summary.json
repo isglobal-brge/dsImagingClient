@@ -93,12 +93,9 @@
         "derivation_hash": "21f93cc90fa934c80cbbd4d511a58f17762d908516c369a336ae3b4ebd5ca9f6",
         "created_at": "2026-05-26T13:42:23.987Z",
         "created_by": null,
-        "created_by_job": "job_2vqas5ldvwa84jmq2xxc81r8ytrrz8iz",
-        "path_or_root": "/srv/dshpc/artifacts/job_2vqas5ldvwa84jmq2xxc81r8ytrrz8iz/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_2vqas5ldvwa84jmq2xxc81r8ytrrz8iz",
           "asset_name": "demo_masks_cc",
           "runner": "mask_ops",
           "config": {
@@ -149,12 +146,9 @@
         "derivation_hash": "b521b7fae0a04514f3dc0f329b30b5a69891afe4cf10e8b5af63b4915ce7c09e",
         "created_at": "2026-05-26T13:42:30.396Z",
         "created_by": null,
-        "created_by_job": "job_j1ecd0zkj8lcqghl4a8sf8n403kufcza",
-        "path_or_root": "/srv/dshpc/artifacts/job_j1ecd0zkj8lcqghl4a8sf8n403kufcza/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_j1ecd0zkj8lcqghl4a8sf8n403kufcza",
           "asset_name": "demo_crop_to_mask",
           "runner": "image_spatial",
           "config": {
@@ -188,12 +182,9 @@
         "derivation_hash": "cb186209b8faeacf72dd7db62076f43131c9514bd114848ac95892b103e0349f",
         "created_at": "2026-05-26T13:39:52.615Z",
         "created_by": null,
-        "created_by_job": "job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e",
-        "path_or_root": "/srv/dshpc/artifacts/job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e",
           "asset_name": "demo_qc_metrics",
           "runner": "imaging_qc_metrics",
           "config": {
@@ -206,7 +197,6 @@
               "imaging_qc_summary": {
                 "n_samples": 10,
                 "has_masks": true,
-                "table": "/srv/dshpc/artifacts/job_0abjadpxmbu0qy3n2l80uuyezo3r9o5e/step_002/output/imaging_qc_metrics.csv",
                 "versions": {
                   "python": "3.11.15",
                   "SimpleITK": "2.5.4",
@@ -237,12 +227,9 @@
         "derivation_hash": "b8e44f9cacf7016dc2dce949831708eba2fe882ec45828b63710dea297aa34cd",
         "created_at": "2026-05-26T13:42:38.814Z",
         "created_by": null,
-        "created_by_job": "job_a8udi0goqn6u77h3u517wopnq0sd12mj",
-        "path_or_root": "/srv/dshpc/artifacts/job_a8udi0goqn6u77h3u517wopnq0sd12mj/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_a8udi0goqn6u77h3u517wopnq0sd12mj",
           "asset_name": "demo_embeddings",
           "runner": "image_embeddings",
           "config": {
@@ -258,7 +245,6 @@
                 "model": "intensity_histogram",
                 "embedding_dim": 24,
                 "accelerator": "unavailable",
-                "table": "/srv/dshpc/artifacts/job_a8udi0goqn6u77h3u517wopnq0sd12mj/step_002/output/image_embeddings.csv",
                 "versions": {
                   "python": "3.11.15",
                   "SimpleITK": "2.5.4",
@@ -293,12 +279,9 @@
         "derivation_hash": "c8d0a968d3e1efbf4a1c2ca0a02e420d2886aa55f4bb777a931a06079f21bf28",
         "created_at": "2026-05-26T13:42:24.463Z",
         "created_by": null,
-        "created_by_job": "job_voknql4hpcx8cvfepudzefvxy8bjbhl3",
-        "path_or_root": "/srv/dshpc/artifacts/job_voknql4hpcx8cvfepudzefvxy8bjbhl3/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_voknql4hpcx8cvfepudzefvxy8bjbhl3",
           "asset_name": "demo_masks_cc",
           "runner": "mask_ops",
           "config": {
@@ -349,12 +332,9 @@
         "derivation_hash": "e1fef8a64d1493f270651e66a020bb3785ec37429cf69b27b34eccb4ceecf48b",
         "created_at": "2026-05-26T13:42:30.973Z",
         "created_by": null,
-        "created_by_job": "job_9xpyr2kr8kpkes9pk0s7c1gis2popkwx",
-        "path_or_root": "/srv/dshpc/artifacts/job_9xpyr2kr8kpkes9pk0s7c1gis2popkwx/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_9xpyr2kr8kpkes9pk0s7c1gis2popkwx",
           "asset_name": "demo_crop_to_mask",
           "runner": "image_spatial",
           "config": {
@@ -388,12 +368,9 @@
         "derivation_hash": "3439750202b06ce8278fd3d3ff35f8dbe2fdef42c82a73f7c76117aa7bd00e1c",
         "created_at": "2026-05-26T13:42:07.792Z",
         "created_by": null,
-        "created_by_job": "job_2fw086jp6iiqny3ym8pe6vsze2km3n1i",
-        "path_or_root": "/srv/dshpc/artifacts/job_2fw086jp6iiqny3ym8pe6vsze2km3n1i/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_2fw086jp6iiqny3ym8pe6vsze2km3n1i",
           "asset_name": "demo_qc_metrics",
           "runner": "imaging_qc_metrics",
           "config": {
@@ -406,7 +383,6 @@
               "imaging_qc_summary": {
                 "n_samples": 10,
                 "has_masks": true,
-                "table": "/srv/dshpc/artifacts/job_2fw086jp6iiqny3ym8pe6vsze2km3n1i/step_002/output/imaging_qc_metrics.csv",
                 "versions": {
                   "python": "3.11.15",
                   "SimpleITK": "2.5.4",
@@ -437,12 +413,9 @@
         "derivation_hash": "45bc700a0d6628bb59eae548a7ed5c0c319f24bbbf86faccd866fb5fffb85738",
         "created_at": "2026-05-26T13:42:37.401Z",
         "created_by": null,
-        "created_by_job": "job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6",
-        "path_or_root": "/srv/dshpc/artifacts/job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6",
           "asset_name": "demo_embeddings",
           "runner": "image_embeddings",
           "config": {
@@ -458,7 +431,6 @@
                 "model": "intensity_histogram",
                 "embedding_dim": 24,
                 "accelerator": "unavailable",
-                "table": "/srv/dshpc/artifacts/job_xmy2zo4z1skxzlafoc9trdwtud9e2tt6/step_002/output/image_embeddings.csv",
                 "versions": {
                   "python": "3.11.15",
                   "SimpleITK": "2.5.4",
@@ -493,12 +465,9 @@
         "derivation_hash": "c70a3ffb194265b9116f90dfd008cdf770c803b41dee43a5253239d060436e5f",
         "created_at": "2026-05-26T13:42:23.619Z",
         "created_by": null,
-        "created_by_job": "job_4ul1v1soab6kaodaq498t31b69wcxo3l",
-        "path_or_root": "/srv/dshpc/artifacts/job_4ul1v1soab6kaodaq498t31b69wcxo3l/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_4ul1v1soab6kaodaq498t31b69wcxo3l",
           "asset_name": "demo_masks_cc",
           "runner": "mask_ops",
           "config": {
@@ -549,12 +518,9 @@
         "derivation_hash": "b7ccb16388bae713bcef48b907f9e8ab9a0af71f17bb0352a2b7eb69ca6610ff",
         "created_at": "2026-05-26T13:42:32.105Z",
         "created_by": null,
-        "created_by_job": "job_dunn4e26oijsszpg8zmps670bmk7nykr",
-        "path_or_root": "/srv/dshpc/artifacts/job_dunn4e26oijsszpg8zmps670bmk7nykr/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_dunn4e26oijsszpg8zmps670bmk7nykr",
           "asset_name": "demo_crop_to_mask",
           "runner": "image_spatial",
           "config": {
@@ -588,12 +554,9 @@
         "derivation_hash": "1079ab63970ca01bad6e20abed7743023d93bee12680bcb0f432916080910429",
         "created_at": "2026-05-26T13:42:09.054Z",
         "created_by": null,
-        "created_by_job": "job_h230drp8ej4nhbl6i44joogab41nkhv7",
-        "path_or_root": "/srv/dshpc/artifacts/job_h230drp8ej4nhbl6i44joogab41nkhv7/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_h230drp8ej4nhbl6i44joogab41nkhv7",
           "asset_name": "demo_qc_metrics",
           "runner": "imaging_qc_metrics",
           "config": {
@@ -606,7 +569,6 @@
               "imaging_qc_summary": {
                 "n_samples": 10,
                 "has_masks": true,
-                "table": "/srv/dshpc/artifacts/job_h230drp8ej4nhbl6i44joogab41nkhv7/step_002/output/imaging_qc_metrics.csv",
                 "versions": {
                   "python": "3.11.15",
                   "SimpleITK": "2.5.4",
@@ -637,12 +599,9 @@
         "derivation_hash": "35cb5425ff700ebaf6cbc197849799b397acdab333104228c2759aea239228bb",
         "created_at": "2026-05-26T13:42:38.577Z",
         "created_by": null,
-        "created_by_job": "job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6",
-        "path_or_root": "/srv/dshpc/artifacts/job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6/step_002/output",
         "tags": null,
         "provenance": {
           "type": "dshpc_publish",
-          "job_id": "job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6",
           "asset_name": "demo_embeddings",
           "runner": "image_embeddings",
           "config": {
@@ -658,7 +617,6 @@
                 "model": "intensity_histogram",
                 "embedding_dim": 24,
                 "accelerator": "unavailable",
-                "table": "/srv/dshpc/artifacts/job_vyqt0w4dzjyuzhobnayg7jegt9g8zju6/step_002/output/image_embeddings.csv",
                 "versions": {
                   "python": "3.11.15",
                   "SimpleITK": "2.5.4",
@@ -826,5 +784,7 @@
       }
     }
   },
-  "overall_pass": true
+  "overall_pass": true,
+  "artifact_type": "sanitized_demo_fixture",
+  "publication_note": "Recorded synthetic validation results; server job capabilities and node-local artifact paths removed."
 }

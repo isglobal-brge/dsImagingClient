@@ -6,7 +6,7 @@
 \usage{
 ds.imaging.wsi.tile(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   wsi_asset = "wsi",
   tile_size = 512L,
   stride = tile_size,
@@ -15,13 +15,15 @@ ds.imaging.wsi.tile(
   write_tiles = TRUE,
   output_asset = "wsi_tiles",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{wsi_asset}{Character; WSI asset or alias.}
 
@@ -40,9 +42,11 @@ ds.imaging.wsi.tile(
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Tile WSI/pathology images

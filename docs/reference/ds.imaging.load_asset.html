@@ -9,7 +9,7 @@ into the DataSHIELD session so standard analysis packages can operate on it."></
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@ into the DataSHIELD session so standard analysis packages can operate on it."></
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/isglobal-brge/dsImagingClient/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -44,22 +45,24 @@ into the DataSHIELD session so standard analysis packages can operate on it.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ds.imaging.load_asset</span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  <span class="va">dataset_id</span>,</span>
+<span>  dataset_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">asset_id</span>,</span>
 <span>  symbol <span class="op">=</span> <span class="st">"imaging_features"</span>,</span>
 <span>  columns <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  include_metadata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  syntactic_names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  syntactic_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ds.imaging.radiomics.load_features</span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  <span class="va">dataset_id</span>,</span>
+<span>  dataset_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">asset_id</span>,</span>
 <span>  symbol <span class="op">=</span> <span class="st">"radiomics"</span>,</span>
 <span>  columns <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  include_metadata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  syntactic_names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  syntactic_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -72,11 +75,14 @@ into the DataSHIELD session so standard analysis packages can operate on it.</p>
 
 
 <dt id="arg-dataset-id">dataset_id<a class="anchor" aria-label="anchor" href="#arg-dataset-id"></a></dt>
-<dd><p>Character; dataset identifier.</p></dd>
+<dd><p>Character or NULL; retained for source compatibility and
+ignored. The dataset is resolved from <code>handle</code>.</p></dd>
 
 
 <dt id="arg-asset-id">asset_id<a class="anchor" aria-label="anchor" href="#arg-asset-id"></a></dt>
-<dd><p>Character; asset id or alias.</p></dd>
+<dd><p>Character asset id/alias used on every server, a named list
+with one id per server, or the result of
+<code><a href="ds.imaging.workflow.status.html">ds.imaging.workflow.status()</a></code>.</p></dd>
 
 
 <dt id="arg-symbol">symbol<a class="anchor" aria-label="anchor" href="#arg-symbol"></a></dt>
@@ -96,12 +102,27 @@ dataset metadata/clinical columns on <code>sample_id</code>.</p></dd>
 <dd><p>Logical; if TRUE, repair server-side column names for
 formula-based DataSHIELD models.</p></dd>
 
+
+<dt id="arg-handle">handle<a class="anchor" aria-label="anchor" href="#arg-handle"></a></dt>
+<dd><p>Character; initialized imaging handle (default <code>"img"</code>).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly TRUE.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># conns &lt;- DSI::datashield.login(...)  # live DataSHIELD session</span></span></span>
+<span class="r-in"><span><span class="fu">ds.imaging.radiomics.load_features</span><span class="op">(</span><span class="va">conns</span>,</span></span>
+<span class="r-in"><span>  asset_id <span class="op">=</span> <span class="st">"asset_20260831_134344_b7b9f89e"</span>, symbol <span class="op">=</span> <span class="st">"radiomics"</span>,</span></span>
+<span class="r-in"><span>  handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'conns' not found</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
@@ -121,4 +142,3 @@ formula-based DataSHIELD models.</p></dd>
 
 
   </body></html>
-

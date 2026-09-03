@@ -1,17 +1,11 @@
-# Publish a completed collection generation
+# Publish a completed collection workflow
 
-Call this after a fire-and-forget run completes to create the
-collection-level asset.
+Publish a completed collection workflow
 
 ## Usage
 
 ``` r
-ds.imaging.radiomics.collection_publish(
-  conns,
-  generation_id,
-  dataset_id = NULL,
-  allow_partial = FALSE
-)
+ds.imaging.radiomics.collection_publish(conns, symbol)
 ```
 
 ## Arguments
@@ -20,18 +14,11 @@ ds.imaging.radiomics.collection_publish(
 
   DSI connections object.
 
-- generation_id:
+- symbol:
 
-  Character; the generation_id.
-
-- dataset_id:
-
-  Character; the dataset.
-
-- allow_partial:
-
-  Logical; publish even with some failures.
+  Character; server-side collection workflow symbol.
 
 ## Value
 
-Named list with asset_id and summary.
+A list containing `state` and `asset_id`; or a named list of these
+responses for multiple servers.

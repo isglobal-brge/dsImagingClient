@@ -1,11 +1,11 @@
-# Print a summary of radiomics activity
+# Print a disclosure-safe summary of the initialized imaging resource
 
-Print a summary of radiomics activity
+Print a disclosure-safe summary of the initialized imaging resource
 
 ## Usage
 
 ``` r
-ds.imaging.summary(conns)
+ds.imaging.summary(conns, handle = "img")
 ```
 
 ## Arguments
@@ -13,3 +13,7 @@ ds.imaging.summary(conns)
 - conns:
 
   DSI connections object.
+
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).

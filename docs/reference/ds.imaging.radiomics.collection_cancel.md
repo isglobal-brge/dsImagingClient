@@ -1,4 +1,4 @@
-# Cancel a running collection generation (admin only)
+# Cancel a running collection workflow (admin only)
 
 Requires the server-side `dshpc.admin_key` option or `DSHPC_ADMIN_KEY`
 environment variable. This cancels dsHPC jobs belonging to the
@@ -9,7 +9,7 @@ generation and marks unfinished generation items as skipped.
 ``` r
 ds.imaging.radiomics.collection_cancel(
   conns,
-  generation_id,
+  symbol,
   admin_key,
   reason = "Cancelled by admin"
 )
@@ -21,9 +21,9 @@ ds.imaging.radiomics.collection_cancel(
 
   DSI connections object.
 
-- generation_id:
+- symbol:
 
-  Character; the generation_id.
+  Character; server-side collection workflow symbol.
 
 - admin_key:
 
@@ -36,4 +36,5 @@ ds.imaging.radiomics.collection_cancel(
 
 ## Value
 
-Named list with cancellation counts.
+A disclosure-controlled list containing only the coarse cancellation
+state.

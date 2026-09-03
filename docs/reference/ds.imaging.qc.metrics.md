@@ -9,12 +9,13 @@ summaries.
 ``` r
 ds.imaging.qc.metrics(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   mask_asset = NULL,
   output_asset = "imaging_qc",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -26,7 +27,8 @@ ds.imaging.qc.metrics(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - image_asset:
 
@@ -48,6 +50,10 @@ ds.imaging.qc.metrics(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

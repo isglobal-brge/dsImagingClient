@@ -59,42 +59,42 @@ ds.imaging.validate(conns, "img")
 
 **3. Extract the Aerts radiomics signature.** Submit one collection
 workflow over the existing tumour masks with the Aerts profile. `dsHPC`
-schedules the per-image PyRadiomics jobs at each site; the call reports
-what was queued.
+schedules the per-image PyRadiomics jobs at each site; the call returns
+an opaque workflow symbol.
 
 ``` r
 
 result <- ds.imaging.radiomics.process_collection(
   conns,
-  dataset_id = NULL,
   segmenter  = ds.imaging.segmenter.existing_mask("masks"),
   profile    = ds.imaging.radiomics.profile.aerts_signature(),
   batch_size = 1L,
-  visibility = "global"
+  timeout    = 0,
+  handle     = "img"
 )
 ```
 
-**4. Publish and load the feature table.** Once every per-image job has
-finished, commit the completed outputs to the asset catalogue and load
-them — with the joined clinical metadata — into a server-side DataSHIELD
-table.
+**4. Publish and load the feature table.** Once collection status
+reports `is_done = TRUE`, commit the completed outputs to the asset
+catalogue and load them — with the joined clinical metadata — into a
+server-side DataSHIELD table.
 
 ``` r
 
-pub <- ds.imaging.radiomics.collection_publish(
-  conns,
-  generation_id = result$generation_id,
-  dataset_id    = result$dataset_id
-)
+pub <- stats::setNames(lapply(names(conns), function(server) {
+  ds.imaging.radiomics.collection_publish(conns[server], result$symbol)
+}), names(conns))
 
-ds.imaging.radiomics.load_features(
-  conns,
-  dataset_id       = pub$dataset_id,
-  asset_id         = pub$asset_id,
-  symbol           = "rad",
-  include_metadata = TRUE,
-  syntactic_names  = TRUE
-)
+for (server in names(conns)) {
+  ds.imaging.radiomics.load_features(
+    conns[server],
+    asset_id         = pub[[server]]$asset_id,
+    symbol           = "rad",
+    include_metadata = TRUE,
+    syntactic_names  = TRUE,
+    handle           = "img"
+  )
+}
 ```
 
 **5. Analyse the federated feature table.** `rad` is now an ordinary
@@ -404,8 +404,7 @@ or minus
 
 ## Operational Notes
 
-- `process_collection()` reports disclosure-bucketed metadata, so its
-  status may show a rounded bucket rather than exact per-site counts.
-  `ds.dim("rad")` is the server-side check for exact loaded dimensions.
-- Admin job listing and cancellation use `dshpc.admin_key` or
-  `DSHPC_ADMIN_KEY`; wrong keys are rejected by all sites.
+- `process_collection()` exposes only its coarse state and completion
+  bit; it does not return per-site sample, patient, or job counts.
+- Keep the opaque workflow symbol returned by each call. Cross-workflow
+  job listing is deliberately unavailable to analysts.

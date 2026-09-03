@@ -1,9 +1,10 @@
 # Module: Radiomics Asset Discovery
 # Convenience wrappers around dsImagingClient for radiomics-specific queries.
 
-#' List radiomics jobs
+#' Legacy cross-workflow job listing
 #' @param conns DSI connections object.
-#' @return A dshpc_result; printed as a formatted job table.
+#' @return This function always errors. Keep the workflow symbol returned by a
+#'   dsImaging submission and use its domain-specific status method instead.
 #' @examples
 #' \donttest{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
@@ -11,25 +12,33 @@
 #' }
 #' @export
 ds.imaging.jobs <- function(conns) {
-  dsHPCClient::ds.hpc.list(conns, label = "dsImaging")
+  stop(
+    "Cross-workflow job listing is retired. Keep each dsImaging workflow ",
+    "symbol and use its domain-specific status method.",
+    call. = FALSE
+  )
 }
 
-#' List radiomics feature tables for a dataset
+#' List radiomics feature tables for an initialized imaging handle
 #' @param conns DSI connections object.
-#' @param dataset_id Character; dataset identifier.
+#' @param dataset_id Character or NULL; retained for source compatibility.
+#' @param handle Character; initialized imaging handle (default \code{"img"}).
 #' @return Named list of per-server data.frames.
 #' @export
-ds.imaging.radiomics.features <- function(conns, dataset_id) {
-  ds.imaging.catalog(conns, dataset_id, kind = "radiomics_collection")
+ds.imaging.radiomics.features <- function(conns, dataset_id = NULL,
+                                          handle = "img") {
+  ds.imaging.catalog(conns, dataset_id, kind = "radiomics_collection",
+    handle = handle)
 }
 
-#' List segmentation masks for a dataset
+#' List segmentation masks for an initialized imaging handle
 #' @param conns DSI connections object.
-#' @param dataset_id Character; dataset identifier.
+#' @param dataset_id Character or NULL; retained for source compatibility.
+#' @param handle Character; initialized imaging handle (default \code{"img"}).
 #' @return Named list of per-server data.frames.
 #' @export
-ds.imaging.masks <- function(conns, dataset_id) {
-  ds.imaging.catalog(conns, dataset_id, kind = "mask_root")
+ds.imaging.masks <- function(conns, dataset_id = NULL, handle = "img") {
+  ds.imaging.catalog(conns, dataset_id, kind = "mask_root", handle = handle)
 }
 
 #' Get radiomics capabilities from server

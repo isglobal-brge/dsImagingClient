@@ -1,51 +1,41 @@
 # Module: Per-Image Collection Processing Workflow
 #
-# Fire-and-forget architecture:
-#   1. Client scans collection -> gets pending list
-#   2. Client submits FIRST batch only -> server takes over
-#   3. Server auto-submits subsequent batches via publisher drip feed
-#   4. Client can disconnect safely; reconnect later to check status
-#   5. When done, client publishes collection asset
-#
-# The user can also stay connected and watch progress via polling.
+# The client assigns one high-level request. The server owns discovery,
+# deduplication, batching, and orchestration. The assigned workflow symbol is
+# used for status, recovery, and publication.
 
 #' Process an image collection with per-image deduplication
 #'
-#' Scans a dataset's images, fingerprints them, kicks off per-image
-#' processing jobs, and optionally waits for completion.
-#'
-#' The server is self-sustaining: after the first batch is submitted,
-#' completed jobs automatically trigger submission of the next batch.
-#' The user can safely disconnect and reconnect later.
+#' Assigns one disclosure-controlled collection request to each server and
+#' optionally polls its server-side workflow symbol until processing completes.
+#' The user can safely disconnect and reconnect with the returned symbol.
 #'
 #' @param conns DSI connections object.
-#' @param dataset_id Character; dataset identifier.
+#' @param dataset_id Character or NULL; optional dataset identifier. The server
+#'   derives it from \code{handle} and verifies any supplied value.
 #' @param segmenter A segmenter from ds.imaging.segmenter.*().
 #' @param profile A radiomics profile from ds.imaging.radiomics.profile.*().
-#' @param batch_size Integer; images per batch (default 10).
+#' @param batch_size Integer; images per server-owned batch (default 10).
 #' @param poll_interval Numeric; seconds between status checks (default 15).
 #' @param timeout Numeric; max seconds to wait (default 14400 = 4 hours).
 #'   Set to 0 to return immediately after kick-off (fire and forget).
-#' @param allow_partial Logical; publish with some failures (default FALSE).
-#' @param visibility Character; asset visibility (default "private").
-#' @return Named list with generation_id, asset_id (if completed), summary.
+#' @param visibility Compatibility argument; analytical workflows only accept
+#'   \code{"private"}. Global publication is administrator-only.
+#' @param handle Character; initialized imaging handle (default \code{"img"}).
+#' @param symbol Character or NULL; target server-side workflow symbol. If NULL,
+#'   a temporary symbol is generated.
+#' @return A workflow submission handle when \code{timeout = 0}; otherwise the
+#'   publication response.
 #' @examples
 #' \donttest{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
-#' res <- ds.imaging.radiomics.process_collection(
+#' kicked <- ds.imaging.radiomics.process_collection(
 #'   conns,
-#'   dataset_id = "lung_ct_v1",
 #'   segmenter = ds.imaging.segmenter.existing_mask("masks"),
 #'   profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
-#'   batch_size = 4L)
-#' res$asset_id
-#'
-#' # Fire and forget: kick off and reconnect later
-#' kicked <- ds.imaging.radiomics.process_collection(
-#'   conns, dataset_id = "lung_ct_v1",
-#'   segmenter = ds.imaging.segmenter.existing_mask("masks"),
 #'   timeout = 0)
-#' ds.imaging.radiomics.collection_status(conns, kicked$generation_id)
+#' ds.imaging.radiomics.collection_status(conns, kicked$symbol)
+#' ds.imaging.radiomics.collection_publish(conns, kicked$symbol)
 #' }
 #' @export
 ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
@@ -54,234 +44,150 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
                                              batch_size = 10L,
                                              poll_interval = 15,
                                              timeout = 14400,
-                                             allow_partial = FALSE,
-                                             visibility = "private") {
-  # If invoked with a multi-server connections object, fan out per server.
-  # Each site has its own dataset / generation / pending list, so doing it
-  # otherwise silently drops sites 2..N.
-  if (!inherits(conns, "DSConnection") && length(conns) > 1L) {
-    out <- list()
-    for (srv in names(conns)) {
-      message("=== ", srv, " ===")
-      out[[srv]] <- ds.imaging.radiomics.process_collection(
-        conns[srv], dataset_id = dataset_id, segmenter = segmenter,
-        profile = profile, batch_size = batch_size,
-        poll_interval = poll_interval, timeout = timeout,
-        allow_partial = allow_partial, visibility = visibility)
-    }
-    return(out)
-  }
+                                             visibility = "private",
+                                             handle = "img",
+                                             symbol = NULL) {
+  .require_private_workflow_visibility(visibility)
+  request <- list(
+    handle = handle,
+    dataset_id = dataset_id,
+    segmenter = segmenter,
+    profile = profile,
+    batch_size = as.integer(batch_size)
+  )
+  submission <- .assign_domain_workflow(
+    conns, "imagingProcessRadiomicsCollectionDS", request, symbol = symbol)
 
-  # --- Step 1: Scan collection ---
-  message("Scanning collection: ", dataset_id %||% "<handle dataset>")
-  scan <- .ds_safe_aggregate(conns, "imagingRadiomicsScanCollectionDS",
-    .ds_encode(dataset_id),
-    .ds_encode(segmenter),
-    .ds_encode(profile),
-    .ds_encode(visibility))
-
-  srv <- names(scan)[1]
-  result <- .ds_first_result(scan, "Collection scan")
-
-  # Already fully computed
-  if (identical(result$action, "reuse_asset")) {
-    message("Collection already processed: ", result$asset_id)
-    return(list(
-      action = "reused",
-      asset_id = result$asset_id,
-      generation_id = NULL,
-      dataset_id = result$dataset_id %||% dataset_id,
-      total = result$total,
-      done = result$done,
-      pending = 0L
-    ))
-  }
-
-  dataset_id <- result$dataset_id %||% dataset_id
-  generation_id <- result$generation_id
-  pending_ids <- result$pending_ids
-  fingerprints <- result$fingerprints
-  content_hashes <- result$content_hashes %||% list()
-  total <- result$total
-  done <- result$done %||% 0L
-
-  message("  Total: ", total, " | Already done: ", done,
-          " | Pending: ", length(pending_ids))
-
-  # Nothing to do
-  if (length(pending_ids) == 0) {
-    message("All images already processed. Publishing...")
-    pub <- .publish_collection(conns, generation_id, dataset_id, allow_partial)
-    return(pub)
-  }
-
-  # --- Step 2: Submit FIRST batch only ---
-  # The server-side drip feed (publisher hook) auto-submits subsequent
-  # batches as jobs complete. No client connection needed after this.
-  first_batch <- pending_ids[seq_len(min(batch_size, length(pending_ids)))]
-  first_fps <- fingerprints[first_batch]
-  first_chs <- content_hashes[first_batch]
-
-  message("  Submitting first batch (", length(first_batch), " images)...")
-  message("  Server will auto-submit remaining batches as jobs complete.")
-
-  .ds_safe_aggregate(conns, "imagingRadiomicsSubmitBatchDS",
-    .ds_encode(generation_id),
-    .ds_encode(first_batch),
-    .ds_encode(segmenter),
-    .ds_encode(profile),
-    .ds_encode(dataset_id),
-    .ds_encode(first_fps),
-    .ds_encode(first_chs))
-
-  # Fire-and-forget mode: return immediately
   if (timeout == 0) {
-    message("Fire-and-forget: generation ", generation_id, " kicked off.")
-    message("  Reconnect later and call ds.imaging.radiomics.collection_status() to check.")
-    return(list(
-      action = "kicked_off",
-      generation_id = generation_id,
-      dataset_id = dataset_id,
-      total = total,
-      submitted = length(first_batch),
-      pending = length(pending_ids) - length(first_batch)
-    ))
+    submission$action <- "kicked_off"
+    message("Collection workflow assigned as '", submission$symbol, "'.")
+    return(submission)
   }
 
-  # --- Step 3: Poll until completion (optional, user can Ctrl-C safely) ---
-  message("Waiting for completion (Ctrl-C is safe, server continues)...")
+  message("Waiting for collection workflow '", submission$symbol,
+          "' (Ctrl-C is safe; the server continues)...")
   start_time <- Sys.time()
   last_progress_key <- NULL
 
   repeat {
-    status <- .ds_safe_aggregate(conns, "imagingRadiomicsCollectionStatusDS",
-      .ds_encode(generation_id))
-    st <- status[[srv]]
-
-    if (is.null(st)) {
-      Sys.sleep(poll_interval)
-      next
+    status <- .collection_project(
+      .collection_aggregate(
+        conns, "imagingCollectionStatusDS", submission$symbol),
+      c("state", "is_done", "asset_id"))
+    if (length(status) == 0L) {
+      .ds_first_result(status,
+        paste("Collection status", submission$symbol))
+    }
+    if (length(status) != .collection_connection_count(conns) ||
+        length(attr(status, "ds_errors")) > 0L) {
+      stop("Collection status was not available from every server; ",
+        "publication was not attempted.", call. = FALSE)
     }
 
-    completed <- st$completed %||% 0L
-    failed <- st$failed %||% 0L
-    pending <- st$pending %||% 0L
-    claimed <- st$claimed %||% 0L
-    running <- st$running %||% 0L
-    retrying <- st$retrying %||% 0L
-    active_jobs <- st$active_jobs %||% NA_integer_
+    states <- vapply(status, function(x) {
+      as.character(x$state %||% "UNKNOWN")[[1L]]
+    }, character(1))
+    progress_key <- paste(states, collapse = ":")
 
-    progress_key <- paste(completed, failed, pending, claimed, running,
-                          retrying, active_jobs, sep = ":")
     if (!identical(progress_key, last_progress_key)) {
-      pct <- round(completed / total * 100)
-      message("  Progress: ", completed, "/", total,
-              " (", pct, "%) | Failed: ", failed,
-              " | Pending: ", pending,
-              " | Running: ", running,
-              " | Retrying: ", retrying)
+      message("  State: ", paste(states, collapse = ", "))
       last_progress_key <- progress_key
     }
 
-    if (isTRUE(st$is_done)) {
-      message("All jobs completed.")
+    if (all(vapply(status, function(x) isTRUE(x$is_done), logical(1)))) {
+      message("Collection processing completed.")
       break
     }
 
     elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
     if (elapsed > timeout) {
       warning("Timeout after ", round(elapsed / 60), " minutes. ",
-              completed, "/", total, " completed. ",
-              "Server continues processing. Reconnect later to publish.",
-              call. = FALSE)
+              "The server continues processing; use collection_status() ",
+              "with symbol '", submission$symbol, "'.", call. = FALSE)
       return(list(
         action = "timeout",
-        generation_id = generation_id,
+        symbol = submission$symbol,
+        handle = handle,
         dataset_id = dataset_id,
-        total = total,
-        completed = completed,
-        failed = failed,
-        pending = pending
+        status = .collection_response(status,
+          paste("Collection status", submission$symbol))
       ))
     }
 
     Sys.sleep(poll_interval)
   }
 
-  # --- Step 4: Publish collection ---
-  pub <- .publish_collection(conns, generation_id, dataset_id, allow_partial)
-  pub
+  .publish_collection(conns, submission$symbol)
 }
 
-#' Check status of a running collection processing generation
+#' Check status of a collection workflow
 #'
-#' Use this to check on a generation that was kicked off earlier,
-#' especially after a fire-and-forget call or reconnecting to a session.
+#' Use this with the symbol returned by
+#' \code{ds.imaging.radiomics.process_collection()}, including after reconnecting
+#' to a session.
 #'
 #' @param conns DSI connections object.
-#' @param generation_id Character; the generation_id from a prior kick-off.
-#' @return Named list with progress info.
+#' @param symbol Character; server-side collection workflow symbol.
+#' @return A list containing \code{state}, \code{is_done}, and optionally
+#'   \code{asset_id}; or a named list of these responses for multiple servers.
 #' @export
-ds.imaging.radiomics.collection_status <- function(conns, generation_id) {
-  status <- .ds_safe_aggregate(conns, "imagingRadiomicsCollectionStatusDS",
-    .ds_encode(generation_id))
-  .ds_first_result(status, paste("Collection status", generation_id))
+ds.imaging.radiomics.collection_status <- function(conns, symbol) {
+  status <- .collection_project(
+    .collection_aggregate(conns, "imagingCollectionStatusDS", symbol),
+    c("state", "is_done", "asset_id"))
+  .collection_response(status, paste("Collection status", symbol))
 }
 
-#' Recover a running collection generation
+#' Recover a collection workflow
 #'
-#' Reconciles server-side job state, requeues stale claimed items left by an
-#' interrupted submitter, and nudges the server-side drip-feed loop.
+#' Reconciles the server-owned workflow state and resumes eligible work.
 #'
 #' @param conns DSI connections object.
-#' @param generation_id Character; the generation_id.
-#' @return Named list with progress info.
+#' @param symbol Character; server-side collection workflow symbol.
+#' @return A list containing \code{state}, \code{is_done}, and optionally
+#'   \code{asset_id}; or a named list of these responses for multiple servers.
 #' @export
-ds.imaging.radiomics.collection_recover <- function(conns, generation_id) {
-  status <- .ds_safe_aggregate(conns, "imagingRadiomicsRecoverCollectionDS",
-    .ds_encode(generation_id))
-  .ds_first_result(status, paste("Collection recovery", generation_id))
+ds.imaging.radiomics.collection_recover <- function(conns, symbol) {
+  status <- .collection_project(
+    .collection_aggregate(conns, "imagingCollectionRecoverDS", symbol),
+    c("state", "is_done", "asset_id"))
+  .collection_response(status, paste("Collection recovery", symbol))
 }
 
-#' Cancel a running collection generation (admin only)
+#' Cancel a running collection workflow (admin only)
 #'
 #' Requires the server-side `dshpc.admin_key` option or `DSHPC_ADMIN_KEY`
 #' environment variable. This cancels dsHPC jobs belonging to the generation and
 #' marks unfinished generation items as skipped.
 #'
 #' @param conns DSI connections object.
-#' @param generation_id Character; the generation_id.
+#' @param symbol Character; server-side collection workflow symbol.
 #' @param admin_key Character; admin key matching `dshpc.admin_key` or
 #'   `DSHPC_ADMIN_KEY` on the server.
 #' @param reason Character; cancellation reason.
-#' @return Named list with cancellation counts.
+#' @return A disclosure-controlled list containing only the coarse cancellation
+#'   state.
 #' @export
-ds.imaging.radiomics.collection_cancel <- function(conns, generation_id,
+ds.imaging.radiomics.collection_cancel <- function(conns, symbol,
                                                    admin_key,
                                                    reason = "Cancelled by admin") {
   key_enc <- .ds_encode(list(.admin_key = admin_key))
   out <- .ds_safe_aggregate(conns, "imagingRadiomicsCancelCollectionDS",
-    .ds_encode(generation_id),
+    symbol,
     key_enc,
     .ds_encode(reason))
-  .ds_first_result(out, paste("Collection cancellation", generation_id))
+  .ds_first_result(out, paste("Collection cancellation", symbol))
 }
 
-#' Publish a completed collection generation
-#'
-#' Call this after a fire-and-forget run completes to create the
-#' collection-level asset.
+#' Publish a completed collection workflow
 #'
 #' @param conns DSI connections object.
-#' @param generation_id Character; the generation_id.
-#' @param dataset_id Character; the dataset.
-#' @param allow_partial Logical; publish even with some failures.
-#' @return Named list with asset_id and summary.
+#' @param symbol Character; server-side collection workflow symbol.
+#' @return A list containing \code{state} and \code{asset_id}; or a named list
+#'   of these responses for multiple servers.
 #' @export
-ds.imaging.radiomics.collection_publish <- function(conns, generation_id,
-                                             dataset_id = NULL,
-                                             allow_partial = FALSE) {
-  .publish_collection(conns, generation_id, dataset_id, allow_partial)
+ds.imaging.radiomics.collection_publish <- function(conns, symbol) {
+  .publish_collection(conns, symbol)
 }
 
 # ---------------------------------------------------------------------------
@@ -289,44 +195,64 @@ ds.imaging.radiomics.collection_publish <- function(conns, generation_id,
 # ---------------------------------------------------------------------------
 
 #' @keywords internal
-.publish_collection <- function(conns, generation_id, dataset_id, allow_partial) {
-  message("Publishing collection asset...")
-
-  pub <- .ds_safe_aggregate(conns, "imagingRadiomicsPublishCollectionDS",
-    .ds_encode(generation_id),
-    .ds_encode(dataset_id),
-    .ds_encode(allow_partial))
-
-  result <- .ds_first_result(pub, paste("Collection publish", generation_id))
-
-  if (is.null(result) || is.null(result$asset_id)) {
-    warning("Publishing failed or returned no asset_id", call. = FALSE)
-    return(list(
-      action = "publish_failed",
-      generation_id = generation_id,
-      result = result
-    ))
-  }
-
-  n_failed <- result$failed %||% 0L
-  if (n_failed > 0) {
-    message("  Warning: ", n_failed, " images failed: ",
-            paste(result$failed_samples, collapse = ", "))
-  }
-
-  message("Published: ", result$asset_id,
-          " (", result$completed, "/", result$total, " images)")
-
-  list(
-    action = "completed",
-    generation_id = generation_id,
-    dataset_id = dataset_id,
-    asset_id = result$asset_id,
-    total = result$total,
-    completed = result$completed,
-    failed = n_failed,
-    failed_samples = result$failed_samples
-  )
+.collection_aggregate <- function(conns, method, symbol) {
+  expr <- call(method, symbol)
+  .ds_safe_aggregate(conns, expr = expr)
 }
 
-# .ds_encode and .ds_safe_aggregate moved to utils.R
+#' @keywords internal
+.collection_response <- function(results, context) {
+  if (length(results) == 1L) return(.ds_first_result(results, context))
+  if (length(results) == 0L) .ds_first_result(results, context)
+  results
+}
+
+#' @keywords internal
+.collection_project <- function(results, fields) {
+  errors <- attr(results, "ds_errors")
+  projected <- lapply(results, function(x) {
+    if (!is.list(x)) {
+      stop("Collection response did not satisfy its public schema.",
+           call. = FALSE)
+    }
+    value <- x[intersect(fields, names(x))]
+    if (!is.null(value$state) &&
+        (!is.character(value$state) || length(value$state) != 1L ||
+         is.na(value$state) ||
+         !value$state %in% c("PENDING", "RUNNING", "FINISHED", "PUBLISHED",
+                             "FAILED", "CANCELLED", "ACTIVE"))) {
+      stop("Collection response did not satisfy its public schema.",
+           call. = FALSE)
+    }
+    if (!is.null(value$is_done) &&
+        (!is.logical(value$is_done) || length(value$is_done) != 1L ||
+         is.na(value$is_done))) {
+      stop("Collection response did not satisfy its public schema.",
+           call. = FALSE)
+    }
+    if (!is.null(value$asset_id) &&
+        (!is.character(value$asset_id) || length(value$asset_id) != 1L ||
+         is.na(value$asset_id) ||
+         !grepl("^asset_[0-9a-f]{32}$", value$asset_id))) {
+      stop("Collection response did not satisfy its public schema.",
+           call. = FALSE)
+    }
+    value
+  })
+  if (length(errors) > 0L) attr(projected, "ds_errors") <- errors
+  projected
+}
+
+#' @keywords internal
+.collection_connection_count <- function(conns) {
+  if (inherits(conns, "DSConnection")) 1L else length(conns)
+}
+
+#' @keywords internal
+.publish_collection <- function(conns, symbol) {
+  message("Publishing collection workflow '", symbol, "'...")
+  pub <- .collection_project(
+    .collection_aggregate(conns, "imagingCollectionPublishDS", symbol),
+    c("state", "asset_id"))
+  .collection_response(pub, paste("Collection publish", symbol))
+}

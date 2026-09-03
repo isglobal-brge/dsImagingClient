@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasets.R
 \name{ds.imaging.datasets}
 \alias{ds.imaging.datasets}
-\title{List Available Imaging Datasets}
+\title{Dataset registry listing (deprecated)}
 \usage{
 ds.imaging.datasets(conns)
 }
@@ -10,15 +10,16 @@ ds.imaging.datasets(conns)
 \item{conns}{DSI connections object.}
 }
 \value{
-Named list of per-server data.frames with available datasets.
+This function always errors with migration guidance.
 }
 \description{
-Calls \code{imagingListDatasetsDS()} on each server to retrieve the
-list of available imaging datasets.
+Imaging access is capability-scoped to a resource initialized with
+\code{ds.imaging.init()}. Global registry enumeration is not available.
 }
 \examples{
 \donttest{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
-ds.imaging.datasets(conns)
+ds.imaging.init(conns, resource = "PROJECT.images", symbol = "img")
+ds.imaging.metadata(conns, handle = "img")
 }
 }

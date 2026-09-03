@@ -6,18 +6,20 @@
 \usage{
 ds.imaging.qc.metrics(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   mask_asset = NULL,
   output_asset = "imaging_qc",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{image_asset}{Character; image asset to summarize.}
 
@@ -28,9 +30,11 @@ ds.imaging.qc.metrics(
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Produces a server-side CSV/JSON QC output with image size/spacing/intensity

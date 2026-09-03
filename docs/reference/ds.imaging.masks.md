@@ -1,11 +1,11 @@
-# List segmentation masks for a dataset
+# List segmentation masks for an initialized imaging handle
 
-List segmentation masks for a dataset
+List segmentation masks for an initialized imaging handle
 
 ## Usage
 
 ``` r
-ds.imaging.masks(conns, dataset_id)
+ds.imaging.masks(conns, dataset_id = NULL, handle = "img")
 ```
 
 ## Arguments
@@ -16,7 +16,11 @@ ds.imaging.masks(conns, dataset_id)
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; retained for source compatibility.
+
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
 
 ## Value
 

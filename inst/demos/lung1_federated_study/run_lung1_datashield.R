@@ -114,16 +114,11 @@ wait_and_publish_collections <- function(conns, result, result_path,
       item <- result[[srv]]
       if (is_collection_asset_ready(item)) next
       status <- ds.imaging.radiomics.collection_status(
-        conns[srv], item$generation_id)
-      message(
-        srv, ": ", status$completed %||% 0L, "/", status$total %||% item$total,
-        " completed; failed=", status$failed %||% 0L,
-        "; pending=", status$pending %||% NA_integer_
-      )
+        conns[srv], item$symbol)
+      message(srv, ": ", status$state %||% "UNKNOWN")
       if (isTRUE(status$is_done)) {
         result[[srv]] <- ds.imaging.radiomics.collection_publish(
-          conns[srv], item$generation_id, item$dataset_id,
-          allow_partial = FALSE)
+          conns[srv], item$symbol)
         saveRDS(result, result_path)
       }
     }
@@ -155,8 +150,7 @@ if (run_jobs) {
       batch_size = batch_size,
       poll_interval = poll_interval,
       timeout = if (async) 0 else timeout,
-      allow_partial = FALSE,
-      visibility = "global"
+      handle = "img"
     )
     saveRDS(result, result_path)
   }
@@ -188,11 +182,11 @@ if (run_jobs) {
 for (srv in names(result)) {
   ds.imaging.radiomics.load_features(
     conns[srv],
-    dataset_id = result[[srv]]$dataset_id,
     asset_id = result[[srv]]$asset_id,
     symbol = "rad",
     include_metadata = TRUE,
-    syntactic_names = TRUE
+    syntactic_names = TRUE,
+    handle = "img"
   )
 }
 

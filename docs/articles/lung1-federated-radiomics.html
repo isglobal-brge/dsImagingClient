@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -112,35 +113,35 @@ resource to a server-side handle and confirm the CT images and
 <p><strong>3. Extract the Aerts radiomics signature.</strong> Submit one
 collection workflow over the existing tumour masks with the Aerts
 profile. <code>dsHPC</code> schedules the per-image PyRadiomics jobs at
-each site; the call reports what was queued.</p>
+each site; the call returns an opaque workflow symbol.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.process_collection.html">ds.imaging.radiomics.process_collection</a></span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  dataset_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  segmenter  <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.segmenter.existing_mask.html">ds.imaging.segmenter.existing_mask</a></span><span class="op">(</span><span class="st">"masks"</span><span class="op">)</span>,</span>
 <span>  profile    <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.profile.aerts_signature.html">ds.imaging.radiomics.profile.aerts_signature</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>  timeout    <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  handle     <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><strong>4. Publish and load the feature table.</strong> Once every
-per-image job has finished, commit the completed outputs to the asset
-catalogue and load them — with the joined clinical metadata — into a
-server-side DataSHIELD table.</p>
+<p><strong>4. Publish and load the feature table.</strong> Once
+collection status reports <code>is_done = TRUE</code>, commit the
+completed outputs to the asset catalogue and load them — with the joined
+clinical metadata — into a server-side DataSHIELD table.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pub</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.collection_publish.html">ds.imaging.radiomics.collection_publish</a></span><span class="op">(</span></span>
-<span>  <span class="va">conns</span>,</span>
-<span>  generation_id <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">generation_id</span>,</span>
-<span>  dataset_id    <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">dataset_id</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">pub</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">server</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/ds.imaging.radiomics.collection_publish.html">ds.imaging.radiomics.collection_publish</a></span><span class="op">(</span><span class="va">conns</span><span class="op">[</span><span class="va">server</span><span class="op">]</span>, <span class="va">result</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/ds.imaging.load_asset.html">ds.imaging.radiomics.load_features</a></span><span class="op">(</span></span>
-<span>  <span class="va">conns</span>,</span>
-<span>  dataset_id       <span class="op">=</span> <span class="va">pub</span><span class="op">$</span><span class="va">dataset_id</span>,</span>
-<span>  asset_id         <span class="op">=</span> <span class="va">pub</span><span class="op">$</span><span class="va">asset_id</span>,</span>
-<span>  symbol           <span class="op">=</span> <span class="st">"rad"</span>,</span>
-<span>  include_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  syntactic_names  <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">server</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/ds.imaging.load_asset.html">ds.imaging.radiomics.load_features</a></span><span class="op">(</span></span>
+<span>    <span class="va">conns</span><span class="op">[</span><span class="va">server</span><span class="op">]</span>,</span>
+<span>    asset_id         <span class="op">=</span> <span class="va">pub</span><span class="op">[[</span><span class="va">server</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">asset_id</span>,</span>
+<span>    symbol           <span class="op">=</span> <span class="st">"rad"</span>,</span>
+<span>    include_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    syntactic_names  <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    handle           <span class="op">=</span> <span class="st">"img"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p><strong>5. Analyse the federated feature table.</strong>
 <code>rad</code> is now an ordinary server-side DataSHIELD table. Check
 its dimensions, summarise the Aerts features and fit a federated
@@ -619,13 +620,11 @@ sources.</p>
 </h2>
 <ul>
 <li>
-<code>process_collection()</code> reports disclosure-bucketed
-metadata, so its status may show a rounded bucket rather than exact
-per-site counts. <code>ds.dim("rad")</code> is the server-side check for
-exact loaded dimensions.</li>
-<li>Admin job listing and cancellation use <code>dshpc.admin_key</code>
-or <code>DSHPC_ADMIN_KEY</code>; wrong keys are rejected by all
-sites.</li>
+<code>process_collection()</code> exposes only its coarse state and
+completion bit; it does not return per-site sample, patient, or job
+counts.</li>
+<li>Keep the opaque workflow symbol returned by each call.
+Cross-workflow job listing is deliberately unavailable to analysts.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

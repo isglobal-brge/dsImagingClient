@@ -2,7 +2,7 @@
 % Please edit documentation in R/labels.R
 \name{ds.imaging.labels}
 \alias{ds.imaging.labels}
-\title{List available label sets for an imaging dataset}
+\title{Legacy label-set discovery}
 \usage{
 ds.imaging.labels(conns, symbol = "img")
 }
@@ -12,10 +12,9 @@ ds.imaging.labels(conns, symbol = "img")
 \item{symbol}{Character; the imaging handle symbol (default "img").}
 }
 \value{
-Per-server list of data.frames with columns: name, type, columns, description.
+This function always errors with migration guidance.
 }
 \description{
-Queries the server for label sets defined in the dataset's manifest.
-Returns label set names, types, column names, and descriptions.
-Counts are disclosure-controlled per the server's trust profile.
+Unrestricted manifest label discovery is retired. The server admits only the
+manifest-declared label through handle-scoped workflows.
 }

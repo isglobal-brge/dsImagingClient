@@ -7,14 +7,15 @@ Convert RTSTRUCT or DICOM SEG assets into masks
 ``` r
 ds.imaging.rt.convert(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   rt_asset = "rt_struct",
   dicom_asset = "dicom",
   reference_asset = "images",
   rois = NULL,
   output_asset = "rt_masks",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -26,7 +27,8 @@ ds.imaging.rt.convert(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - rt_asset:
 
@@ -56,6 +58,10 @@ ds.imaging.rt.convert(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

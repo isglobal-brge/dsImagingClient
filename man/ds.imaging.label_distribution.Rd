@@ -11,16 +11,16 @@ ds.imaging.label_distribution(conns, symbol = "img", column = NULL)
 
 \item{symbol}{Character; the imaging handle symbol (default "img").}
 
-\item{column}{Character or NULL; the label column to tabulate. Defaults to the
-dataset's manifest label column, then to \code{"label"}.}
+\item{column}{Character or NULL; must be the dataset's declared
+\code{metadata.label_col}; NULL selects that declared column.}
 }
 \value{
 Per-server list of data.frames with columns \code{label} and \code{n}.
 }
 \description{
-Tabulates a label column on each node and returns the per-class counts, with
-classes below the DataSHIELD \code{nfilter.subset} threshold suppressed
-(dropped, and only counted in the \code{suppressed_classes} attribute). The
-image pixels never leave the node; only disclosure-safe aggregate counts do.
-This is the imaging analogue of \code{ds.table()} on a tabular outcome.
+Tabulates the manifest-declared label at patient level on each node. The
+server withholds the complete distribution when any cell is below its
+DataSHIELD \code{nfilter.tab} threshold; otherwise its privacy profile may
+hide, bucket, or release the admitted counts. Image pixels never leave the
+node.
 }

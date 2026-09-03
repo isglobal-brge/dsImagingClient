@@ -2,11 +2,11 @@
 % Please edit documentation in R/analysis_workflows_collection.R
 \name{ds.imaging.radiomics.collection_cancel}
 \alias{ds.imaging.radiomics.collection_cancel}
-\title{Cancel a running collection generation (admin only)}
+\title{Cancel a running collection workflow (admin only)}
 \usage{
 ds.imaging.radiomics.collection_cancel(
   conns,
-  generation_id,
+  symbol,
   admin_key,
   reason = "Cancelled by admin"
 )
@@ -14,7 +14,7 @@ ds.imaging.radiomics.collection_cancel(
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{generation_id}{Character; the generation_id.}
+\item{symbol}{Character; server-side collection workflow symbol.}
 
 \item{admin_key}{Character; admin key matching \code{dshpc.admin_key} or
 \code{DSHPC_ADMIN_KEY} on the server.}
@@ -22,7 +22,8 @@ ds.imaging.radiomics.collection_cancel(
 \item{reason}{Character; cancellation reason.}
 }
 \value{
-Named list with cancellation counts.
+A disclosure-controlled list containing only the coarse cancellation
+state.
 }
 \description{
 Requires the server-side \code{dshpc.admin_key} option or \code{DSHPC_ADMIN_KEY}

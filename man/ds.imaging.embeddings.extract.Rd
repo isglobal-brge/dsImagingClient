@@ -6,19 +6,21 @@
 \usage{
 ds.imaging.embeddings.extract(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   model = "intensity_histogram",
   bins = 32L,
   output_asset = "image_embeddings",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{image_asset}{Character; image asset or alias.}
 
@@ -32,9 +34,11 @@ intensity histogram baseline.}
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Extract image embeddings

@@ -1,18 +1,22 @@
 # Module: Dataset Listing
 
-#' List Available Imaging Datasets
+#' Dataset registry listing (deprecated)
 #'
-#' Calls \code{imagingListDatasetsDS()} on each server to retrieve the
-#' list of available imaging datasets.
+#' Imaging access is capability-scoped to a resource initialized with
+#' \code{ds.imaging.init()}. Global registry enumeration is not available.
 #'
 #' @param conns DSI connections object.
-#' @return Named list of per-server data.frames with available datasets.
+#' @return This function always errors with migration guidance.
 #' @examples
 #' \donttest{
 #' # conns <- DSI::datashield.login(...)  # live DataSHIELD session
-#' ds.imaging.datasets(conns)
+#' ds.imaging.init(conns, resource = "PROJECT.images", symbol = "img")
+#' ds.imaging.metadata(conns, handle = "img")
 #' }
 #' @export
 ds.imaging.datasets <- function(conns) {
-  .ds_safe_aggregate(conns, expr = call("imagingListDatasetsDS"))
+  stop("Dataset registry listing is no longer available. Initialize an ",
+    "authorized resource with ds.imaging.init(conns, resource, symbol = 'img') ",
+    "and query that handle with ds.imaging.metadata() or ds.imaging.assets().",
+    call. = FALSE)
 }

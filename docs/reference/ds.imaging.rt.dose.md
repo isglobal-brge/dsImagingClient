@@ -7,13 +7,14 @@ Run RTDOSE and RTPLAN summaries
 ``` r
 ds.imaging.rt.dose(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   dose_asset = "rt_dose",
   plan_asset = "rt_plan",
   mask_asset = NULL,
   output_asset = "rt_dose_metrics",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -25,7 +26,8 @@ ds.imaging.rt.dose(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - dose_asset:
 
@@ -51,6 +53,10 @@ ds.imaging.rt.dose(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

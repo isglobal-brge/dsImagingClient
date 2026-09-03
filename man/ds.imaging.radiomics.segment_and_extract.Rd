@@ -6,7 +6,7 @@
 \usage{
 ds.imaging.radiomics.segment_and_extract(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   segmenter,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
@@ -14,13 +14,15 @@ ds.imaging.radiomics.segment_and_extract(
   batch_size = 10L,
   poll_interval = 15,
   timeout = 14400,
-  allow_partial = FALSE
+  handle = "img",
+  symbol = NULL
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{image_asset}{Character; asset_id or alias for images.}
 
@@ -28,18 +30,23 @@ ds.imaging.radiomics.segment_and_extract(
 
 \item{profile}{A radiomics profile from ds.imaging.radiomics.profile.*().}
 
-\item{visibility}{Character; job visibility label (default "private").}
+\item{visibility}{Compatibility argument; analytical workflows only accept
+\code{"private"}. Global publication is administrator-only.}
 
-\item{batch_size}{Integer; images per batch.}
+\item{batch_size}{Retained for source compatibility; the dedicated chained
+workflow is one server-owned job and does not accept client-side batches.}
 
 \item{poll_interval}{Numeric; seconds between status checks.}
 
 \item{timeout}{Numeric; max seconds to wait. Set to 0 for fire-and-forget.}
 
-\item{allow_partial}{Logical; publish with some failures.}
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
+
+\item{symbol}{Character or NULL; target server-side workflow symbol.}
 }
 \value{
-Named list with generation and asset information.
+A workflow submission when \code{timeout = 0}; otherwise its final
+disclosure-controlled status, or a timeout response.
 }
 \description{
 Chains segmentation and extraction into a single job.

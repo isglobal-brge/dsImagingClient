@@ -2,13 +2,15 @@
 % Please edit documentation in R/analysis_summary.R
 \name{ds.imaging.summary}
 \alias{ds.imaging.summary}
-\title{Print a summary of radiomics activity}
+\title{Print a disclosure-safe summary of the initialized imaging resource}
 \usage{
-ds.imaging.summary(conns)
+ds.imaging.summary(conns, handle = "img")
 }
 \arguments{
 \item{conns}{DSI connections object.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \description{
-Print a summary of radiomics activity
+Print a disclosure-safe summary of the initialized imaging resource
 }

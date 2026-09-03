@@ -12,58 +12,54 @@ ds.imaging.radiomics.process_collection(
   batch_size = 10L,
   poll_interval = 15,
   timeout = 14400,
-  allow_partial = FALSE,
-  visibility = "private"
+  visibility = "private",
+  handle = "img",
+  symbol = NULL
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{segmenter}{A segmenter from ds.imaging.segmenter.*().}
 
 \item{profile}{A radiomics profile from ds.imaging.radiomics.profile.*().}
 
-\item{batch_size}{Integer; images per batch (default 10).}
+\item{batch_size}{Integer; images per server-owned batch (default 10).}
 
 \item{poll_interval}{Numeric; seconds between status checks (default 15).}
 
 \item{timeout}{Numeric; max seconds to wait (default 14400 = 4 hours).
 Set to 0 to return immediately after kick-off (fire and forget).}
 
-\item{allow_partial}{Logical; publish with some failures (default FALSE).}
+\item{visibility}{Compatibility argument; analytical workflows only accept
+\code{"private"}. Global publication is administrator-only.}
 
-\item{visibility}{Character; asset visibility (default "private").}
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
+
+\item{symbol}{Character or NULL; target server-side workflow symbol. If NULL,
+a temporary symbol is generated.}
 }
 \value{
-Named list with generation_id, asset_id (if completed), summary.
+A workflow submission handle when \code{timeout = 0}; otherwise the
+publication response.
 }
 \description{
-Scans a dataset's images, fingerprints them, kicks off per-image
-processing jobs, and optionally waits for completion.
-}
-\details{
-The server is self-sustaining: after the first batch is submitted,
-completed jobs automatically trigger submission of the next batch.
-The user can safely disconnect and reconnect later.
+Assigns one disclosure-controlled collection request to each server and
+optionally polls its server-side workflow symbol until processing completes.
+The user can safely disconnect and reconnect with the returned symbol.
 }
 \examples{
 \donttest{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
-res <- ds.imaging.radiomics.process_collection(
+kicked <- ds.imaging.radiomics.process_collection(
   conns,
-  dataset_id = "lung_ct_v1",
   segmenter = ds.imaging.segmenter.existing_mask("masks"),
   profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
-  batch_size = 4L)
-res$asset_id
-
-# Fire and forget: kick off and reconnect later
-kicked <- ds.imaging.radiomics.process_collection(
-  conns, dataset_id = "lung_ct_v1",
-  segmenter = ds.imaging.segmenter.existing_mask("masks"),
   timeout = 0)
-ds.imaging.radiomics.collection_status(conns, kicked$generation_id)
+ds.imaging.radiomics.collection_status(conns, kicked$symbol)
+ds.imaging.radiomics.collection_publish(conns, kicked$symbol)
 }
 }

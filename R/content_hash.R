@@ -1,10 +1,9 @@
 # Module: Content Hash Injection
 #
-# Client-side workflow specs stay executable on legacy servers. When the store
-# can provide resource hashes, they are added as metadata that participates in
-# dsHPC spec hashing without changing runner config strings.
+# Resource identity is established by an initialized imaging handle. The client
+# does not query content hashes directly from DataSHIELD servers.
 
-#' Resolve a resource content hash from DataSHIELD servers
+#' Resolve a resource content hash through an explicitly configured resolver
 #' @keywords internal
 .resolve_content_hash <- function(conns, resource_name) {
   resolver <- getOption("dsimagingclient.content_hash_resolver", NULL)
@@ -14,24 +13,7 @@
       resolver(conns, resource_name), server_names))
   }
 
-  out <- stats::setNames(rep(NA_character_, length(server_names)), server_names)
-  results <- tryCatch(
-    .ds_safe_aggregate(conns, call("contentHashDS", resource_name)),
-    error = function(e) {
-      structure(list(), ds_errors = list(default = conditionMessage(e)))
-    })
-
-  for (srv in names(out)) {
-    item <- results[[srv]]
-    if (is.null(item)) next
-    if (!is.list(item)) next
-    source <- item$source %||% NA_character_
-    hash <- item$content_hash %||% NA_character_
-    if (identical(source, "unsupported") || is.na(hash) || !nzchar(hash))
-      next
-    out[[srv]] <- as.character(hash)
-  }
-  out
+  stats::setNames(rep(NA_character_, length(server_names)), server_names)
 }
 
 #' @keywords internal

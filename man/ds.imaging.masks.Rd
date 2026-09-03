@@ -2,18 +2,20 @@
 % Please edit documentation in R/analysis_assets.R
 \name{ds.imaging.masks}
 \alias{ds.imaging.masks}
-\title{List segmentation masks for a dataset}
+\title{List segmentation masks for an initialized imaging handle}
 \usage{
-ds.imaging.masks(conns, dataset_id)
+ds.imaging.masks(conns, dataset_id = NULL, handle = "img")
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; retained for source compatibility.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
 Named list of per-server data.frames.
 }
 \description{
-List segmentation masks for a dataset
+List segmentation masks for an initialized imaging handle
 }

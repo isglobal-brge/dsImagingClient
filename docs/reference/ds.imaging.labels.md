@@ -1,8 +1,7 @@
-# List available label sets for an imaging dataset
+# Legacy label-set discovery
 
-Queries the server for label sets defined in the dataset's manifest.
-Returns label set names, types, column names, and descriptions. Counts
-are disclosure-controlled per the server's trust profile.
+Unrestricted manifest label discovery is retired. The server admits only
+the manifest-declared label through handle-scoped workflows.
 
 ## Usage
 
@@ -22,5 +21,4 @@ ds.imaging.labels(conns, symbol = "img")
 
 ## Value
 
-Per-server list of data.frames with columns: name, type, columns,
-description.
+This function always errors with migration guidance.

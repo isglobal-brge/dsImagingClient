@@ -6,20 +6,22 @@
 \usage{
 ds.imaging.rt.convert(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   rt_asset = "rt_struct",
   dicom_asset = "dicom",
   reference_asset = "images",
   rois = NULL,
   output_asset = "rt_masks",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{rt_asset}{Character; RTSTRUCT/DICOM SEG asset or alias.}
 
@@ -34,9 +36,11 @@ ds.imaging.rt.convert(
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Convert RTSTRUCT or DICOM SEG assets into masks

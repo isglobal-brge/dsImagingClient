@@ -1,6 +1,6 @@
-# List radiomics jobs
+# Legacy cross-workflow job listing
 
-List radiomics jobs
+Legacy cross-workflow job listing
 
 ## Usage
 
@@ -16,4 +16,15 @@ ds.imaging.jobs(conns)
 
 ## Value
 
-A dshpc_result.
+This function always errors. Keep the workflow symbol returned by a
+dsImaging submission and use its domain-specific status method instead.
+
+## Examples
+
+``` r
+# \donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.jobs(conns)
+#> Error: Cross-workflow job listing is retired. Keep each dsImaging workflow symbol and use its domain-specific status method.
+# }
+```

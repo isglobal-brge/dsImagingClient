@@ -1,19 +1,20 @@
-# Convert DICOM series to NIfTI images
+# Convert one-file DICOM samples to NIfTI images
 
-Submits a dsHPC-backed conversion job. The runner uses `dcm2niix` when
-available and falls back to SimpleITK series reading.
+Submits a dsHPC-backed SimpleITK conversion job. Each admitted patient
+sample must map to one DICOM file; multi-file series fail closed.
 
 ## Usage
 
 ``` r
 ds.imaging.dicom.convert(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   dicom_asset = "dicom",
   output_asset = "nifti_images",
-  converter = "auto",
+  converter = "simpleitk",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -25,7 +26,8 @@ ds.imaging.dicom.convert(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - dicom_asset:
 
@@ -37,7 +39,7 @@ ds.imaging.dicom.convert(
 
 - converter:
 
-  Character; `"auto"`, `"dcm2niix"`, or `"simpleitk"`.
+  Character; currently only `"simpleitk"`.
 
 - visibility:
 
@@ -47,6 +49,10 @@ ds.imaging.dicom.convert(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

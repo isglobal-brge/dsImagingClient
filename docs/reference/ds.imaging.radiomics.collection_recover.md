@@ -1,12 +1,11 @@
-# Recover a running collection generation
+# Recover a collection workflow
 
-Reconciles server-side job state, requeues stale claimed items left by
-an interrupted submitter, and nudges the server-side drip-feed loop.
+Reconciles the server-owned workflow state and resumes eligible work.
 
 ## Usage
 
 ``` r
-ds.imaging.radiomics.collection_recover(conns, generation_id)
+ds.imaging.radiomics.collection_recover(conns, symbol)
 ```
 
 ## Arguments
@@ -15,10 +14,11 @@ ds.imaging.radiomics.collection_recover(conns, generation_id)
 
   DSI connections object.
 
-- generation_id:
+- symbol:
 
-  Character; the generation_id.
+  Character; server-side collection workflow symbol.
 
 ## Value
 
-Named list with progress info.
+A list containing `state`, `is_done`, and optionally `asset_id`; or a
+named list of these responses for multiple servers.

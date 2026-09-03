@@ -6,29 +6,34 @@
 \usage{
 ds.imaging.segment(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   segmenter,
   visibility = "private",
   alias = NULL,
-  symbol = NULL
+  symbol = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{image_asset}{Character; asset_id or alias for images.}
 
 \item{segmenter}{A segmenter from ds.imaging.segmenter.*().}
 
-\item{visibility}{Character; job visibility label (default "private").}
+\item{visibility}{Compatibility argument; analytical workflows only accept
+\code{"private"}. Global publication is administrator-only.}
 
 \item{alias}{Character or NULL; alias for the published mask.}
 
 \item{symbol}{Character or NULL; target server-side symbol for the workflow
 handle. If NULL, a temporary symbol is generated.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
 A domain-mediated workflow submission handle.

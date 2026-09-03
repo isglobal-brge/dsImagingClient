@@ -8,13 +8,14 @@ found, submits a dsHPC job.
 ``` r
 ds.imaging.radiomics.extract(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   mask_asset,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
   visibility = "private",
   alias = NULL,
-  symbol = NULL
+  symbol = NULL,
+  handle = "img"
 )
 ```
 
@@ -26,7 +27,8 @@ ds.imaging.radiomics.extract(
 
 - dataset_id:
 
-  Character; the dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - image_asset:
 
@@ -42,7 +44,8 @@ ds.imaging.radiomics.extract(
 
 - visibility:
 
-  Character; job visibility label (default "private").
+  Compatibility argument; analytical workflows only accept `"private"`.
+  Global publication is administrator-only.
 
 - alias:
 
@@ -52,6 +55,10 @@ ds.imaging.radiomics.extract(
 
   Character or NULL; target server-side symbol for the workflow handle.
   If NULL, a temporary symbol is generated.
+
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
 
 ## Value
 

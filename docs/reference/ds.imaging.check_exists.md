@@ -1,4 +1,4 @@
-# Check if a derivation already exists (deduplication)
+# Legacy client-side derivation lookup
 
 Before submitting a job to extract radiomics or preprocess images, check
 if an identical derivation (same parameters, model, version) already
@@ -26,4 +26,4 @@ ds.imaging.check_exists(conns, dataset_id, ...)
 
 ## Value
 
-Named list of per-server results with \$exists and \$asset_id.
+This function always errors with migration guidance.

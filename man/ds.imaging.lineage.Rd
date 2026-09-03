@@ -2,7 +2,7 @@
 % Please edit documentation in R/catalog.R
 \name{ds.imaging.lineage}
 \alias{ds.imaging.lineage}
-\title{Get derivation lineage for an asset}
+\title{Legacy unrestricted asset lineage query}
 \usage{
 ds.imaging.lineage(conns, asset_id)
 }
@@ -12,7 +12,7 @@ ds.imaging.lineage(conns, asset_id)
 \item{asset_id}{Character; the asset identifier.}
 }
 \value{
-Named list of per-server data.frames.
+This function always errors with migration guidance.
 }
 \description{
 Shows which parent assets this was derived from (e.g. radiomics

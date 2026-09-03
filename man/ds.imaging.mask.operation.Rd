@@ -6,7 +6,7 @@
 \usage{
 ds.imaging.mask.operation(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   operation,
   mask_asset = "masks",
   mask_b_asset = NULL,
@@ -19,13 +19,15 @@ ds.imaging.mask.operation(
   max_components = 1L,
   output_asset = paste0(mask_asset, "_", operation),
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{operation}{Character; mask operation.}
 
@@ -52,9 +54,11 @@ ds.imaging.mask.operation(
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Supports \code{binarize}, \code{label_select}, \code{connected_components}, \code{morphology},

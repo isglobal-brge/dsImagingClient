@@ -1,37 +1,37 @@
 # Module: Label Discovery
 # Query available label sets for an imaging dataset.
 
-#' List available label sets for an imaging dataset
+#' Legacy label-set discovery
 #'
-#' Queries the server for label sets defined in the dataset's manifest.
-#' Returns label set names, types, column names, and descriptions.
-#' Counts are disclosure-controlled per the server's trust profile.
+#' Unrestricted manifest label discovery is retired. The server admits only the
+#' manifest-declared label through handle-scoped workflows.
 #'
 #' @param conns DSI connections object.
 #' @param symbol Character; the imaging handle symbol (default "img").
-#' @return Per-server list of data.frames with columns: name, type, columns, description.
+#' @return This function always errors with migration guidance.
 #' @export
 ds.imaging.labels <- function(conns, symbol = "img") {
-  DSI::datashield.aggregate(conns,
-    expr = call("imagingLabelsDS", symbol))
+  stop("Label-set discovery is no longer available. Use ",
+    "ds.imaging.label_distribution() for the admitted manifest label.",
+    call. = FALSE)
 }
 
 #' Disclosure-controlled label distribution for an imaging dataset
 #'
-#' Tabulates a label column on each node and returns the per-class counts, with
-#' classes below the DataSHIELD \code{nfilter.subset} threshold suppressed
-#' (dropped, and only counted in the \code{suppressed_classes} attribute). The
-#' image pixels never leave the node; only disclosure-safe aggregate counts do.
-#' This is the imaging analogue of \code{ds.table()} on a tabular outcome.
+#' Tabulates the manifest-declared label at patient level on each node. The
+#' server withholds the complete distribution when any cell is below its
+#' DataSHIELD \code{nfilter.tab} threshold; otherwise its privacy profile may
+#' hide, bucket, or release the admitted counts. Image pixels never leave the
+#' node.
 #'
 #' @param conns DSI connections object.
 #' @param symbol Character; the imaging handle symbol (default "img").
-#' @param column Character or NULL; the label column to tabulate. Defaults to the
-#'   dataset's manifest label column, then to \code{"label"}.
+#' @param column Character or NULL; must be the dataset's declared
+#'   \code{metadata.label_col}; NULL selects that declared column.
 #' @return Per-server list of data.frames with columns \code{label} and \code{n}.
 #' @export
 ds.imaging.label_distribution <- function(conns, symbol = "img", column = NULL) {
   cc <- if (is.null(column)) call("imagingLabelDistDS", symbol)
         else call("imagingLabelDistDS", symbol, column)
-  DSI::datashield.aggregate(conns, cc)
+  .ds_safe_aggregate(conns, cc)
 }

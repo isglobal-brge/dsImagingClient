@@ -76,37 +76,35 @@ for (srv in names(conns)) {
 
   ds.imaging.qc.metrics(
     cx, dataset_id = did, image_asset = "images", mask_asset = "masks",
-    output_asset = "demo_qc_metrics", visibility = "global"
+    output_asset = "demo_qc_metrics"
   )
   ds.imaging.mask.operation(
     cx, dataset_id = did, operation = "connected_components",
     mask_asset = "masks", reference_asset = "images",
     min_voxels = 5L, max_components = 1L,
-    output_asset = "demo_masks_cc", visibility = "global"
+    output_asset = "demo_masks_cc"
   )
   ds.imaging.spatial.process(
     cx, dataset_id = did, image_asset = "images",
     operations = "crop_to_mask", mask_asset = "masks",
-    output_asset = "demo_crop_to_mask", visibility = "global"
+    output_asset = "demo_crop_to_mask"
   )
   ds.imaging.embeddings.extract(
     cx, dataset_id = did, image_asset = "images",
     model = "intensity_histogram", bins = 16L,
-    output_asset = "demo_embeddings", visibility = "global"
+    output_asset = "demo_embeddings"
   )
   ds.imaging.radiomics.process_collection(
     cx, dataset_id = did,
     segmenter = ds.imaging.segmenter.existing_mask("masks"),
-    profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
-    visibility = "global"
+    profile = ds.imaging.radiomics.profile.demo_ct_firstorder()
   )
   ds.imaging.radiomics.segment_and_extract(
     cx, dataset_id = did,
     segmenter = ds.imaging.segmenter.ct_lung_threshold(
       threshold = -320, max_components = 2L, min_voxels = 100L
     ),
-    profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
-    visibility = "global"
+    profile = ds.imaging.radiomics.profile.demo_ct_firstorder()
   )
 }
 ```
@@ -187,18 +185,16 @@ summaries are exposed.
 
 ``` r
 
-overlay <- system.file("extdata", "imaging_demo_mask_overlay.png",
-                       package = "dsImagingClient")
-if (!nzchar(overlay)) {
-  overlay <- file.path("..", "inst", "extdata",
-                       "imaging_demo_mask_overlay.png")
+overlay <- "imaging_demo_mask_overlay.png"
+if (!file.exists(overlay)) {
+  overlay <- system.file("extdata", "imaging_demo_mask_overlay.png",
+                         package = "dsImagingClient")
 }
 knitr::include_graphics(overlay)
 ```
 
 ![Three synthetic CT slices, one per site, with local ROI masks overlaid
-in
-red.](../../../../../../../private/var/folders/tn/qg45ss_91k375mrb66zqhx_m0000gn/T/Rtmpgh4os1/temp_libpath43e17cf56262/dsImagingClient/extdata/imaging_demo_mask_overlay.png)
+in red.](imaging_demo_mask_overlay.png)
 
 The same QC pass publishes table assets server-side. The table below
 reports site-level aggregate mask summaries computed after loading the

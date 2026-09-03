@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -125,37 +126,35 @@ site’s catalogue.</p>
 <span></span>
 <span>  <span class="fu"><a href="../reference/ds.imaging.qc.metrics.html">ds.imaging.qc.metrics</a></span><span class="op">(</span></span>
 <span>    <span class="va">cx</span>, dataset_id <span class="op">=</span> <span class="va">did</span>, image_asset <span class="op">=</span> <span class="st">"images"</span>, mask_asset <span class="op">=</span> <span class="st">"masks"</span>,</span>
-<span>    output_asset <span class="op">=</span> <span class="st">"demo_qc_metrics"</span>, visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>    output_asset <span class="op">=</span> <span class="st">"demo_qc_metrics"</span></span>
 <span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/ds.imaging.mask.operation.html">ds.imaging.mask.operation</a></span><span class="op">(</span></span>
 <span>    <span class="va">cx</span>, dataset_id <span class="op">=</span> <span class="va">did</span>, operation <span class="op">=</span> <span class="st">"connected_components"</span>,</span>
 <span>    mask_asset <span class="op">=</span> <span class="st">"masks"</span>, reference_asset <span class="op">=</span> <span class="st">"images"</span>,</span>
 <span>    min_voxels <span class="op">=</span> <span class="fl">5L</span>, max_components <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>    output_asset <span class="op">=</span> <span class="st">"demo_masks_cc"</span>, visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>    output_asset <span class="op">=</span> <span class="st">"demo_masks_cc"</span></span>
 <span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/ds.imaging.spatial.process.html">ds.imaging.spatial.process</a></span><span class="op">(</span></span>
 <span>    <span class="va">cx</span>, dataset_id <span class="op">=</span> <span class="va">did</span>, image_asset <span class="op">=</span> <span class="st">"images"</span>,</span>
 <span>    operations <span class="op">=</span> <span class="st">"crop_to_mask"</span>, mask_asset <span class="op">=</span> <span class="st">"masks"</span>,</span>
-<span>    output_asset <span class="op">=</span> <span class="st">"demo_crop_to_mask"</span>, visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>    output_asset <span class="op">=</span> <span class="st">"demo_crop_to_mask"</span></span>
 <span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/ds.imaging.embeddings.extract.html">ds.imaging.embeddings.extract</a></span><span class="op">(</span></span>
 <span>    <span class="va">cx</span>, dataset_id <span class="op">=</span> <span class="va">did</span>, image_asset <span class="op">=</span> <span class="st">"images"</span>,</span>
 <span>    model <span class="op">=</span> <span class="st">"intensity_histogram"</span>, bins <span class="op">=</span> <span class="fl">16L</span>,</span>
-<span>    output_asset <span class="op">=</span> <span class="st">"demo_embeddings"</span>, visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>    output_asset <span class="op">=</span> <span class="st">"demo_embeddings"</span></span>
 <span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/ds.imaging.radiomics.process_collection.html">ds.imaging.radiomics.process_collection</a></span><span class="op">(</span></span>
 <span>    <span class="va">cx</span>, dataset_id <span class="op">=</span> <span class="va">did</span>,</span>
 <span>    segmenter <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.segmenter.existing_mask.html">ds.imaging.segmenter.existing_mask</a></span><span class="op">(</span><span class="st">"masks"</span><span class="op">)</span>,</span>
-<span>    profile <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.profile.demo_ct_firstorder.html">ds.imaging.radiomics.profile.demo_ct_firstorder</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>    visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>    profile <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.profile.demo_ct_firstorder.html">ds.imaging.radiomics.profile.demo_ct_firstorder</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/ds.imaging.radiomics.segment_and_extract.html">ds.imaging.radiomics.segment_and_extract</a></span><span class="op">(</span></span>
 <span>    <span class="va">cx</span>, dataset_id <span class="op">=</span> <span class="va">did</span>,</span>
 <span>    segmenter <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.segmenter.ct_lung_threshold.html">ds.imaging.segmenter.ct_lung_threshold</a></span><span class="op">(</span></span>
 <span>      threshold <span class="op">=</span> <span class="op">-</span><span class="fl">320</span>, max_components <span class="op">=</span> <span class="fl">2L</span>, min_voxels <span class="op">=</span> <span class="fl">100L</span></span>
 <span>    <span class="op">)</span>,</span>
-<span>    profile <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.profile.demo_ct_firstorder.html">ds.imaging.radiomics.profile.demo_ct_firstorder</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>    visibility <span class="op">=</span> <span class="st">"global"</span></span>
+<span>    profile <span class="op">=</span> <span class="fu"><a href="../reference/ds.imaging.radiomics.profile.demo_ct_firstorder.html">ds.imaging.radiomics.profile.demo_ct_firstorder</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><strong>4. Load a published asset and inspect it.</strong> Once the

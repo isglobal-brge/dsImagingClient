@@ -2,28 +2,19 @@
 % Please edit documentation in R/analysis_workflows_collection.R
 \name{ds.imaging.radiomics.collection_publish}
 \alias{ds.imaging.radiomics.collection_publish}
-\title{Publish a completed collection generation}
+\title{Publish a completed collection workflow}
 \usage{
-ds.imaging.radiomics.collection_publish(
-  conns,
-  generation_id,
-  dataset_id = NULL,
-  allow_partial = FALSE
-)
+ds.imaging.radiomics.collection_publish(conns, symbol)
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{generation_id}{Character; the generation_id.}
-
-\item{dataset_id}{Character; the dataset.}
-
-\item{allow_partial}{Logical; publish even with some failures.}
+\item{symbol}{Character; server-side collection workflow symbol.}
 }
 \value{
-Named list with asset_id and summary.
+A list containing \code{state} and \code{asset_id}; or a named list
+of these responses for multiple servers.
 }
 \description{
-Call this after a fire-and-forget run completes to create the
-collection-level asset.
+Publish a completed collection workflow
 }

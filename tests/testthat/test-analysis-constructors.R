@@ -20,25 +20,65 @@ test_that("legacy radiomics aliases are not exported", {
 })
 
 test_that("imaging dataset wrappers default to the canonical handle", {
-  expect_equal(formals(ds.imaging.assets)$handle, "img")
-  expect_equal(formals(ds.imaging.metadata)$handle, "img")
-  expect_equal(formals(ds.imaging.validate)$handle, "img")
+  wrappers <- list(
+    ds.imaging.assets,
+    ds.imaging.metadata,
+    ds.imaging.validate,
+    ds.imaging.catalog,
+    ds.imaging.radiomics.features,
+    ds.imaging.masks,
+    ds.imaging.load_asset,
+    ds.imaging.radiomics.load_features,
+    ds.imaging.radiomics.process_collection,
+    ds.imaging.radiomics.segment_and_extract,
+    ds.imaging.radiomics.extract,
+    ds.imaging.segment,
+    ds.imaging.dicom.convert,
+    ds.imaging.preprocess,
+    ds.imaging.mask.operation,
+    ds.imaging.qc.metrics,
+    ds.imaging.rt.convert,
+    ds.imaging.rt.dose,
+    ds.imaging.qc.visuals,
+    ds.imaging.spatial.process,
+    ds.imaging.wsi.tile,
+    ds.imaging.embeddings.extract
+  )
+  expect_true(all(vapply(wrappers, function(fun) {
+    identical(formals(fun)$handle, "img")
+  }, logical(1))))
+  expect_false("allow_partial" %in%
+    names(formals(ds.imaging.radiomics.process_collection)))
+  expect_false("allow_partial" %in%
+    names(formals(ds.imaging.radiomics.collection_publish)))
+})
+
+test_that("global dataset registry listing directs users to resource handles", {
+  expect_error(ds.imaging.datasets(NULL), "ds.imaging.init", fixed = TRUE)
 })
 
 test_that("clinical imaging workflow requests declare expected runners", {
+  expect_error(dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
+    runner = "imaging_qc_metrics", config = list(image_asset = "images"),
+    output_asset = "imaging_qc", asset_type = "qc_table",
+    visibility = "global"), "always private", fixed = TRUE)
+
   req <- dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
     runner = "imaging_qc_metrics",
     config = list(dataset_id = "ds1", image_asset = "images"),
     output_asset = "imaging_qc",
     asset_type = "qc_table",
-    visibility = "global",
     alias = "latest_qc")
 
   expect_equal(req$domain_method, "imagingProcessAssetWorkflowDS")
+  expect_equal(req$handle, "img")
   expect_equal(req$runner, "imaging_qc_metrics")
-  expect_equal(req$asset_type, "qc_table")
+  expect_null(req$asset_type)
+  expect_null(req$label_tag)
   expect_equal(req$alias, "latest_qc")
+  expect_null(req$visibility)
   expect_equal(req$config$image_asset, "images")
+  expect_null(req$config$dataset_id)
 
   runners <- c("rt_convert", "rt_dose_plan", "imaging_qc_visuals",
                "image_spatial", "wsi_tile", "image_embeddings")
@@ -51,7 +91,9 @@ test_that("clinical imaging workflow requests declare expected runners", {
       output_asset = paste0("asset_", i),
       asset_type = asset_types[[i]])
     expect_equal(derived$runner, runners[[i]])
-    expect_equal(derived$asset_type, asset_types[[i]])
+    expect_null(derived$asset_type)
+    expect_null(derived$label_tag)
+    expect_null(derived$config$dataset_id)
   }
 })
 

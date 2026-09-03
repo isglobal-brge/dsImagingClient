@@ -2,7 +2,7 @@
 % Please edit documentation in R/catalog.R
 \name{ds.imaging.check_exists}
 \alias{ds.imaging.check_exists}
-\title{Check if a derivation already exists (deduplication)}
+\title{Legacy client-side derivation lookup}
 \usage{
 ds.imaging.check_exists(conns, dataset_id, ...)
 }
@@ -14,7 +14,7 @@ ds.imaging.check_exists(conns, dataset_id, ...)
 \item{...}{Named parameters to hash (model, version, settings, mask_asset, etc.)}
 }
 \value{
-Named list of per-server results with $exists and $asset_id.
+This function always errors with migration guidance.
 }
 \description{
 Before submitting a job to extract radiomics or preprocess images,

@@ -12,7 +12,8 @@ image workflows, and monitors or publishes derived imaging assets.
 library(dsImagingClient)
 
 ds.imaging.init(conns, resource = "dsdemo.imgct_demo", symbol = "img")
-ds.imaging.datasets(conns)
+ds.imaging.metadata(conns, handle = "img")
+ds.imaging.assets(conns, handle = "img")
 ds.imaging.capabilities(conns)
 ```
 
@@ -30,37 +31,40 @@ profile <- ds.imaging.radiomics.profile.demo_ct_firstorder()
 
 result <- ds.imaging.radiomics.process_collection(
   conns,
-  dataset_id = NULL,          # use the dataset id from the imaging handle
   segmenter = segmenter,
   profile = profile,
   batch_size = 1L,
-  timeout = 0
+  timeout = 0,
+  handle = "img"
 )
 
-ds.imaging.radiomics.collection_status(conns, result$generation_id)
-ds.imaging.radiomics.collection_recover(conns, result$generation_id)
-ds.imaging.radiomics.collection_publish(
-  conns, result$generation_id, result$dataset_id
-)
-ds.imaging.radiomics.features(conns, result$dataset_id)
+ds.imaging.radiomics.collection_status(conns, result$symbol)
+ds.imaging.radiomics.collection_recover(conns, result$symbol)
+published <- stats::setNames(lapply(names(conns), function(server) {
+  ds.imaging.radiomics.collection_publish(conns[server], result$symbol)
+}), names(conns))
+ds.imaging.radiomics.features(conns, handle = "img")
 
 # Assign the published feature table for standard DataSHIELD analysis.
-ds.imaging.radiomics.load_features(
-  conns,
-  dataset_id = result$dataset_id,
-  asset_id = "<asset_id_or_alias>",
-  symbol = "rad",
-  include_metadata = TRUE,
-  syntactic_names = TRUE
-)
+for (server in names(conns)) {
+  ds.imaging.radiomics.load_features(
+    conns[server],
+    asset_id = published[[server]]$asset_id,
+    symbol = "rad",
+    include_metadata = TRUE,
+    syntactic_names = TRUE,
+    handle = "img"
+  )
+}
 ```
 
 `collection_status()` already reconciles server-side state. Use
 `collection_recover()` to explicitly re-run that reconciliation after a
-crash or disconnect. Use
-`collection_cancel(conns, generation_id, admin_key)` only for operator
-cleanup; it is protected by the same `dshpc.admin_key` or
-`DSHPC_ADMIN_KEY` used by `dsHPCClient` admin methods.
+crash or disconnect. Status, recovery, and publication accept only the
+opaque workflow symbol returned by `process_collection()`; image
+identifiers and fingerprints remain server-side. Status and recovery
+expose only `state`, `is_done`, and an optional `asset_id`; publication
+is all-or-nothing.
 
 When the dataset was published with clinical/sample metadata,
 `include_metadata = TRUE` assigns a single server-side data frame joined
@@ -69,10 +73,9 @@ feature columns containing `-`, making the table ready for formula-based
 DataSHIELD analysis functions.
 
 `timeout = 0` starts the workflow and returns immediately. The
-server-side publisher keeps feeding the next pending image jobs as
-previous jobs finish. For store-backed resources, the generation carries
-the manifest/backend context needed by the worker, so the analyst can
-disconnect after the first submission.
+server-side workflow owns discovery, deduplication, batching, and
+publication state, so the analyst can disconnect immediately after
+assignment.
 
 To use existing manual or model-derived masks from `dsimaging-store`,
 publish them under `source/masks/` and use:
@@ -106,43 +109,44 @@ segmenter <- ds.imaging.segmenter.existing_mask("masks")
 
 ``` r
 
-ds.imaging.dicom.convert(conns, "imgct_demo", dicom_asset = "dicom")
+ds.imaging.dicom.convert(conns, dicom_asset = "dicom", handle = "img")
 
 ds.imaging.preprocess(
   conns,
-  "imgct_demo",
   operations = c("resample", "clamp", "float32"),
   spacing = c(1, 1, 1),
   lower = -1000,
-  upper = 400
+  upper = 400,
+  handle = "img"
 )
 
 ds.imaging.mask.operation(
   conns,
-  "imgct_demo",
   operation = "label_select",
   mask_asset = "totalseg_masks",
-  labels = c(10, 11)
+  labels = c(10, 11),
+  handle = "img"
 )
 
-ds.imaging.qc.metrics(conns, "imgct_demo", mask_asset = "lung_masks")
+ds.imaging.qc.metrics(conns, mask_asset = "lung_masks", handle = "img")
 
-ds.imaging.qc.visuals(conns, "imgct_demo", mask_asset = "lung_masks")
-ds.imaging.embeddings.extract(conns, "imgct_demo")
+ds.imaging.qc.visuals(conns, mask_asset = "lung_masks", handle = "img")
+ds.imaging.embeddings.extract(conns, handle = "img")
 ds.imaging.spatial.process(
   conns,
-  "imgct_demo",
   operations = c("resample", "crop_to_mask"),
   mask_asset = "lung_masks",
-  spacing = c(1, 1, 1)
+  spacing = c(1, 1, 1),
+  handle = "img"
 )
 
 # Radiotherapy assets can become reusable masks/tables.
-ds.imaging.rt.convert(conns, "lung1", rt_asset = "rt_struct", rois = "GTV-1")
-ds.imaging.rt.dose(conns, "lung1", mask_asset = "rt_masks")
+ds.imaging.rt.convert(conns, rt_asset = "rt_struct", rois = "GTV-1",
+  handle = "img")
+ds.imaging.rt.dose(conns, mask_asset = "rt_masks", handle = "img")
 
 # WSI/pathology studies can publish tile manifests and optional tile PNGs.
-ds.imaging.wsi.tile(conns, "pathology_demo", tile_size = 512, max_tiles = 1000)
+ds.imaging.wsi.tile(conns, tile_size = 512, max_tiles = 1000, handle = "img")
 ```
 
 The public client surface is `ds.imaging.*`; the former `ds.radiomics.*`

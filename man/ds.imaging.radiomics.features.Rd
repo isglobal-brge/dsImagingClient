@@ -2,18 +2,20 @@
 % Please edit documentation in R/analysis_assets.R
 \name{ds.imaging.radiomics.features}
 \alias{ds.imaging.radiomics.features}
-\title{List radiomics feature tables for a dataset}
+\title{List radiomics feature tables for an initialized imaging handle}
 \usage{
-ds.imaging.radiomics.features(conns, dataset_id)
+ds.imaging.radiomics.features(conns, dataset_id = NULL, handle = "img")
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; retained for source compatibility.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
 Named list of per-server data.frames.
 }
 \description{
-List radiomics feature tables for a dataset
+List radiomics feature tables for an initialized imaging handle
 }

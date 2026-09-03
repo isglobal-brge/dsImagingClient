@@ -1,7 +1,7 @@
-# Get full details of a specific asset
+# Legacy full asset detail query
 
-Returns metadata, provenance (model, version, parameters), lineage
-(parent assets), and filesystem path.
+Full asset detail queries are retired because they exposed storage paths
+and unrestricted provenance. Use the handle-scoped catalog instead.
 
 ## Usage
 
@@ -25,4 +25,4 @@ ds.imaging.asset(conns, asset_id, dataset_id = NULL)
 
 ## Value
 
-Named list of per-server asset details.
+This function always errors with migration guidance.

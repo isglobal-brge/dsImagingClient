@@ -6,7 +6,7 @@
 \usage{
 ds.imaging.qc.visuals(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   mask_asset = NULL,
   max_size = 192L,
@@ -14,13 +14,15 @@ ds.imaging.qc.visuals(
   anonymize_names = TRUE,
   output_asset = "qc_visuals",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{image_asset}{Character; image asset or alias.}
 
@@ -28,18 +30,22 @@ ds.imaging.qc.visuals(
 
 \item{max_size}{Integer; maximum PNG side length.}
 
-\item{max_images}{Integer; maximum thumbnails per site.}
+\item{max_images}{Deprecated and ignored. The complete admitted collection
+is processed; arbitrary subsets are not supported.}
 
-\item{anonymize_names}{Logical; hash case names in generated filenames.}
+\item{anonymize_names}{Logical; must remain TRUE. Output names are always
+pseudonymized server-side.}
 
 \item{output_asset}{Character; published QC visual asset name.}
 
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Generate non-disclosive QC thumbnails and overlays

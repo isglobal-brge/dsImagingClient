@@ -7,7 +7,7 @@ Run spatial image operations
 ``` r
 ds.imaging.spatial.process(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   operations = c("resample"),
   mask_asset = NULL,
@@ -16,7 +16,8 @@ ds.imaging.spatial.process(
   crop_size = NULL,
   output_asset = "spatial_images",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -28,7 +29,8 @@ ds.imaging.spatial.process(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - image_asset:
 
@@ -67,6 +69,10 @@ ds.imaging.spatial.process(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

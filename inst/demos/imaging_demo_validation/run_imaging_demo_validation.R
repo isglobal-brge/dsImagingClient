@@ -127,9 +127,9 @@ wait_by_site <- function(conns, label, submissions, timeout, poll_interval) {
   message("\n== ", label, " ==")
   status <- list()
   for (srv in names(submissions)) {
-    message("-- ", srv, " ", submissions[[srv]]$job_id)
+    message("-- ", srv, " ", submissions[[srv]]$symbol)
     status[[srv]] <- ds.hpc.wait(
-      conns[srv], submissions[[srv]]$job_id,
+      conns[srv], submissions[[srv]]$symbol,
       timeout = timeout, poll_interval = poll_interval
     )
     print(status[[srv]])
@@ -227,7 +227,7 @@ if (!run_jobs) {
 qc_jobs <- submit_by_site(conns, dataset_ids, function(cx, dsid) {
   ds.imaging.qc.metrics(
     cx, dataset_id = dsid, image_asset = "images", mask_asset = "masks",
-    output_asset = "demo_qc_metrics", visibility = "global",
+    output_asset = "demo_qc_metrics",
     alias = "demo_qc_metrics"
   )
 })
@@ -239,7 +239,7 @@ mask_jobs <- submit_by_site(conns, dataset_ids, function(cx, dsid) {
     cx, dataset_id = dsid, operation = "connected_components",
     mask_asset = "masks", reference_asset = "images",
     min_voxels = 5L, max_components = 1L,
-    output_asset = "demo_masks_cc", visibility = "global",
+    output_asset = "demo_masks_cc",
     alias = "demo_masks_cc"
   )
 })
@@ -250,7 +250,7 @@ spatial_jobs <- submit_by_site(conns, dataset_ids, function(cx, dsid) {
   ds.imaging.spatial.process(
     cx, dataset_id = dsid, image_asset = "images",
     operations = "crop_to_mask", mask_asset = "masks",
-    output_asset = "demo_crop_to_mask", visibility = "global",
+    output_asset = "demo_crop_to_mask",
     alias = "demo_crop_to_mask"
   )
 })
@@ -261,7 +261,7 @@ embedding_jobs <- submit_by_site(conns, dataset_ids, function(cx, dsid) {
   ds.imaging.embeddings.extract(
     cx, dataset_id = dsid, image_asset = "images",
     model = "intensity_histogram", bins = 16L,
-    output_asset = "demo_embeddings", visibility = "global",
+    output_asset = "demo_embeddings",
     alias = "demo_embeddings"
   )
 })
@@ -276,8 +276,7 @@ for (srv in names(conns)) {
     conns[srv], dataset_id = NULL,
     segmenter = ds.imaging.segmenter.existing_mask("masks"),
     profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
-    batch_size = 2L, poll_interval = poll_interval, timeout = timeout,
-    allow_partial = FALSE, visibility = "global"
+    batch_size = 2L, poll_interval = poll_interval, timeout = timeout
   )
   print(existing_rad[[srv]])
 }
@@ -292,8 +291,7 @@ for (srv in names(conns)) {
       threshold = -320, max_components = 2L, min_voxels = 100L
     ),
     profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
-    batch_size = 2L, poll_interval = poll_interval, timeout = timeout,
-    allow_partial = FALSE, visibility = "global"
+    batch_size = 2L, poll_interval = poll_interval, timeout = timeout
   )
   print(segmented_rad[[srv]])
 }
@@ -321,8 +319,7 @@ job_status_summary <- function(status, expected = 10L) {
     list(
       state = state,
       pass = identical(state, "FINISHED"),
-      expected = expected,
-      job_id = item$job_id %||% NA_character_
+      expected = expected
     )
   }) |> stats::setNames(names(status))
 }

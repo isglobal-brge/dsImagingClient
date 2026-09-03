@@ -2,7 +2,7 @@
 % Please edit documentation in R/catalog.R
 \name{ds.imaging.asset}
 \alias{ds.imaging.asset}
-\title{Get full details of a specific asset}
+\title{Legacy full asset detail query}
 \usage{
 ds.imaging.asset(conns, asset_id, dataset_id = NULL)
 }
@@ -14,9 +14,9 @@ ds.imaging.asset(conns, asset_id, dataset_id = NULL)
 \item{dataset_id}{Character or NULL; required when using an alias.}
 }
 \value{
-Named list of per-server asset details.
+This function always errors with migration guidance.
 }
 \description{
-Returns metadata, provenance (model, version, parameters), lineage
-(parent assets), and filesystem path.
+Full asset detail queries are retired because they exposed storage paths and
+unrestricted provenance. Use the handle-scoped catalog instead.
 }

@@ -1,7 +1,9 @@
 # Process an image collection with per-image deduplication
 
-Scans a dataset's images, fingerprints them, kicks off per-image
-processing jobs, and optionally waits for completion.
+Assigns one disclosure-controlled collection request to each server and
+optionally polls its server-side workflow symbol until processing
+completes. The user can safely disconnect and reconnect with the
+returned symbol.
 
 ## Usage
 
@@ -14,8 +16,9 @@ ds.imaging.radiomics.process_collection(
   batch_size = 10L,
   poll_interval = 15,
   timeout = 14400,
-  allow_partial = FALSE,
-  visibility = "private"
+  visibility = "private",
+  handle = "img",
+  symbol = NULL
 )
 ```
 
@@ -27,7 +30,8 @@ ds.imaging.radiomics.process_collection(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - segmenter:
 
@@ -39,7 +43,7 @@ ds.imaging.radiomics.process_collection(
 
 - batch_size:
 
-  Integer; images per batch (default 10).
+  Integer; images per server-owned batch (default 10).
 
 - poll_interval:
 
@@ -50,20 +54,42 @@ ds.imaging.radiomics.process_collection(
   Numeric; max seconds to wait (default 14400 = 4 hours). Set to 0 to
   return immediately after kick-off (fire and forget).
 
-- allow_partial:
-
-  Logical; publish with some failures (default FALSE).
-
 - visibility:
 
-  Character; asset visibility (default "private").
+  Compatibility argument; analytical workflows only accept `"private"`.
+  Global publication is administrator-only.
+
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
+- symbol:
+
+  Character or NULL; target server-side workflow symbol. If NULL, a
+  temporary symbol is generated.
 
 ## Value
 
-Named list with generation_id, asset_id (if completed), summary.
+A workflow submission handle when `timeout = 0`; otherwise the
+publication response.
 
-## Details
+## Examples
 
-The server is self-sustaining: after the first batch is submitted,
-completed jobs automatically trigger submission of the next batch. The
-user can safely disconnect and reconnect later.
+``` r
+# \donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+kicked <- ds.imaging.radiomics.process_collection(
+  conns,
+  segmenter = ds.imaging.segmenter.existing_mask("masks"),
+  profile = ds.imaging.radiomics.profile.demo_ct_firstorder(),
+  timeout = 0)
+#> Warning: restarting interrupted promise evaluation
+#> Warning: restarting interrupted promise evaluation
+#> Warning: restarting interrupted promise evaluation
+#> Error: object 'conns' not found
+ds.imaging.radiomics.collection_status(conns, kicked$symbol)
+#> Error: object 'kicked' not found
+ds.imaging.radiomics.collection_publish(conns, kicked$symbol)
+#> Error: object 'kicked' not found
+# }
+```

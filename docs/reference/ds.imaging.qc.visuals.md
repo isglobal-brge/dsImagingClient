@@ -7,7 +7,7 @@ Generate non-disclosive QC thumbnails and overlays
 ``` r
 ds.imaging.qc.visuals(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   mask_asset = NULL,
   max_size = 192L,
@@ -15,7 +15,8 @@ ds.imaging.qc.visuals(
   anonymize_names = TRUE,
   output_asset = "qc_visuals",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -27,7 +28,8 @@ ds.imaging.qc.visuals(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - image_asset:
 
@@ -43,11 +45,13 @@ ds.imaging.qc.visuals(
 
 - max_images:
 
-  Integer; maximum thumbnails per site.
+  Deprecated and ignored. The complete admitted collection is processed;
+  arbitrary subsets are not supported.
 
 - anonymize_names:
 
-  Logical; hash case names in generated filenames.
+  Logical; must remain TRUE. Output names are always pseudonymized
+  server-side.
 
 - output_asset:
 
@@ -61,6 +65,10 @@ ds.imaging.qc.visuals(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

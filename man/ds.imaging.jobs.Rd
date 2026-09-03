@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_assets.R
 \name{ds.imaging.jobs}
 \alias{ds.imaging.jobs}
-\title{List radiomics jobs}
+\title{Legacy cross-workflow job listing}
 \usage{
 ds.imaging.jobs(conns)
 }
@@ -10,10 +10,11 @@ ds.imaging.jobs(conns)
 \item{conns}{DSI connections object.}
 }
 \value{
-A dshpc_result; printed as a formatted job table.
+This function always errors. Keep the workflow symbol returned by a
+dsImaging submission and use its domain-specific status method instead.
 }
 \description{
-List radiomics jobs
+Legacy cross-workflow job listing
 }
 \examples{
 \donttest{

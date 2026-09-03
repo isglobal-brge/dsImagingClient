@@ -9,7 +9,7 @@ runner.
 ``` r
 ds.imaging.preprocess(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   operations = c("float32"),
   spacing = NULL,
@@ -17,7 +17,8 @@ ds.imaging.preprocess(
   upper = 1000,
   output_asset = "preprocessed_images",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -29,7 +30,8 @@ ds.imaging.preprocess(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - image_asset:
 
@@ -64,6 +66,10 @@ ds.imaging.preprocess(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

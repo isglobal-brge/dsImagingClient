@@ -2,7 +2,7 @@
 % Please edit documentation in R/catalog.R
 \name{ds.imaging.aliases}
 \alias{ds.imaging.aliases}
-\title{List aliases for a dataset}
+\title{Legacy dataset alias listing}
 \usage{
 ds.imaging.aliases(conns, dataset_id)
 }
@@ -12,7 +12,7 @@ ds.imaging.aliases(conns, dataset_id)
 \item{dataset_id}{Character; the dataset identifier.}
 }
 \value{
-Named list of per-server data.frames.
+This function always errors with migration guidance.
 }
 \description{
 Shows human-friendly names pointing to specific asset versions.

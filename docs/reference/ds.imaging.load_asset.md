@@ -9,22 +9,24 @@ can operate on it.
 ``` r
 ds.imaging.load_asset(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   asset_id,
   symbol = "imaging_features",
   columns = NULL,
   include_metadata = FALSE,
-  syntactic_names = FALSE
+  syntactic_names = FALSE,
+  handle = "img"
 )
 
 ds.imaging.radiomics.load_features(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   asset_id,
   symbol = "radiomics",
   columns = NULL,
   include_metadata = FALSE,
-  syntactic_names = FALSE
+  syntactic_names = FALSE,
+  handle = "img"
 )
 ```
 
@@ -36,11 +38,14 @@ ds.imaging.radiomics.load_features(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; retained for source compatibility and ignored. The
+  dataset is resolved from `handle`.
 
 - asset_id:
 
-  Character; asset id or alias.
+  Character asset id/alias used on every server, a named list with one
+  id per server, or the result of
+  [`ds.imaging.workflow.status()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.workflow.status.md).
 
 - symbol:
 
@@ -60,6 +65,22 @@ ds.imaging.radiomics.load_features(
   Logical; if TRUE, repair server-side column names for formula-based
   DataSHIELD models.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
 Invisibly TRUE.
+
+## Examples
+
+``` r
+# \donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.radiomics.load_features(conns,
+  asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics",
+  handle = "img")
+#> Error: object 'conns' not found
+# }
+```

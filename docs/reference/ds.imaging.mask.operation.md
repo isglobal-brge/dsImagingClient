@@ -9,7 +9,7 @@ Supports `binarize`, `label_select`, `connected_components`,
 ``` r
 ds.imaging.mask.operation(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   operation,
   mask_asset = "masks",
   mask_b_asset = NULL,
@@ -22,7 +22,8 @@ ds.imaging.mask.operation(
   max_components = 1L,
   output_asset = paste0(mask_asset, "_", operation),
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 ```
 
@@ -34,7 +35,8 @@ ds.imaging.mask.operation(
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; optional dataset identifier. The server derives it
+  from `handle` and verifies any supplied value.
 
 - operation:
 
@@ -88,6 +90,10 @@ ds.imaging.mask.operation(
 
   Character or NULL; optional asset alias.
 
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
+
 ## Value
 
-A dshpc_submission.
+A domain-mediated workflow submission handle.

@@ -7,30 +7,35 @@
 \usage{
 ds.imaging.load_asset(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   asset_id,
   symbol = "imaging_features",
   columns = NULL,
   include_metadata = FALSE,
-  syntactic_names = FALSE
+  syntactic_names = FALSE,
+  handle = "img"
 )
 
 ds.imaging.radiomics.load_features(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   asset_id,
   symbol = "radiomics",
   columns = NULL,
   include_metadata = FALSE,
-  syntactic_names = FALSE
+  syntactic_names = FALSE,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; retained for source compatibility and
+ignored. The dataset is resolved from \code{handle}.}
 
-\item{asset_id}{Character; asset id or alias.}
+\item{asset_id}{Character asset id/alias used on every server, a named list
+with one id per server, or the result of
+\code{ds.imaging.workflow.status()}.}
 
 \item{symbol}{Character; target server-side symbol.}
 
@@ -41,6 +46,8 @@ dataset metadata/clinical columns on \code{sample_id}.}
 
 \item{syntactic_names}{Logical; if TRUE, repair server-side column names for
 formula-based DataSHIELD models.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
 Invisibly TRUE.
@@ -52,8 +59,8 @@ into the DataSHIELD session so standard analysis packages can operate on it.
 \examples{
 \donttest{
 # conns <- DSI::datashield.login(...)  # live DataSHIELD session
-ds.imaging.radiomics.load_features(conns, dataset_id = "lung_ct_v1",
-  asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics")
-dsBaseClient::ds.dim("radiomics", datasources = conns)
+ds.imaging.radiomics.load_features(conns,
+  asset_id = "asset_20260831_134344_b7b9f89e", symbol = "radiomics",
+  handle = "img")
 }
 }

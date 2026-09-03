@@ -6,19 +6,21 @@
 \usage{
 ds.imaging.rt.dose(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   dose_asset = "rt_dose",
   plan_asset = "rt_plan",
   mask_asset = NULL,
   output_asset = "rt_dose_metrics",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{dose_asset}{Character; RTDOSE asset or alias.}
 
@@ -31,9 +33,11 @@ ds.imaging.rt.dose(
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Run RTDOSE and RTPLAN summaries

@@ -2,19 +2,19 @@
 % Please edit documentation in R/analysis_workflows_collection.R
 \name{ds.imaging.radiomics.collection_recover}
 \alias{ds.imaging.radiomics.collection_recover}
-\title{Recover a running collection generation}
+\title{Recover a collection workflow}
 \usage{
-ds.imaging.radiomics.collection_recover(conns, generation_id)
+ds.imaging.radiomics.collection_recover(conns, symbol)
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{generation_id}{Character; the generation_id.}
+\item{symbol}{Character; server-side collection workflow symbol.}
 }
 \value{
-Named list with progress info.
+A list containing \code{state}, \code{is_done}, and optionally
+\code{asset_id}; or a named list of these responses for multiple servers.
 }
 \description{
-Reconciles server-side job state, requeues stale claimed items left by an
-interrupted submitter, and nudges the server-side drip-feed loop.
+Reconciles the server-owned workflow state and resumes eligible work.
 }

@@ -1,11 +1,11 @@
-# List radiomics feature tables for a dataset
+# List radiomics feature tables for an initialized imaging handle
 
-List radiomics feature tables for a dataset
+List radiomics feature tables for an initialized imaging handle
 
 ## Usage
 
 ``` r
-ds.imaging.radiomics.features(conns, dataset_id)
+ds.imaging.radiomics.features(conns, dataset_id = NULL, handle = "img")
 ```
 
 ## Arguments
@@ -16,7 +16,11 @@ ds.imaging.radiomics.features(conns, dataset_id)
 
 - dataset_id:
 
-  Character; dataset identifier.
+  Character or NULL; retained for source compatibility.
+
+- handle:
+
+  Character; initialized imaging handle (default `"img"`).
 
 ## Value
 

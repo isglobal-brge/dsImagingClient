@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">dsImagingClient</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -57,7 +58,8 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://isglobal-brge.github.io/dsImagingClient/">dsImagingClient</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/ds.imaging.init.html">ds.imaging.init</a></span><span class="op">(</span><span class="va">conns</span>, resource <span class="op">=</span> <span class="st">"dsdemo.imgct_demo"</span>, symbol <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.datasets.html">ds.imaging.datasets</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.metadata.html">ds.imaging.metadata</a></span><span class="op">(</span><span class="va">conns</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.assets.html">ds.imaging.assets</a></span><span class="op">(</span><span class="va">conns</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/ds.imaging.capabilities.html">ds.imaging.capabilities</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -74,32 +76,34 @@
 <span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ds.imaging.radiomics.process_collection.html">ds.imaging.radiomics.process_collection</a></span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  dataset_id <span class="op">=</span> <span class="cn">NULL</span>,          <span class="co"># use the dataset id from the imaging handle</span></span>
 <span>  segmenter <span class="op">=</span> <span class="va">segmenter</span>,</span>
 <span>  profile <span class="op">=</span> <span class="va">profile</span>,</span>
 <span>  batch_size <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  timeout <span class="op">=</span> <span class="fl">0</span></span>
+<span>  timeout <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/ds.imaging.radiomics.collection_status.html">ds.imaging.radiomics.collection_status</a></span><span class="op">(</span><span class="va">conns</span>, <span class="va">result</span><span class="op">$</span><span class="va">generation_id</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.radiomics.collection_recover.html">ds.imaging.radiomics.collection_recover</a></span><span class="op">(</span><span class="va">conns</span>, <span class="va">result</span><span class="op">$</span><span class="va">generation_id</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.radiomics.collection_publish.html">ds.imaging.radiomics.collection_publish</a></span><span class="op">(</span></span>
-<span>  <span class="va">conns</span>, <span class="va">result</span><span class="op">$</span><span class="va">generation_id</span>, <span class="va">result</span><span class="op">$</span><span class="va">dataset_id</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.radiomics.features.html">ds.imaging.radiomics.features</a></span><span class="op">(</span><span class="va">conns</span>, <span class="va">result</span><span class="op">$</span><span class="va">dataset_id</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.radiomics.collection_status.html">ds.imaging.radiomics.collection_status</a></span><span class="op">(</span><span class="va">conns</span>, <span class="va">result</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.radiomics.collection_recover.html">ds.imaging.radiomics.collection_recover</a></span><span class="op">(</span><span class="va">conns</span>, <span class="va">result</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
+<span><span class="va">published</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">server</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="reference/ds.imaging.radiomics.collection_publish.html">ds.imaging.radiomics.collection_publish</a></span><span class="op">(</span><span class="va">conns</span><span class="op">[</span><span class="va">server</span><span class="op">]</span>, <span class="va">result</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.radiomics.features.html">ds.imaging.radiomics.features</a></span><span class="op">(</span><span class="va">conns</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Assign the published feature table for standard DataSHIELD analysis.</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.load_asset.html">ds.imaging.radiomics.load_features</a></span><span class="op">(</span></span>
-<span>  <span class="va">conns</span>,</span>
-<span>  dataset_id <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">dataset_id</span>,</span>
-<span>  asset_id <span class="op">=</span> <span class="st">"&lt;asset_id_or_alias&gt;"</span>,</span>
-<span>  symbol <span class="op">=</span> <span class="st">"rad"</span>,</span>
-<span>  include_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  syntactic_names <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><code>collection_status()</code> already reconciles server-side state. Use <code>collection_recover()</code> to explicitly re-run that reconciliation after a crash or disconnect. Use <code>collection_cancel(conns, generation_id, admin_key)</code> only for operator cleanup; it is protected by the same <code>dshpc.admin_key</code> or <code>DSHPC_ADMIN_KEY</code> used by <code>dsHPCClient</code> admin methods.</p>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">server</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">conns</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="reference/ds.imaging.load_asset.html">ds.imaging.radiomics.load_features</a></span><span class="op">(</span></span>
+<span>    <span class="va">conns</span><span class="op">[</span><span class="va">server</span><span class="op">]</span>,</span>
+<span>    asset_id <span class="op">=</span> <span class="va">published</span><span class="op">[[</span><span class="va">server</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">asset_id</span>,</span>
+<span>    symbol <span class="op">=</span> <span class="st">"rad"</span>,</span>
+<span>    include_metadata <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    syntactic_names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    handle <span class="op">=</span> <span class="st">"img"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><code>collection_status()</code> already reconciles server-side state. Use <code>collection_recover()</code> to explicitly re-run that reconciliation after a crash or disconnect. Status, recovery, and publication accept only the opaque workflow symbol returned by <code>process_collection()</code>; image identifiers and fingerprints remain server-side. Status and recovery expose only <code>state</code>, <code>is_done</code>, and an optional <code>asset_id</code>; publication is all-or-nothing.</p>
 <p>When the dataset was published with clinical/sample metadata, <code>include_metadata = TRUE</code> assigns a single server-side data frame joined on <code>sample_id</code>. <code>syntactic_names = TRUE</code> repairs names such as wavelet feature columns containing <code>-</code>, making the table ready for formula-based DataSHIELD analysis functions.</p>
-<p><code>timeout = 0</code> starts the workflow and returns immediately. The server-side publisher keeps feeding the next pending image jobs as previous jobs finish. For store-backed resources, the generation carries the manifest/backend context needed by the worker, so the analyst can disconnect after the first submission.</p>
+<p><code>timeout = 0</code> starts the workflow and returns immediately. The server-side workflow owns discovery, deduplication, batching, and publication state, so the analyst can disconnect immediately after assignment.</p>
 <p>To use existing manual or model-derived masks from <code>dsimaging-store</code>, publish them under <code>source/masks/</code> and use:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">segmenter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ds.imaging.segmenter.existing_mask.html">ds.imaging.segmenter.existing_mask</a></span><span class="op">(</span><span class="st">"masks"</span><span class="op">)</span></span></code></pre></div>
@@ -131,43 +135,44 @@
 <h2 id="preprocessing-masks-and-qc">Preprocessing, Masks, And QC<a class="anchor" aria-label="anchor" href="#preprocessing-masks-and-qc"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/ds.imaging.dicom.convert.html">ds.imaging.dicom.convert</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span>, dicom_asset <span class="op">=</span> <span class="st">"dicom"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/ds.imaging.dicom.convert.html">ds.imaging.dicom.convert</a></span><span class="op">(</span><span class="va">conns</span>, dicom_asset <span class="op">=</span> <span class="st">"dicom"</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/ds.imaging.preprocess.html">ds.imaging.preprocess</a></span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  <span class="st">"imgct_demo"</span>,</span>
 <span>  operations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"resample"</span>, <span class="st">"clamp"</span>, <span class="st">"float32"</span><span class="op">)</span>,</span>
 <span>  spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  lower <span class="op">=</span> <span class="op">-</span><span class="fl">1000</span>,</span>
-<span>  upper <span class="op">=</span> <span class="fl">400</span></span>
+<span>  upper <span class="op">=</span> <span class="fl">400</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/ds.imaging.mask.operation.html">ds.imaging.mask.operation</a></span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  <span class="st">"imgct_demo"</span>,</span>
 <span>  operation <span class="op">=</span> <span class="st">"label_select"</span>,</span>
 <span>  mask_asset <span class="op">=</span> <span class="st">"totalseg_masks"</span>,</span>
-<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">11</span><span class="op">)</span></span>
+<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">11</span><span class="op">)</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/ds.imaging.qc.metrics.html">ds.imaging.qc.metrics</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.qc.metrics.html">ds.imaging.qc.metrics</a></span><span class="op">(</span><span class="va">conns</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/ds.imaging.qc.visuals.html">ds.imaging.qc.visuals</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.embeddings.extract.html">ds.imaging.embeddings.extract</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"imgct_demo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.qc.visuals.html">ds.imaging.qc.visuals</a></span><span class="op">(</span><span class="va">conns</span>, mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.embeddings.extract.html">ds.imaging.embeddings.extract</a></span><span class="op">(</span><span class="va">conns</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/ds.imaging.spatial.process.html">ds.imaging.spatial.process</a></span><span class="op">(</span></span>
 <span>  <span class="va">conns</span>,</span>
-<span>  <span class="st">"imgct_demo"</span>,</span>
 <span>  operations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"resample"</span>, <span class="st">"crop_to_mask"</span><span class="op">)</span>,</span>
 <span>  mask_asset <span class="op">=</span> <span class="st">"lung_masks"</span>,</span>
-<span>  spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Radiotherapy assets can become reusable masks/tables.</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.rt.convert.html">ds.imaging.rt.convert</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"lung1"</span>, rt_asset <span class="op">=</span> <span class="st">"rt_struct"</span>, rois <span class="op">=</span> <span class="st">"GTV-1"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.rt.dose.html">ds.imaging.rt.dose</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"lung1"</span>, mask_asset <span class="op">=</span> <span class="st">"rt_masks"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.rt.convert.html">ds.imaging.rt.convert</a></span><span class="op">(</span><span class="va">conns</span>, rt_asset <span class="op">=</span> <span class="st">"rt_struct"</span>, rois <span class="op">=</span> <span class="st">"GTV-1"</span>,</span>
+<span>  handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/ds.imaging.rt.dose.html">ds.imaging.rt.dose</a></span><span class="op">(</span><span class="va">conns</span>, mask_asset <span class="op">=</span> <span class="st">"rt_masks"</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># WSI/pathology studies can publish tile manifests and optional tile PNGs.</span></span>
-<span><span class="fu"><a href="reference/ds.imaging.wsi.tile.html">ds.imaging.wsi.tile</a></span><span class="op">(</span><span class="va">conns</span>, <span class="st">"pathology_demo"</span>, tile_size <span class="op">=</span> <span class="fl">512</span>, max_tiles <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/ds.imaging.wsi.tile.html">ds.imaging.wsi.tile</a></span><span class="op">(</span><span class="va">conns</span>, tile_size <span class="op">=</span> <span class="fl">512</span>, max_tiles <span class="op">=</span> <span class="fl">1000</span>, handle <span class="op">=</span> <span class="st">"img"</span><span class="op">)</span></span></code></pre></div>
 <p>The public client surface is <code>ds.imaging.*</code>; the former <code>ds.radiomics.*</code> and <code>ds.segmenter.*</code> compatibility wrappers have been retired before production use.</p>
 </div>
 <div class="section level2">

@@ -6,7 +6,7 @@
 \usage{
 ds.imaging.spatial.process(
   conns,
-  dataset_id,
+  dataset_id = NULL,
   image_asset = "images",
   operations = c("resample"),
   mask_asset = NULL,
@@ -15,13 +15,15 @@ ds.imaging.spatial.process(
   crop_size = NULL,
   output_asset = "spatial_images",
   visibility = "private",
-  alias = NULL
+  alias = NULL,
+  handle = "img"
 )
 }
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{dataset_id}{Character; dataset identifier.}
+\item{dataset_id}{Character or NULL; optional dataset identifier. The server
+derives it from \code{handle} and verifies any supplied value.}
 
 \item{image_asset}{Character; source image asset.}
 
@@ -41,9 +43,11 @@ ds.imaging.spatial.process(
 \item{visibility}{Character; job visibility label.}
 
 \item{alias}{Character or NULL; optional asset alias.}
+
+\item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 }
 \value{
-A dshpc_submission.
+A domain-mediated workflow submission handle.
 }
 \description{
 Run spatial image operations

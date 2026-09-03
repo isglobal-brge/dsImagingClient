@@ -3,21 +3,23 @@
 ## All functions
 
 - [`ds.imaging.aliases()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.aliases.md)
-  : List aliases for a dataset
+  : Legacy dataset alias listing
 - [`ds.imaging.asset()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.asset.md)
-  : Get full details of a specific asset
+  : Legacy full asset detail query
 - [`ds.imaging.assets()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.assets.md)
   : List Dataset Assets
 - [`ds.imaging.capabilities()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.capabilities.md)
   : Get radiomics capabilities from server
 - [`ds.imaging.catalog()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.catalog.md)
-  : List derived assets for a dataset
+  : List derived assets for an initialized imaging handle
 - [`ds.imaging.check_exists()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.check_exists.md)
-  : Check if a derivation already exists (deduplication)
+  : Legacy client-side derivation lookup
 - [`ds.imaging.datasets()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.datasets.md)
-  : List Available Imaging Datasets
+  : Dataset registry listing (deprecated)
+- [`ds.imaging.destroy()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.destroy.md)
+  : Destroy an Imaging Dataset Handle
 - [`ds.imaging.dicom.convert()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.dicom.convert.md)
-  : Convert DICOM series to NIfTI images
+  : Convert one-file DICOM samples to NIfTI images
 - [`ds.imaging.embeddings.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.embeddings.extract.md)
   : Extract image embeddings
 - [`ds.imaging.init()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.init.md)
@@ -25,18 +27,20 @@
 - [`ds.imaging.install_model()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.install_model.md)
   : Install a segmentation model on the server (admin only)
 - [`ds.imaging.jobs()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.jobs.md)
-  : List radiomics jobs
+  : Legacy cross-workflow job listing
+- [`ds.imaging.label_distribution()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.label_distribution.md)
+  : Disclosure-controlled label distribution for an imaging dataset
 - [`ds.imaging.labels()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.labels.md)
-  : List available label sets for an imaging dataset
+  : Legacy label-set discovery
 - [`ds.imaging.lineage()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.lineage.md)
-  : Get derivation lineage for an asset
+  : Legacy unrestricted asset lineage query
 - [`ds.imaging.load_asset()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.load_asset.md)
   [`ds.imaging.radiomics.load_features()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.load_asset.md)
   : Load a Published Imaging Feature Asset
 - [`ds.imaging.mask.operation()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.mask.operation.md)
   : Run mask or ROI operations
 - [`ds.imaging.masks()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.masks.md)
-  : List segmentation masks for a dataset
+  : List segmentation masks for an initialized imaging handle
 - [`ds.imaging.metadata()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.metadata.md)
   : Get Imaging Dataset Metadata
 - [`ds.imaging.models()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.models.md)
@@ -48,17 +52,17 @@
 - [`ds.imaging.qc.visuals()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.qc.visuals.md)
   : Generate non-disclosive QC thumbnails and overlays
 - [`ds.imaging.radiomics.collection_cancel()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_cancel.md)
-  : Cancel a running collection generation (admin only)
+  : Cancel a running collection workflow (admin only)
 - [`ds.imaging.radiomics.collection_publish()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_publish.md)
-  : Publish a completed collection generation
+  : Publish a completed collection workflow
 - [`ds.imaging.radiomics.collection_recover()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_recover.md)
-  : Recover a running collection generation
+  : Recover a collection workflow
 - [`ds.imaging.radiomics.collection_status()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.collection_status.md)
-  : Check status of a running collection processing generation
+  : Check status of a collection workflow
 - [`ds.imaging.radiomics.extract()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.extract.md)
   : Extract radiomics features from a dataset
 - [`ds.imaging.radiomics.features()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.features.md)
-  : List radiomics feature tables for a dataset
+  : List radiomics feature tables for an initialized imaging handle
 - [`ds.imaging.radiomics.process_collection()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.process_collection.md)
   : Process an image collection with per-image deduplication
 - [`ds.imaging.radiomics.profile.aerts_signature()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.radiomics.profile.aerts_signature.md)
@@ -96,8 +100,12 @@
 - [`ds.imaging.spatial.process()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.spatial.process.md)
   : Run spatial image operations
 - [`ds.imaging.summary()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.summary.md)
-  : Print a summary of radiomics activity
+  : Print a disclosure-safe summary of the initialized imaging resource
 - [`ds.imaging.validate()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.validate.md)
   : Validate Imaging Dataset
+- [`ds.imaging.workflow.destroy()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.workflow.destroy.md)
+  : Destroy a completed imaging workflow reference
+- [`ds.imaging.workflow.status()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.workflow.status.md)
+  : Get disclosure-controlled imaging workflow status
 - [`ds.imaging.wsi.tile()`](https://isglobal-brge.github.io/dsImagingClient/reference/ds.imaging.wsi.tile.md)
   : Tile WSI/pathology images

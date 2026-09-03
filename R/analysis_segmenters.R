@@ -63,5 +63,6 @@ ds.imaging.segmenter.nnunet <- function(model_name, fold = "all") {
 #' @return A segmenter spec.
 #' @export
 ds.imaging.segmenter.monai_bundle <- function(bundle_name) {
-  list(provider = "monai_bundle_infer", bundle_name = bundle_name)
+  stop("MONAI bundle segmentation is unavailable until an exact per-sample contract is implemented.",
+       call. = FALSE)
 }

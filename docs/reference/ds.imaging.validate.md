@@ -22,3 +22,17 @@ ds.imaging.validate(conns, handle = "img")
 ## Value
 
 Named list of per-server validation results.
+
+## Examples
+
+``` r
+# \donttest{
+# conns <- DSI::datashield.login(...)  # live DataSHIELD session
+ds.imaging.init(conns, resource = "lung_ct_res", symbol = "img")
+#> Warning: restarting interrupted promise evaluation
+#> Warning: restarting interrupted promise evaluation
+#> Error: object 'conns' not found
+str(ds.imaging.validate(conns, "img"))
+#> Error: object 'conns' not found
+# }
+```
