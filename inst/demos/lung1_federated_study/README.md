@@ -66,10 +66,13 @@ chain. The first pass publishes each site and writes one read-only Resource
 handoff plan per node:
 
 ```bash
+dsimaging-admin store setup ./lung1-store --profile-name lung1-store
 export DSIMAGING_PROFILE=lung1-store
 LUNG1_ONLY_PUBLISH=TRUE \
 Rscript inst/demos/lung1_federated_study/run_lung1_datashield.R
 ```
+
+Run `store setup` only when creating the store; reuse the profile afterwards.
 
 The plans are written below `resource-plans/opal/`. Publication does not grant
 DataSHIELD access and does not register a Resource. A node administrator reviews
