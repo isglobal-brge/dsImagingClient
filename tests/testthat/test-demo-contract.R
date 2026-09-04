@@ -32,6 +32,8 @@ test_that("LUNG1 demo separates publication from secret-free Resource handoff", 
   expect_match(runner, '"dataset", "resource-plan", row$dataset',
                fixed = TRUE)
   expect_match(runner, 'c("opal", "armadillo")', fixed = TRUE)
+  expect_match(runner, 'csv_env("LUNG1_ARMADILLO_URLS")', fixed = TRUE)
+  expect_match(runner, "anyDuplicated(armadillo_url_keys)", fixed = TRUE)
   expect_match(runner, 'if (publish) "TRUE" else "FALSE"', fixed = TRUE)
   expect_match(readme, "resource-plans/opal/", fixed = TRUE)
   expect_match(readme, "resource-plans/armadillo/", fixed = TRUE)

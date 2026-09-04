@@ -12,6 +12,12 @@ logical_env <- function(name, default = "FALSE") {
   value %in% c("1", "TRUE", "YES", "Y")
 }
 
+csv_env <- function(name) {
+  value <- env(name, "")
+  if (!nzchar(value)) return(character())
+  trimws(strsplit(value, ",", fixed = TRUE)[[1L]])
+}
+
 workdir <- normalizePath(env("LUNG1_WORKDIR", "/tmp/dsimaging_lung1_study"),
                          mustWork = TRUE)
 publish <- logical_env("LUNG1_PUBLISH", "TRUE")
@@ -42,12 +48,21 @@ resource_name <- env("LUNG1_RESOURCE_NAME",
                      env("LUNG1_OPAL_RESOURCE", "lung1_study"))
 resource_endpoint <- env("DSIMAGING_RESOURCE_ENDPOINT", "http://minio.local:9000")
 resource_plan_dir <- file.path(workdir, "resource-plans", resource_target)
-armadillo_url <- env("LUNG1_ARMADILLO_URL", "")
+armadillo_urls <- csv_env("LUNG1_ARMADILLO_URLS")
+armadillo_url_keys <- tolower(sub("/+$", "", armadillo_urls))
 armadillo_credentials_ref <- env("LUNG1_ARMADILLO_CREDENTIALS_REF", "")
 if (publish && plan_resources && identical(resource_target, "armadillo") &&
-    (!nzchar(armadillo_url) || !nzchar(armadillo_credentials_ref))) {
-  stop("Armadillo handoff requires LUNG1_ARMADILLO_URL and ",
+    (length(armadillo_urls) != length(dataset_suffixes) ||
+     any(!nzchar(armadillo_urls)) || anyDuplicated(armadillo_url_keys) ||
+     !nzchar(armadillo_credentials_ref))) {
+  stop("Armadillo handoff requires three distinct comma-separated URLs in ",
+       "LUNG1_ARMADILLO_URLS (site_a, site_b, site_c) and a non-empty ",
        "LUNG1_ARMADILLO_CREDENTIALS_REF.", call. = FALSE)
+}
+site_armadillo_urls <- if (length(armadillo_urls) == length(dataset_suffixes)) {
+  armadillo_urls
+} else {
+  rep("", length(dataset_suffixes))
 }
 
 sites <- data.frame(
@@ -56,6 +71,7 @@ sites <- data.frame(
   dataset = paste0(dataset_prefix, "_", dataset_suffixes),
   opal_url = c("https://localhost:8443", "https://localhost:8444",
                "https://localhost:8445"),
+  armadillo_url = site_armadillo_urls,
   stringsAsFactors = FALSE
 )
 
@@ -95,7 +111,7 @@ plan_resource_site <- function(row) {
   if (identical(resource_target, "armadillo")) {
     args <- c(
       args,
-      "--armadillo-url", armadillo_url,
+      "--armadillo-url", row$armadillo_url,
       "--credentials-ref", armadillo_credentials_ref
     )
   }

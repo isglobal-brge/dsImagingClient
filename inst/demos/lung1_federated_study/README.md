@@ -89,8 +89,9 @@ To prepare an Armadillo handoff instead, set the target and its non-secret
 deployment identifiers on the publish-only pass:
 
 ```bash
+export DSIMAGING_PROFILE=lung1-store
 export LUNG1_RESOURCE_TARGET=armadillo
-export LUNG1_ARMADILLO_URL=https://armadillo.example.org
+export LUNG1_ARMADILLO_URLS=https://armadillo-a.example.org,https://armadillo-b.example.org,https://armadillo-c.example.org
 export LUNG1_ARMADILLO_CREDENTIALS_REF=imaging_store_ro
 LUNG1_ONLY_PUBLISH=TRUE \
 Rscript inst/demos/lung1_federated_study/run_lung1_datashield.R
@@ -98,11 +99,13 @@ Rscript inst/demos/lung1_federated_study/run_lung1_datashield.R
 
 This writes plans below `resource-plans/armadillo/`. Each plan describes the
 inert marker Resource and the protected node-registry entry; the credentials
-reference is an opaque server-side name, not a credential. After the
-administrator applies the plan, initialise it from an Armadillo DataSHIELD
-session as `imaging/resources/lung1_study`. The imaging and radiomics calls are
-otherwise the same. The bundled live connection block remains the local
-three-Opal validation harness.
+reference is an opaque server-side name, not a credential. The three URLs map
+to `site_a`, `site_b`, and `site_c` in that order and must identify distinct
+Armadillo nodes, so the common `imaging/resources/lung1_study` selector cannot
+overwrite another site's Resource. After each administrator applies its plan,
+initialise that selector from an Armadillo DataSHIELD session. The imaging and
+radiomics calls are otherwise the same. The bundled live connection block
+remains the local three-Opal validation harness.
 
 Useful environment variables:
 
@@ -113,6 +116,7 @@ Useful environment variables:
 - `LUNG1_PLAN_RESOURCES=FALSE` to publish without writing new handoff plans
 - `LUNG1_RESOURCE_TARGET=opal|armadillo`
 - `LUNG1_RESOURCE_NAME=lung1_study`
+- `LUNG1_ARMADILLO_URLS=url_a,url_b,url_c` for three distinct Armadillo nodes
 - `LUNG1_RUN_JOBS=FALSE` to reuse or wait/publish `datashield_radiomics_result.rds`
 - `LUNG1_ASYNC=TRUE` and `LUNG1_TIMEOUT=0` to kick off jobs and disconnect
 - `DSIMAGING_RESOURCE_ENDPOINT=http://minio.local:9000`
