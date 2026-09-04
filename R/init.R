@@ -6,7 +6,7 @@
 #' handle via \code{imagingInitDS()}.
 #'
 #' @param conns DSI connections object.
-#' @param resource Character; name of the Opal resource to assign.
+#' @param resource Character; name of the Opal or Armadillo Resource to assign.
 #' @param symbol Character; symbol name for the imaging handle
 #'   (default \code{"img"}).
 #' @return \code{TRUE}, invisibly. The initialized imaging object remains on
@@ -21,7 +21,9 @@
 #' @export
 ds.imaging.init <- function(conns, resource, symbol = "img") {
   resource_symbol <- .imaging_init_resource_symbol(symbol)
-  .imaging_require_symbol_absent(conns, c(symbol, resource_symbol))
+  provider_transients <- c("R", "rds")
+  temporary_symbols <- c(provider_transients, resource_symbol)
+  .imaging_require_symbol_absent(conns, c(symbol, temporary_symbols))
   initialized <- FALSE
   init_attempted <- FALSE
   on.exit({
@@ -33,11 +35,13 @@ ds.imaging.init <- function(conns, resource, symbol = "img") {
           failures = paste0("handle-state[", conditionMessage(e), "]")))
       cleanup_failures <- c(cleanup_failures, rollback$failures)
     }
-    resource_cleanup <- tryCatch(
-      .imaging_remove_symbol_exact(conns, resource_symbol),
-      error = function(e) list(
-        failures = paste0("resource-state[", conditionMessage(e), "]")))
-    cleanup_failures <- c(cleanup_failures, resource_cleanup$failures)
+    for (temporary in temporary_symbols) {
+      cleanup <- tryCatch(
+        .imaging_remove_symbol_exact(conns, temporary),
+        error = function(e) list(
+          failures = paste0("temporary-state[", conditionMessage(e), "]")))
+      cleanup_failures <- c(cleanup_failures, cleanup$failures)
+    }
     if (length(cleanup_failures)) {
       tryCatch(
         warning(
@@ -67,10 +71,12 @@ ds.imaging.init <- function(conns, resource, symbol = "img") {
         success = success, error = error, errors.print = FALSE)
     })
 
-  resource_cleanup <- .imaging_remove_symbol_exact(conns, resource_symbol)
-  if (length(resource_cleanup$failures)) {
+  cleanup_failures <- unlist(lapply(temporary_symbols, function(temporary) {
+    .imaging_remove_symbol_exact(conns, temporary)$failures
+  }), use.names = FALSE)
+  if (length(cleanup_failures)) {
     stop("Temporary imaging resource cleanup failed on: ",
-      paste(resource_cleanup$failures, collapse = ", "), ".", call. = FALSE)
+      paste(unique(cleanup_failures), collapse = ", "), ".", call. = FALSE)
   }
   initialized <- TRUE
 

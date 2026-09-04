@@ -6,7 +6,7 @@ test_that("ds.imaging.init assigns a resource and creates only an imaging handle
     datashield.assign.resource = function(conns, symbol, resource, success, ...) {
       calls[[length(calls) + 1L]] <<- list(
         method = "resource", symbol = symbol, resource = resource)
-      state$site <<- c(state$site, symbol)
+      state$site <<- c(state$site, symbol, "R", "rds")
       success("site")
       invisible(TRUE)
     },
@@ -36,6 +36,7 @@ test_that("ds.imaging.init assigns a resource and creates only an imaging handle
   expect_equal(calls[[2L]]$symbol, "img")
   expect_identical(as.character(calls[[2L]]$expr[[1L]]), "imagingInitDS")
   expect_identical(calls[[2L]]$expr[[2L]], calls[[1L]]$symbol)
+  expect_identical(state$site, "img")
   expect_false(any(vapply(calls, function(x) {
     !is.null(x$expr) && identical(as.character(x$expr[[1L]]),
                                   "flowerInitDS")
@@ -49,7 +50,7 @@ test_that("ds.imaging.init rolls back temporary and partial symbols", {
     datashield.symbols = function(conns, ...) state[names(conns)],
     datashield.assign.resource = function(conns, symbol, resource, success, ...) {
       for (host in names(conns)) {
-        state[[host]] <<- c(state[[host]], symbol)
+        state[[host]] <<- c(state[[host]], symbol, "R", "rds")
         success(host)
       }
       invisible(TRUE)
@@ -80,6 +81,22 @@ test_that("ds.imaging.init rolls back temporary and partial symbols", {
     "site_2")
   expect_true("img" %in% removed)
   expect_true(any(grepl("^dsIres\\.", removed)))
+  expect_true(all(c("R", "rds") %in% removed))
+})
+
+test_that("ds.imaging.init does not overwrite provider transient symbols", {
+  assignments <- 0L
+  local_mocked_bindings(
+    datashield.symbols = function(conns, ...) list(site = "R"),
+    datashield.assign.resource = function(...) {
+      assignments <<- assignments + 1L
+    },
+    .package = "DSI"
+  )
+
+  expect_error(ds.imaging.init(
+    list(site = NULL), "project/folder/images", "img"), "already exists")
+  expect_identical(assignments, 0L)
 })
 
 test_that("a doubly failed temporary-resource removal remains retryable", {

@@ -1,3 +1,9 @@
+# dsImagingClient 0.3.4
+
+* Imaging Resource initialization is backend-neutral across Opal and
+  Armadillo and removes Armadillo's transient `R`/`rds` loader symbols on
+  success and rollback. Pre-existing symbols are never overwritten or removed.
+
 # dsImagingClient 0.3.3
 
 * Added `ds.imaging.feature_view()` and its exact cleanup helper so complete

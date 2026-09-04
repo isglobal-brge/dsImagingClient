@@ -9,7 +9,7 @@ ds.imaging.init(conns, resource, symbol = "img")
 \arguments{
 \item{conns}{DSI connections object.}
 
-\item{resource}{Character; name of the Opal resource to assign.}
+\item{resource}{Character; name of the Opal or Armadillo Resource to assign.}
 
 \item{symbol}{Character; symbol name for the imaging handle
 (default \code{"img"}).}
