@@ -1,12 +1,5 @@
 #!/usr/bin/env Rscript
 
-suppressPackageStartupMessages({
-  library(DSI)
-  library(DSOpal)
-  library(dsImagingClient)
-  library(dsBaseClient)
-})
-
 `%||%` <- function(x, y) if (is.null(x) || !length(x)) y else x
 
 env <- function(name, default = "") {
@@ -22,7 +15,8 @@ logical_env <- function(name, default = "FALSE") {
 workdir <- normalizePath(env("LUNG1_WORKDIR", "/tmp/dsimaging_lung1_study"),
                          mustWork = TRUE)
 publish <- logical_env("LUNG1_PUBLISH", "TRUE")
-only_publish <- logical_env("LUNG1_ONLY_PUBLISH", "FALSE")
+only_publish <- logical_env(
+  "LUNG1_ONLY_PUBLISH", if (publish) "TRUE" else "FALSE")
 run_jobs <- logical_env("LUNG1_RUN_JOBS", "TRUE")
 async <- logical_env("LUNG1_ASYNC", "TRUE")
 run_glm <- logical_env("LUNG1_RUN_GLM", "TRUE")
@@ -31,8 +25,30 @@ poll_interval <- as.numeric(env("LUNG1_POLL_INTERVAL", "60"))
 batch_size <- as.integer(env("LUNG1_BATCH_SIZE", "1"))
 admin_python <- env("DSIMAGING_ADMIN_PYTHON", "/opt/homebrew/bin/python3.11")
 if (!file.exists(admin_python)) admin_python <- Sys.which("python3")
+admin_profile <- env("DSIMAGING_PROFILE", "")
 dataset_prefix <- env("LUNG1_DATASET_PREFIX", "lung1_site")
 dataset_suffixes <- c(a = "a", b = "b", c = "c")
+plan_resources <- logical_env("LUNG1_PLAN_RESOURCES", "TRUE")
+resource_target <- tolower(env("LUNG1_RESOURCE_TARGET", "opal"))
+if (!resource_target %in% c("opal", "armadillo")) {
+  stop("LUNG1_RESOURCE_TARGET must be 'opal' or 'armadillo'.", call. = FALSE)
+}
+resource_project <- if (identical(resource_target, "opal")) {
+  env("LUNG1_OPAL_PROJECT", "dsdemo")
+} else {
+  env("LUNG1_ARMADILLO_PROJECT", "imaging")
+}
+resource_name <- env("LUNG1_RESOURCE_NAME",
+                     env("LUNG1_OPAL_RESOURCE", "lung1_study"))
+resource_endpoint <- env("DSIMAGING_RESOURCE_ENDPOINT", "http://minio.local:9000")
+resource_plan_dir <- file.path(workdir, "resource-plans", resource_target)
+armadillo_url <- env("LUNG1_ARMADILLO_URL", "")
+armadillo_credentials_ref <- env("LUNG1_ARMADILLO_CREDENTIALS_REF", "")
+if (publish && plan_resources && identical(resource_target, "armadillo") &&
+    (!nzchar(armadillo_url) || !nzchar(armadillo_credentials_ref))) {
+  stop("Armadillo handoff requires LUNG1_ARMADILLO_URL and ",
+       "LUNG1_ARMADILLO_CREDENTIALS_REF.", call. = FALSE)
+}
 
 sites <- data.frame(
   server = c("opal1", "opal2", "opal3"),
@@ -43,27 +59,22 @@ sites <- data.frame(
   stringsAsFactors = FALSE
 )
 
+admin_args <- function(...) {
+  c(
+    "-m", "dsimaging_admin.cli",
+    if (nzchar(admin_profile)) c("--profile", admin_profile),
+    ...
+  )
+}
+
 publish_site <- function(row) {
   source_dir <- file.path(workdir, "sites", row$site)
   metadata <- file.path(source_dir, "metadata.csv")
-  args <- c(
-    "-m", "dsimaging_admin.cli",
-    "--endpoint", env("DSIMAGING_ENDPOINT", "http://127.0.0.1:9000"),
-    "--access-key", env("DSIMAGING_ACCESS_KEY", "minioadmin"),
-    "--secret-key", env("DSIMAGING_SECRET_KEY", "minioadmin123"),
-    "publish",
-    "--dataset-id", row$dataset,
-    "--source", source_dir,
+  args <- admin_args(
+    "dataset", "publish", row$dataset, source_dir,
     "--metadata", metadata,
-    "--modality", "ct",
-    "--resource-endpoint", env("DSIMAGING_RESOURCE_ENDPOINT", "http://minio.local:9000"),
-    "--opal-url", row$opal_url,
-    "--opal-user", env("OPAL_USER", "administrator"),
-    "--opal-password", env("OPAL_PASSWORD", "admin123"),
-    "--opal-project", env("LUNG1_OPAL_PROJECT", "dsdemo"),
-    "--opal-resource", env("LUNG1_OPAL_RESOURCE", "lung1_study"),
-    "--opal-replace",
-    "--opal-insecure"
+    "--privacy-unit-column", "patient_id",
+    "--modality", "ct"
   )
   message("Publishing ", row$dataset, " from ", source_dir)
   status <- system2(admin_python, args)
@@ -72,20 +83,72 @@ publish_site <- function(row) {
   }
 }
 
+plan_resource_site <- function(row) {
+  dir.create(resource_plan_dir, recursive = TRUE, showWarnings = FALSE)
+  args <- admin_args(
+    "dataset", "resource-plan", row$dataset,
+    "--target", resource_target,
+    "--project", resource_project,
+    "--name", resource_name,
+    "--resource-endpoint", resource_endpoint
+  )
+  if (identical(resource_target, "armadillo")) {
+    args <- c(
+      args,
+      "--armadillo-url", armadillo_url,
+      "--credentials-ref", armadillo_credentials_ref
+    )
+  }
+  plan_path <- file.path(
+    resource_plan_dir, paste0(row$site, "-", row$dataset, ".yaml"))
+  temp_path <- tempfile(pattern = ".resource-plan-", tmpdir = resource_plan_dir)
+  on.exit(unlink(temp_path), add = TRUE)
+  message("Planning ", resource_target, " Resource handoff for ", row$dataset)
+  status <- system2(admin_python, args, stdout = temp_path)
+  if (!identical(status, 0L)) {
+    stop("Resource planning failed for ", row$dataset, call. = FALSE)
+  }
+  if (!file.rename(temp_path, plan_path)) {
+    stop("Could not save Resource plan for ", row$dataset, call. = FALSE)
+  }
+  message("Resource plan: ", plan_path)
+}
+
 if (publish) {
-  for (i in seq_len(nrow(sites))) publish_site(sites[i, ])
+  for (i in seq_len(nrow(sites))) {
+    publish_site(sites[i, ])
+    if (plan_resources) plan_resource_site(sites[i, ])
+  }
 }
 
 if (only_publish) {
   message("Publish-only mode completed.")
   quit(save = "no", status = 0)
 }
+if (!identical(resource_target, "opal")) {
+  stop("The bundled live validation harness connects to Opal. Apply the ",
+       "Armadillo plans, create Armadillo conns, then use the backend-neutral ",
+       "dsImagingClient calls documented in README.md.", call. = FALSE)
+}
+
+suppressPackageStartupMessages({
+  library(DSI)
+  library(DSOpal)
+  library(dsImagingClient)
+  library(dsBaseClient)
+})
+
+opal_password <- env("OPAL_PASSWORD", "")
+if (!nzchar(opal_password)) {
+  stop("OPAL_PASSWORD must be supplied by the environment for the live ",
+       "Opal validation pass.", call. = FALSE)
+}
 
 logins <- data.frame(
   server = sites$server,
   url = sites$opal_url,
   user = env("OPAL_USER", "administrator"),
-  password = env("OPAL_PASSWORD", "admin123"),
+  password = opal_password,
   driver = "OpalDriver",
   options = "list(ssl_verifyhost=0L, ssl_verifypeer=0L)",
   profile = "default",
@@ -95,8 +158,7 @@ logins <- data.frame(
 conns <- datashield.login(logins = logins, assign = FALSE)
 on.exit(datashield.logout(conns), add = TRUE)
 
-resource <- paste0(env("LUNG1_OPAL_PROJECT", "dsdemo"), ".",
-                   env("LUNG1_OPAL_RESOURCE", "lung1_study"))
+resource <- paste0(env("LUNG1_OPAL_PROJECT", "dsdemo"), ".", resource_name)
 ds.imaging.init(conns, resource, symbol = "img")
 print(ds.imaging.metadata(conns, "img"))
 print(ds.imaging.validate(conns, "img"))

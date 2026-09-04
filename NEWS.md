@@ -1,3 +1,10 @@
+# dsImagingClient 0.3.5
+
+* The LUNG1 demo now separates atomic dataset publication from DataSHIELD
+  Resource handoff. It uses the current `dataset publish` and
+  `dataset resource-plan` commands, supports secret-free plans for Opal and
+  Armadillo, and no longer places store or Opal credentials in CLI arguments.
+
 # dsImagingClient 0.3.4
 
 * Imaging Resource initialization is backend-neutral across Opal and

@@ -24,9 +24,11 @@ LUNG1_RUN_JOBS=FALSE \
 LUNG1_TIMEOUT=0 \
 LUNG1_RUN_GLM=TRUE \
 OPAL_USER=administrator \
-OPAL_PASSWORD=admin123 \
 Rscript dsImagingClient/inst/demos/lung1_federated_study/run_lung1_datashield.R
 ```
+
+`OPAL_PASSWORD` was supplied to that process from the local test environment;
+it was not placed in the command line or recorded in the result artifact.
 
 Prepared local site folders:
 
