@@ -69,9 +69,39 @@ When the dataset was published with clinical/sample metadata,
 columns containing `-`, making the table ready for formula-based DataSHIELD
 analysis functions.
 
+For dsFlower, an opaque feature view can also join an existing server-side
+clinical table without returning either table to the client:
+
+```r
+ds.imaging.feature_view(
+  conns,
+  asset_id = published,
+  symbol = "flower_features",
+  handle = "img",
+  clinical_symbol = "clinical",
+  clinical_id_col = "patient_id",
+  clinical_columns = c("age", "stage"),
+  target_col = "diagnosis",
+  target_levels = c("control", "case")
+)
+```
+
+The clinical table contract is one row per patient. Linkage is anchored to the
+sealed dsImaging patient roster, never to image sample rows. Missing, duplicate,
+or unknown patient keys do not change success/failure or shrink the image
+cohort: their values are totalised as missing and dsFlower applies its public
+feature/target defaults before patient-level DP training. Extra clinical rows
+are ignored.
+
+Omit `clinical_symbol` and the other clinical arguments to retain the original
+manifest-metadata feature-view workflow. For a numeric outcome, set
+`target_col` and leave `target_levels = NULL`.
+
 `timeout = 0` starts the workflow and returns immediately. The server-side
-workflow owns discovery, deduplication, batching, and publication state, so the
-analyst can disconnect immediately after assignment.
+dsHPC jobs own durable execution state, but the workflow reference is bound to
+the live DataSHIELD session. Poll, recover, and publish from that same session;
+disconnecting invalidates the client capability even though node-side jobs and
+artifacts remain available to administrators.
 
 To use existing manual or model-derived masks from `dsimaging-store`, publish
 them under `source/masks/` and use:
@@ -152,7 +182,13 @@ A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled
 under `inst/demos/lung1_federated_study`. It prepares CT + RTSTRUCT `GTV-1`
 masks, publishes three simulated sites with `dsimaging-admin`, runs
 dsHPC-backed Aerts radiomics through `dsImaging`, and compares the federated
-DataSHIELD feature summaries with a central PyRadiomics baseline. The full
-validation path uses 422 public LUNG1 patients that passed conversion and is
+DataSHIELD feature summaries with a central PyRadiomics baseline. The historical
+full validation used 422 public LUNG1 patients that passed conversion and is
 aligned with the public Aerts/LUNG1 radiomics workflow rather than with a
 synthetic imaging fixture.
+
+The demo also includes `run_lung1_linked_dslite.R`, a one-node engineering
+acceptance that keeps `clinical.csv` as a normal DataSHIELD table, publishes
+only structural imaging metadata, builds an opaque radiomics feature view, and
+trains a patient-DP dsFlower logistic model. It is a systems demonstration, not
+clinical validation or a three-node federation.

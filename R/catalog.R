@@ -107,7 +107,8 @@ ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
 #' Assigns a complete radiomics/feature asset behind a session-bound capability.
 #' Unlike \code{ds.imaging.load_asset()}, this never places a data.frame in the
 #' workspace: dsFlower receives the patient mapping only through dsImaging's
-#' trusted same-session resolver.
+#' trusted same-session resolver. Optionally, the server can join an existing
+#' clinical table under the same opaque view contract.
 #'
 #' @param conns DSI connections object.
 #' @param asset_id Character asset id/alias used on every server, a named list
@@ -115,13 +116,41 @@ ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
 #' @param symbol Character; target feature-view symbol.
 #' @param columns Optional public feature-column selection.
 #' @param handle Character; initialized imaging handle.
+#' @param clinical_symbol Character or NULL; existing server-side clinical table
+#'   to join to the imaging feature asset.
+#' @param clinical_id_col Character; one patient identifier per row in the
+#'   external clinical table. It is joined to dsImaging's sealed patient roster.
+#' @param clinical_columns Optional clinical columns to retain.
+#' @param target_col Character or NULL; classification target or numeric outcome
+#'   column in the external clinical table.
+#' @param target_levels Optional approved vocabulary for a classification
+#'   \code{target_col}; leave NULL for a numeric outcome.
 #' @return Invisibly TRUE.
 #' @export
 ds.imaging.feature_view <- function(conns, asset_id,
                                     symbol = "imaging_features",
-                                    columns = NULL, handle = "img") {
+                                    columns = NULL, handle = "img",
+                                    clinical_symbol = NULL,
+                                    clinical_id_col = "patient_id",
+                                    clinical_columns = NULL,
+                                    target_col = NULL,
+                                    target_levels = NULL) {
   asset_ids <- .imaging_asset_ids_by_server(conns, asset_id)
   columns_arg <- if (is.null(columns)) NULL else .ds_encode(columns)
+  clinical_columns_arg <- if (is.null(clinical_columns)) {
+    NULL
+  } else {
+    .ds_encode(clinical_columns)
+  }
+  target_levels_arg <- if (is.null(target_levels)) {
+    NULL
+  } else {
+    .ds_encode(target_levels)
+  }
+  extended_contract <- !is.null(clinical_symbol) ||
+    !identical(clinical_id_col, "patient_id") ||
+    !is.null(clinical_columns) || !is.null(target_col) ||
+    !is.null(target_levels)
   .imaging_require_symbol_absent(conns, symbol)
   assigned <- character()
   completed <- FALSE
@@ -143,10 +172,16 @@ ds.imaging.feature_view <- function(conns, asset_id,
   for (host in names(asset_ids)) {
     .imaging_assign_exact(conns[host], "Imaging feature-view assignment",
       function(success, error) {
+        expr <- if (extended_contract) {
+          call("imagingFeatureViewDS", handle, asset_ids[[host]], columns_arg,
+            clinical_symbol, clinical_id_col, clinical_columns_arg,
+            target_col, target_levels_arg)
+        } else {
+          call("imagingFeatureViewDS", handle, asset_ids[[host]], columns_arg)
+        }
         DSI::datashield.assign.expr(
           conns[host], symbol = symbol,
-          expr = call(
-            "imagingFeatureViewDS", handle, asset_ids[[host]], columns_arg),
+          expr = expr,
           success = success, error = error, errors.print = FALSE)
       })
     assigned <- c(assigned, host)

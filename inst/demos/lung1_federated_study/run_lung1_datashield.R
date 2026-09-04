@@ -85,7 +85,10 @@ admin_args <- function(...) {
 
 publish_site <- function(row) {
   source_dir <- file.path(workdir, "sites", row$site)
-  metadata <- file.path(source_dir, "metadata.csv")
+  # This older harness deliberately republishes clinical.csv because it is an
+  # administrator-run comparison over the explicitly public LUNG1 dataset.
+  # The ordinary/default publish path uses structural metadata.csv instead.
+  metadata <- file.path(source_dir, "clinical.csv")
   args <- admin_args(
     "dataset", "publish", row$dataset, source_dir,
     "--metadata", metadata,

@@ -53,6 +53,11 @@ def main() -> int:
     clinical = load_clinical(workdir)
     available = set(fetch_patients())
     clinical = clinical[clinical["sample_id"].isin(available)].copy()
+    eligible = (
+        clinical[["age", "gender_male", "os_2yr_alive"]].notna().all(axis=1)
+        & clinical["age"].between(0, 120)
+    )
+    clinical = clinical[eligible].copy()
 
     raw_dir = workdir / "raw"
     nifti_images = workdir / "nifti" / "images"
@@ -154,7 +159,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--all-patients",
         action="store_true",
-        help="Prepare every available LUNG1 patient instead of a balanced validation cohort",
+        help=(
+            "Prepare every eligible available LUNG1 patient instead of a "
+            "balanced validation cohort"
+        ),
     )
     parser.add_argument(
         "--dry-run",
@@ -216,6 +224,8 @@ def load_clinical(workdir: Path) -> pd.DataFrame:
     if not path.exists():
         download_file(CLINICAL_URL, path)
     df = pd.read_csv(path)
+    gender = df["gender"].astype("string")
+    gender_lower = gender.str.strip().str.lower()
     clean = pd.DataFrame({
         "sample_id": df["PatientID"].astype(str),
         "patient_id": df["PatientID"].astype(str),
@@ -225,8 +235,12 @@ def load_clinical(workdir: Path) -> pd.DataFrame:
         "clinical_m_stage": pd.to_numeric(df["Clinical.M.Stage"], errors="coerce"),
         "overall_stage": df["Overall.Stage"].astype(str),
         "histology": df["Histology"].astype(str),
-        "gender": df["gender"].astype(str),
-        "gender_male": (df["gender"].astype(str).str.lower() == "male").astype(int),
+        "gender": gender,
+        "gender_male": np.where(
+            gender_lower == "male",
+            1,
+            np.where(gender_lower == "female", 0, np.nan),
+        ),
         "survival_time_days": pd.to_numeric(df["Survival.time"], errors="coerce"),
         "deadstatus_event": pd.to_numeric(df["deadstatus.event"], errors="coerce"),
     })
@@ -608,9 +622,18 @@ def write_site_folders(workdir: Path, selected: dict[str, list[str]],
                 mask_dir / f"{patient_id}_{roi_name}.nii.gz",
                 masks / f"{patient_id}_{roi_name}.nii.gz",
             )
-        metadata = clinical_by_id.loc[patient_ids].copy()
-        metadata["site"] = site
-        metadata.to_csv(site_dir / "metadata.csv", index=False)
+        clinical_metadata = clinical_by_id.loc[patient_ids].copy()
+        clinical_metadata["site"] = site
+        structural_metadata = clinical_metadata[["sample_id", "patient_id"]]
+        # dsimaging-admin auto-detects metadata.csv. Keep that default free of
+        # clinical covariates so a simple publish cannot move them into the
+        # imaging store by accident. imaging_metadata.csv remains an explicit
+        # alias for scripts that predate this safe default.
+        structural_metadata.to_csv(site_dir / "metadata.csv", index=False)
+        structural_metadata.to_csv(
+            site_dir / "imaging_metadata.csv", index=False
+        )
+        clinical_metadata.to_csv(site_dir / "clinical.csv", index=False)
 
 
 def run_central_radiomics(selected: dict[str, list[str]], image_dir: Path,

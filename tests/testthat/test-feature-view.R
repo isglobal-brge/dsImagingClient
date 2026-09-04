@@ -16,9 +16,10 @@ test_that("feature_view assigns the opaque server method per node", {
 
   expect_true(ds.imaging.feature_view(
     list(site1 = NULL, site2 = NULL),
-    asset_id = c(site1 = "asset_one", site2 = "asset_two"),
-    symbol = "radiomics_view", columns = c("mean", "energy"),
-    handle = "img"))
+    c(site1 = "asset_one", site2 = "asset_two"),
+    "radiomics_view", c("mean", "energy"), "img",
+    clinical_symbol = NULL, clinical_id_col = "patient_id",
+    clinical_columns = NULL, target_col = NULL, target_levels = NULL))
 
   expect_length(calls, 2L)
   expect_true(all(vapply(calls, function(call) {
@@ -34,6 +35,52 @@ test_that("feature_view assigns the opaque server method per node", {
   expect_identical(
     calls[[1L]]$expr[[4L]],
     dsImagingClient:::.ds_encode(c("mean", "energy")))
+  expect_length(calls[[1L]]$expr, 4L)
+  expect_true(all(vapply(as.list(calls[[1L]]$expr)[-1L], function(value) {
+    is.atomic(value) || is.symbol(value) || is.null(value)
+  }, logical(1))))
+})
+
+test_that("feature_view encodes an external clinical table contract", {
+  state <- list(site1 = character(), site2 = character())
+  calls <- list()
+  local_mocked_bindings(
+    datashield.symbols = function(conns, ...) state[names(conns)],
+    datashield.assign.expr = function(conns, symbol, expr, success, ...) {
+      host <- names(conns)[[1L]]
+      calls[[length(calls) + 1L]] <<- list(
+        host = host, symbol = symbol, expr = expr)
+      state[[host]] <<- unique(c(state[[host]], symbol))
+      success(host)
+      invisible(NULL)
+    },
+    .package = "DSI"
+  )
+
+  expect_true(ds.imaging.feature_view(
+    list(site1 = NULL, site2 = NULL),
+    asset_id = c(site1 = "asset_one", site2 = "asset_two"),
+    symbol = "radiomics_view", columns = c("mean", "energy"),
+    handle = "img", clinical_symbol = "clinical",
+    clinical_id_col = "participant_id",
+    clinical_columns = c("age", "stage"), target_col = "diagnosis",
+    target_levels = c("control", "case")))
+
+  expect_length(calls, 2L)
+  expect_true(all(vapply(calls, function(x) length(x$expr) == 9L,
+    logical(1))))
+  expect_identical(calls[[1L]]$expr[[2L]], "img")
+  expect_identical(calls[[1L]]$expr[[3L]], "asset_one")
+  expect_identical(calls[[2L]]$expr[[3L]], "asset_two")
+  expect_identical(calls[[1L]]$expr[[4L]],
+    dsImagingClient:::.ds_encode(c("mean", "energy")))
+  expect_identical(calls[[1L]]$expr[[5L]], "clinical")
+  expect_identical(calls[[1L]]$expr[[6L]], "participant_id")
+  expect_identical(calls[[1L]]$expr[[7L]],
+    dsImagingClient:::.ds_encode(c("age", "stage")))
+  expect_identical(calls[[1L]]$expr[[8L]], "diagnosis")
+  expect_identical(calls[[1L]]$expr[[9L]],
+    dsImagingClient:::.ds_encode(c("control", "case")))
   expect_true(all(vapply(as.list(calls[[1L]]$expr)[-1L], function(value) {
     is.atomic(value) || is.symbol(value) || is.null(value)
   }, logical(1))))
@@ -64,7 +111,7 @@ test_that("feature_view destroy uses the registry-aware destroy method", {
 })
 
 test_that("partial feature_view assignment rolls back only successful nodes", {
-  state <- list(site1 = character(), site2 = character())
+  state <- list(site1 = "clinical", site2 = "clinical")
   methods <- character()
   local_mocked_bindings(
     datashield.symbols = function(conns, ...) state[names(conns)],
@@ -91,8 +138,10 @@ test_that("partial feature_view assignment rolls back only successful nodes", {
 
   expect_error(ds.imaging.feature_view(
     list(site1 = NULL, site2 = NULL), asset_id = "asset_public",
-    symbol = "radiomics_view"), "site2")
-  expect_identical(state$site1, character())
-  expect_identical(state$site2, character())
+    symbol = "radiomics_view", clinical_symbol = "clinical",
+    clinical_columns = "age", target_col = "diagnosis",
+    target_levels = c("control", "case")), "site2")
+  expect_identical(state$site1, "clinical")
+  expect_identical(state$site2, "clinical")
   expect_true("site1:imagingFeatureViewDestroyDS" %in% methods)
 })

@@ -1,3 +1,14 @@
+# dsImagingClient 0.3.6
+
+* `ds.imaging.feature_view()` can now request a patient-keyed join with a normal
+  server-side clinical table and declare the public target vocabulary, while
+  keeping the resulting study behind an opaque capability for dsFlower.
+* The bundled LUNG1 acceptance demonstrates the complete clinical-table,
+  dsimaging-store, dsHPC radiomics, opaque-view, and patient-DP dsFlower path.
+  Its default publish metadata is structural only, its clinical table remains
+  separate, and its checked-in evidence contains no patient, asset, path, or
+  exact cohort identifiers.
+
 # dsImagingClient 0.3.5
 
 * The LUNG1 demo now separates atomic dataset publication from DataSHIELD

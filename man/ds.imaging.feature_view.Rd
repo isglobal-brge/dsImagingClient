@@ -9,7 +9,12 @@ ds.imaging.feature_view(
   asset_id,
   symbol = "imaging_features",
   columns = NULL,
-  handle = "img"
+  handle = "img",
+  clinical_symbol = NULL,
+  clinical_id_col = "patient_id",
+  clinical_columns = NULL,
+  target_col = NULL,
+  target_levels = NULL
 )
 }
 \arguments{
@@ -23,6 +28,20 @@ with one id per server, or a workflow-status result.}
 \item{columns}{Optional public feature-column selection.}
 
 \item{handle}{Character; initialized imaging handle.}
+
+\item{clinical_symbol}{Character or NULL; existing server-side clinical table
+to join to the imaging feature asset.}
+
+\item{clinical_id_col}{Character; one patient identifier per row in the
+external clinical table. It is joined to dsImaging's sealed patient roster.}
+
+\item{clinical_columns}{Optional clinical columns to retain.}
+
+\item{target_col}{Character or NULL; classification target or numeric outcome
+column in the external clinical table.}
+
+\item{target_levels}{Optional approved vocabulary for a classification
+\code{target_col}; leave NULL for a numeric outcome.}
 }
 \value{
 Invisibly TRUE.
@@ -31,5 +50,6 @@ Invisibly TRUE.
 Assigns a complete radiomics/feature asset behind a session-bound capability.
 Unlike \code{ds.imaging.load_asset()}, this never places a data.frame in the
 workspace: dsFlower receives the patient mapping only through dsImaging's
-trusted same-session resolver.
+trusted same-session resolver. Optionally, the server can join an existing
+clinical table under the same opaque view contract.
 }

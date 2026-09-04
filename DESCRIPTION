@@ -1,7 +1,7 @@
 Package: dsImagingClient
 Type: Package
 Title: DataSHIELD Client for Clinical Imaging Workflows
-Version: 0.3.5
+Version: 0.3.6
 Authors@R:
     c(person("David", "Sarrat González", , "david.sarrat@isglobal.org", role = c("aut", "cre")),
       person("Xavier", "Escribà-Montagut", , "xavier.escriba@isglobal.org", role = c("aut")),

@@ -1,5 +1,11 @@
 # Current Results
 
+> Historical public-data engineering record. Exact counts, identifiers, and
+> summaries below were collected by the local administrator from the public
+> LUNG1 dataset; they are not DataSHIELD-safe outputs or a template for a
+> protected cohort. For the current opaque table-to-imaging-to-dsFlower path,
+> use `run_lung1_linked_dslite.R` and `LINKED_DSLITE_EVIDENCE.json`.
+
 Run date: 2026-05-09
 
 Dataset: TCIA NSCLC-Radiomics/LUNG1, 422 real patients with CT images and
@@ -111,9 +117,9 @@ Fixed-effect pooled estimates from `ds.glmSLMA()`:
 
 Notes:
 
-- `process_collection()` status applies DataSHIELD metadata bucketing; the
-  bucketed per-site total is `128`, while `ds.dim("rad")` and the local study
-  manifest show the exact engineering counts above.
+- `process_collection()` status applies DataSHIELD metadata bucketing. Exact
+  counts above came from the administrator's local public-data manifest, not
+  from a supported analyst-side count query.
 - Admin job listing/cancellation was enabled through the demo admin key and
   verified separately: a wrong key was rejected on all three Opals, while the
   configured key could list imaging jobs.

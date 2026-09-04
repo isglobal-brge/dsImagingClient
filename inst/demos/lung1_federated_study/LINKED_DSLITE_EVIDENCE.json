@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "validated_on": "2026-09-04",
+  "demo": "lung1-linked-dslite",
+  "scope": "engineering systems demonstration; not clinical validation",
+  "public_dataset": "TCIA NSCLC-Radiomics (LUNG1)",
+  "site": "site_a",
+  "cohort_size": "not released by the workflow",
+  "imaging_metadata_columns": ["sample_id", "patient_id"],
+  "clinical_table_separate": true,
+  "radiomics_profile": "aerts_signature",
+  "radiomics_published": true,
+  "opaque_feature_view": true,
+  "privacy_unit": "patient",
+  "minimum_privacy_units": 10,
+  "dp_epsilon_per_training": 1,
+  "dp_delta_per_training": 1e-06,
+  "model": "pytorch_logreg",
+  "rounds": 1,
+  "model_artifact_available": true,
+  "pass": true
+}
