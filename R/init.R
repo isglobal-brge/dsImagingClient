@@ -124,7 +124,8 @@ ds.imaging.destroy <- function(conns, symbol = "img") {
 
 .imaging_validate_symbol <- function(symbol) {
   if (!is.character(symbol) || length(symbol) != 1L || is.na(symbol) ||
-      !grepl("^[A-Za-z][A-Za-z0-9._]{0,127}$", symbol)) {
+      !grepl("^[A-Za-z][A-Za-z0-9._]{0,127}$", symbol) ||
+      !identical(make.names(symbol), symbol)) {
     stop("A visible DataSHIELD symbol beginning with a letter is required.",
       call. = FALSE)
   }
@@ -147,6 +148,20 @@ ds.imaging.destroy <- function(conns, symbol = "img") {
     stop("Target DataSHIELD symbol already exists on: ",
       paste(occupied, collapse = ", "), ". Remove it or choose another symbol.",
       call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+.imaging_require_symbol_present <- function(conns, symbol) {
+  symbol <- .imaging_validate_symbol(symbol)
+  observed <- tryCatch(DSI::datashield.symbols(conns), error = function(e) NULL)
+  hosts <- names(conns)
+  if (is.null(observed) || !length(hosts) ||
+      !all(hosts %in% names(observed)) || any(vapply(hosts, function(host) {
+        !symbol %in% as.character(observed[[host]])
+      }, logical(1)))) {
+    stop("The shared output symbol is not available on every server.",
+         call. = FALSE)
   }
   invisible(TRUE)
 }

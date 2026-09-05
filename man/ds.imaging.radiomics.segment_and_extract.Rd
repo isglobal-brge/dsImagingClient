@@ -10,7 +10,7 @@ ds.imaging.radiomics.segment_and_extract(
   image_asset = "images",
   segmenter,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-  visibility = "private",
+  visibility = "shared",
   batch_size = 10L,
   poll_interval = 15,
   timeout = 14400,
@@ -30,8 +30,8 @@ derives it from \code{handle} and verifies any supplied value.}
 
 \item{profile}{A radiomics profile from ds.imaging.radiomics.profile.*().}
 
-\item{visibility}{Compatibility argument; analytical workflows only accept
-\code{"private"}. Global publication is administrator-only.}
+\item{visibility}{Compatibility argument. Complete validated outputs are
+shared server-side; this argument cannot alter server publication policy.}
 
 \item{batch_size}{Retained for source compatibility; the dedicated chained
 workflow is one server-owned job and does not accept client-side batches.}

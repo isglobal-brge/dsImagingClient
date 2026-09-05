@@ -10,7 +10,7 @@ ds.imaging.dicom.convert(
   dicom_asset = "dicom",
   output_asset = "nifti_images",
   converter = "simpleitk",
-  visibility = "private",
+  visibility = "shared",
   alias = NULL,
   handle = "img"
 )

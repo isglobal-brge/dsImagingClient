@@ -24,6 +24,32 @@ test_that("workflow status projects one exact safe response per server", {
     identical(expr[[2L]], "workflow"), logical(1))))
 })
 
+test_that("workflow status requires state and terminal flag to agree", {
+  expect_error(dsImagingClient:::.imaging_project_workflow_status(
+    list(state = "RUNNING", is_done = TRUE)),
+  "invalid response", fixed = TRUE)
+  expect_error(dsImagingClient:::.imaging_project_workflow_status(
+    list(state = "FAILED", is_done = FALSE)),
+  "invalid response", fixed = TRUE)
+})
+
+test_that("workflow status rejects partial fields and strips attributes", {
+  expect_error(dsImagingClient:::.imaging_project_workflow_status(list(
+    state_private = "RUNNING", is_done_private = FALSE)),
+    "invalid response", fixed = TRUE)
+  expect_error(dsImagingClient:::.imaging_project_workflow_status(structure(
+    list(state = "RUNNING", is_done = FALSE, state = "FAILED"),
+    names = c("state", "is_done", "state"))),
+    "invalid response", fixed = TRUE)
+
+  value <- list(
+    state = structure("RUNNING", private = "cohort"),
+    is_done = structure(FALSE, private = "cohort"))
+  projected <- dsImagingClient:::.imaging_project_workflow_status(value)
+  expect_null(attr(projected$state, "private"))
+  expect_null(attr(projected$is_done, "private"))
+})
+
 test_that("workflow status fails closed on one missing server response", {
   conns <- list(site_a = list(), site_b = list())
   testthat::local_mocked_bindings(

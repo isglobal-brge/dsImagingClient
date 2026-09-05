@@ -7,8 +7,8 @@
 #'   derives it from \code{handle} and verifies any supplied value.
 #' @param image_asset Character; asset_id or alias for images.
 #' @param segmenter A segmenter from ds.imaging.segmenter.*().
-#' @param visibility Compatibility argument; analytical workflows only accept
-#'   \code{"private"}. Global publication is administrator-only.
+#' @param visibility Compatibility argument. Complete validated outputs are
+#'   shared server-side; this argument cannot alter server publication policy.
 #' @param alias Character or NULL; alias for the published mask.
 #' @param symbol Character or NULL; target server-side symbol for the workflow
 #'   handle. If NULL, a temporary symbol is generated.
@@ -16,10 +16,10 @@
 #' @return A domain-mediated workflow submission handle.
 #' @export
 ds.imaging.segment <- function(conns, dataset_id = NULL, image_asset = "images",
-                                   segmenter, visibility = "private",
+                                   segmenter, visibility = "shared",
                                    alias = NULL, symbol = NULL,
                                    handle = "img") {
-  .require_private_workflow_visibility(visibility)
+  .require_shared_workflow_visibility(visibility)
   request <- list(handle = handle, dataset_id = dataset_id, image_asset = image_asset,
     segmenter = segmenter, alias = alias)
   .assign_domain_workflow(conns, "imagingProcessSegmentationCollectionDS",

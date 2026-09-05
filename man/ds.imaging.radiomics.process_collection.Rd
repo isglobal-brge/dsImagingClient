@@ -12,7 +12,7 @@ ds.imaging.radiomics.process_collection(
   batch_size = 10L,
   poll_interval = 15,
   timeout = 14400,
-  visibility = "private",
+  visibility = "shared",
   handle = "img",
   symbol = NULL
 )
@@ -34,8 +34,8 @@ derives it from \code{handle} and verifies any supplied value.}
 \item{timeout}{Numeric; max seconds to wait (default 14400 = 4 hours).
 Set to 0 to return immediately after kick-off (fire and forget).}
 
-\item{visibility}{Compatibility argument; analytical workflows only accept
-\code{"private"}. Global publication is administrator-only.}
+\item{visibility}{Compatibility argument. Complete validated outputs are
+shared server-side; this argument cannot alter server publication policy.}
 
 \item{handle}{Character; initialized imaging handle (default \code{"img"}).}
 

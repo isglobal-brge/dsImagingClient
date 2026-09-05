@@ -15,18 +15,31 @@
     datashield.errors.print = FALSE,
     progress_enabled = FALSE)
   on.exit(options(previous), add = TRUE)
-  force(code)
+  had_warning <- FALSE
+  result <- withCallingHandlers(force(code),
+    warning = function(condition) {
+      had_warning <<- TRUE
+      invokeRestart("muffleWarning")
+    },
+    message = function(condition) invokeRestart("muffleMessage"))
+  if (isTRUE(had_warning)) {
+    warning("Remote dsImaging request produced a warning.", call. = FALSE)
+  }
+  result
 }
 
-#' Validate the retained compatibility argument for analytical workflows.
+#' Validate the shared-output argument for analytical workflows.
 #'
-#' Workflow visibility is enforced as private by dsImaging. Global publication
-#' is an administrator operation and is not available through DataSHIELD.
+#' Complete disclosure-validated workflow outputs are reusable node-wide.
+#' `"private"` and `"global"` remain accepted as source-compatible spellings;
+#' neither changes the server policy for a completed analytical output.
 #' @keywords internal
-.require_private_workflow_visibility <- function(visibility) {
+.require_shared_workflow_visibility <- function(visibility) {
   if (!is.character(visibility) || length(visibility) != 1L ||
-      is.na(visibility) || !identical(visibility, "private")) {
-    stop("Analytical imaging workflows are always private.", call. = FALSE)
+      is.na(visibility) ||
+      !visibility %in% c("shared", "private", "global")) {
+    stop("Analytical imaging workflows use shared validated outputs.",
+         call. = FALSE)
   }
   invisible(TRUE)
 }
@@ -106,6 +119,20 @@
     servers = if (inherits(conns, "DSConnection")) "default" else names(conns),
     submitted_at = Sys.time()
   )
+  tracking <- tryCatch(suppressWarnings({
+    status <- .ds_safe_aggregate(
+      conns, expr = call("imagingWorkflowStatusDS", symbol))
+    exact <- .imaging_exact_workflow_results(
+      status, conns, "Workflow tracking")
+    projected <- lapply(exact, .imaging_project_workflow_status)
+    if (all(vapply(projected, function(value) {
+      !is.null(value$tracking_id)
+    }, logical(1)))) {
+      ids <- vapply(projected, `[[`, character(1), "tracking_id")
+      if (length(ids) == 1L) unname(ids) else ids
+    } else NULL
+  }), error = function(e) NULL)
+  if (!is.null(tracking)) out$tracking_id <- tracking
   class(out) <- c("dsimaging_domain_submission", "list")
   out
 }
@@ -142,22 +169,31 @@
     expr <- as.call(c(list(as.name(expr)), list(...)))
   }
 
-  server_names <- if (inherits(conns, "DSConnection")) "default" else names(conns)
+  single_connection <- inherits(conns, "DSConnection")
+  server_names <- if (single_connection) "default" else names(conns)
   results <- list()
   errors <- list()
   for (srv in server_names) {
     tryCatch({
       res <- .with_quiet_datashield_transport(
         DSI::datashield.aggregate(
-          if (srv == "default") conns else conns[srv],
+          if (single_connection) conns else conns[srv],
           expr = expr))
-      results[[srv]] <- if (srv == "default") {
+      if (!single_connection && is.list(res) && !is.null(names(res)) &&
+          sum(names(res) == srv) > 1L) {
+        stop("Remote dsImaging request failed.", call. = FALSE)
+      }
+      value <- if (single_connection) {
         res
-      } else if (is.list(res) && srv %in% names(res)) {
+      } else if (is.list(res) && sum(names(res) == srv) == 1L) {
         res[[srv]]
       } else {
         res
       }
+      if (is.null(value)) {
+        stop("Remote dsImaging request failed.", call. = FALSE)
+      }
+      results[[srv]] <- value
     }, error = function(e) {
       # Remote conditions can contain node paths, storage URIs, sample ids, or
       # backend diagnostics. Retain only which configured node failed.

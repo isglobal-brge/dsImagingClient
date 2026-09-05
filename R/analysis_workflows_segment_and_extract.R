@@ -11,8 +11,8 @@
 #' @param image_asset Character; asset_id or alias for images.
 #' @param segmenter A segmenter from ds.imaging.segmenter.*().
 #' @param profile A radiomics profile from ds.imaging.radiomics.profile.*().
-#' @param visibility Compatibility argument; analytical workflows only accept
-#'   \code{"private"}. Global publication is administrator-only.
+#' @param visibility Compatibility argument. Complete validated outputs are
+#'   shared server-side; this argument cannot alter server publication policy.
 #' @param batch_size Retained for source compatibility; the dedicated chained
 #'   workflow is one server-owned job and does not accept client-side batches.
 #' @param poll_interval Numeric; seconds between status checks.
@@ -26,13 +26,13 @@ ds.imaging.radiomics.segment_and_extract <- function(conns, dataset_id = NULL,
                                                image_asset = "images",
                                                segmenter,
                                                profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-                                               visibility = "private",
+                                               visibility = "shared",
                                                batch_size = 10L,
                                                poll_interval = 15,
                                                timeout = 14400,
                                                handle = "img",
                                                symbol = NULL) {
-  .require_private_workflow_visibility(visibility)
+  .require_shared_workflow_visibility(visibility)
   request <- list(
     handle = handle,
     dataset_id = dataset_id,

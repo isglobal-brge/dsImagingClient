@@ -19,8 +19,8 @@
 #' @param poll_interval Numeric; seconds between status checks (default 15).
 #' @param timeout Numeric; max seconds to wait (default 14400 = 4 hours).
 #'   Set to 0 to return immediately after kick-off (fire and forget).
-#' @param visibility Compatibility argument; analytical workflows only accept
-#'   \code{"private"}. Global publication is administrator-only.
+#' @param visibility Compatibility argument. Complete validated outputs are
+#'   shared server-side; this argument cannot alter server publication policy.
 #' @param handle Character; initialized imaging handle (default \code{"img"}).
 #' @param symbol Character or NULL; target server-side workflow symbol. If NULL,
 #'   a temporary symbol is generated.
@@ -44,10 +44,10 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
                                              batch_size = 10L,
                                              poll_interval = 15,
                                              timeout = 14400,
-                                             visibility = "private",
+                                             visibility = "shared",
                                              handle = "img",
                                              symbol = NULL) {
-  .require_private_workflow_visibility(visibility)
+  .require_shared_workflow_visibility(visibility)
   request <- list(
     handle = handle,
     dataset_id = dataset_id,
@@ -73,7 +73,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
     status <- .collection_project(
       .collection_aggregate(
         conns, "imagingCollectionStatusDS", submission$symbol),
-      c("state", "is_done", "asset_id"))
+      c("state", "is_done", "asset_id", "tracking_id"))
     if (length(status) == 0L) {
       .ds_first_result(status,
         paste("Collection status", submission$symbol))
@@ -134,7 +134,7 @@ ds.imaging.radiomics.process_collection <- function(conns, dataset_id = NULL,
 ds.imaging.radiomics.collection_status <- function(conns, symbol) {
   status <- .collection_project(
     .collection_aggregate(conns, "imagingCollectionStatusDS", symbol),
-    c("state", "is_done", "asset_id"))
+    c("state", "is_done", "asset_id", "tracking_id"))
   .collection_response(status, paste("Collection status", symbol))
 }
 
@@ -150,7 +150,7 @@ ds.imaging.radiomics.collection_status <- function(conns, symbol) {
 ds.imaging.radiomics.collection_recover <- function(conns, symbol) {
   status <- .collection_project(
     .collection_aggregate(conns, "imagingCollectionRecoverDS", symbol),
-    c("state", "is_done", "asset_id"))
+    c("state", "is_done", "asset_id", "tracking_id"))
   .collection_response(status, paste("Collection recovery", symbol))
 }
 
@@ -237,6 +237,15 @@ ds.imaging.radiomics.collection_publish <- function(conns, symbol) {
       stop("Collection response did not satisfy its public schema.",
            call. = FALSE)
     }
+    if (!is.null(value$tracking_id) &&
+        (!is.character(value$tracking_id) ||
+         length(value$tracking_id) != 1L || is.na(value$tracking_id) ||
+         !grepl(paste0("^trk_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-",
+                       "[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
+                value$tracking_id))) {
+      stop("Collection response did not satisfy its public schema.",
+           call. = FALSE)
+    }
     value
   })
   if (length(errors) > 0L) attr(projected, "ds_errors") <- errors
@@ -253,6 +262,6 @@ ds.imaging.radiomics.collection_publish <- function(conns, symbol) {
   message("Publishing collection workflow '", symbol, "'...")
   pub <- .collection_project(
     .collection_aggregate(conns, "imagingCollectionPublishDS", symbol),
-    c("state", "asset_id"))
+    c("state", "asset_id", "tracking_id"))
   .collection_response(pub, paste("Collection publish", symbol))
 }

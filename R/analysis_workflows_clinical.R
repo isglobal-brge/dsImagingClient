@@ -1,7 +1,7 @@
 # Module: Clinical Imaging Workflows
 # Generic imaging jobs beyond segmentation/radiomics.
-# The retained visibility arguments accept only "private"; global publication
-# is an administrator-only server operation outside DataSHIELD.
+# Complete validated outputs are shared server-side; the retained visibility
+# arguments are client compatibility controls and never expose raw artifacts.
 
 #' Convert one-file DICOM samples to NIfTI images
 #'
@@ -23,7 +23,7 @@ ds.imaging.dicom.convert <- function(conns, dataset_id = NULL,
                                      dicom_asset = "dicom",
                                      output_asset = "nifti_images",
                                      converter = "simpleitk",
-                                     visibility = "private",
+                                     visibility = "shared",
                                      alias = NULL,
                                      handle = "img") {
   config <- .compact_list(list(
@@ -64,7 +64,7 @@ ds.imaging.preprocess <- function(conns, dataset_id = NULL,
                                   lower = -1000,
                                   upper = 1000,
                                   output_asset = "preprocessed_images",
-                                  visibility = "private",
+                                  visibility = "shared",
                                   alias = NULL,
                                   handle = "img") {
   config <- .compact_list(list(
@@ -116,7 +116,7 @@ ds.imaging.mask.operation <- function(conns, dataset_id = NULL, operation,
                                       min_voxels = 1L,
                                       max_components = 1L,
                                       output_asset = paste0(mask_asset, "_", operation),
-                                      visibility = "private",
+                                      visibility = "shared",
                                       alias = NULL,
                                       handle = "img") {
   config <- .compact_list(list(
@@ -158,7 +158,7 @@ ds.imaging.qc.metrics <- function(conns, dataset_id = NULL,
                                   image_asset = "images",
                                   mask_asset = NULL,
                                   output_asset = "imaging_qc",
-                                  visibility = "private",
+                                  visibility = "shared",
                                   alias = NULL,
                                   handle = "img") {
   config <- .compact_list(list(
@@ -193,7 +193,7 @@ ds.imaging.rt.convert <- function(conns, dataset_id = NULL,
                                   reference_asset = "images",
                                   rois = NULL,
                                   output_asset = "rt_masks",
-                                  visibility = "private",
+                                  visibility = "shared",
                                   alias = NULL,
                                   handle = "img") {
   stop("RT conversion is unavailable until an exact patient-sample mapping is implemented.",
@@ -219,7 +219,7 @@ ds.imaging.rt.dose <- function(conns, dataset_id = NULL,
                                plan_asset = "rt_plan",
                                mask_asset = NULL,
                                output_asset = "rt_dose_metrics",
-                               visibility = "private",
+                               visibility = "shared",
                                alias = NULL,
                                handle = "img") {
   stop("RT dose analysis is unavailable until an exact patient-sample mapping is implemented.",
@@ -251,7 +251,7 @@ ds.imaging.qc.visuals <- function(conns, dataset_id = NULL,
                                   max_images = 24L,
                                   anonymize_names = TRUE,
                                   output_asset = "qc_visuals",
-                                  visibility = "private",
+                                  visibility = "shared",
                                   alias = NULL,
                                   handle = "img") {
   config <- .compact_list(list(
@@ -299,7 +299,7 @@ ds.imaging.spatial.process <- function(conns, dataset_id = NULL,
                                        spacing = NULL,
                                        crop_size = NULL,
                                        output_asset = "spatial_images",
-                                       visibility = "private",
+                                       visibility = "shared",
                                        alias = NULL,
                                        handle = "img") {
   config <- .compact_list(list(
@@ -341,7 +341,7 @@ ds.imaging.wsi.tile <- function(conns, dataset_id = NULL, wsi_asset = "wsi",
                                 tissue_threshold = 0.10,
                                 write_tiles = TRUE,
                                 output_asset = "wsi_tiles",
-                                visibility = "private",
+                                visibility = "shared",
                                 alias = NULL,
                                 handle = "img") {
   stop("WSI tiling is unavailable until an exact patient-sample mapping is implemented.",
@@ -368,7 +368,7 @@ ds.imaging.embeddings.extract <- function(conns, dataset_id = NULL,
                                           model = "intensity_histogram",
                                           bins = 32L,
                                           output_asset = "image_embeddings",
-                                          visibility = "private",
+                                          visibility = "shared",
                                           alias = NULL,
                                           handle = "img") {
   config <- .compact_list(list(
@@ -386,9 +386,9 @@ ds.imaging.embeddings.extract <- function(conns, dataset_id = NULL,
 #' @keywords internal
 .imaging_asset_job <- function(dataset_id, label_tag, runner, config,
                                output_asset, asset_type,
-                               visibility = "private", alias = NULL,
+                               visibility = "shared", alias = NULL,
                                handle = "img") {
-  .require_private_workflow_visibility(visibility)
+  .require_shared_workflow_visibility(visibility)
   config$dataset_id <- NULL
   list(domain_method = "imagingProcessAssetWorkflowDS",
     handle = handle, dataset_id = dataset_id, runner = runner,

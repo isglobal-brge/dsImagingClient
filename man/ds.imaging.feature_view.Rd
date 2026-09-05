@@ -6,7 +6,7 @@
 \usage{
 ds.imaging.feature_view(
   conns,
-  asset_id,
+  asset_id = NULL,
   symbol = "imaging_features",
   columns = NULL,
   handle = "img",
@@ -14,7 +14,8 @@ ds.imaging.feature_view(
   clinical_id_col = "patient_id",
   clinical_columns = NULL,
   target_col = NULL,
-  target_levels = NULL
+  target_levels = NULL,
+  asset_symbol = NULL
 )
 }
 \arguments{
@@ -42,6 +43,10 @@ column in the external clinical table.}
 
 \item{target_levels}{Optional approved vocabulary for a classification
 \code{target_col}; leave NULL for a numeric outcome.}
+
+\item{asset_symbol}{Optional character name of an opaque output previously
+assigned by \code{ds.hpc.load_output()}. Supply exactly one of
+\code{asset_id} and \code{asset_symbol}.}
 }
 \value{
 Invisibly TRUE.

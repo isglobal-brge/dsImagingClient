@@ -16,8 +16,9 @@ function, or its server-side symbol.}
 One status list for a single server, or a named list by server.
 }
 \description{
-Returns only a coarse state and completion flag from every server. After a
-successful private publication, each server also returns its own opaque
-asset identifier; no dsHPC job id, bearer, path, roster, or progress count
-crosses the DataSHIELD boundary.
+Returns only a coarse state and completion flag from every server. The
+public tracking id can be saved and rediscovered through the shared
+dsHPC queue. After successful publication each server also returns its own
+opaque asset identifier; no execution-child id, path, roster, or exact
+progress count crosses the DataSHIELD boundary.
 }

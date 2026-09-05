@@ -14,7 +14,7 @@ ds.imaging.spatial.process(
   spacing = NULL,
   crop_size = NULL,
   output_asset = "spatial_images",
-  visibility = "private",
+  visibility = "shared",
   alias = NULL,
   handle = "img"
 )

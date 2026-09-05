@@ -58,10 +58,10 @@ test_that("global dataset registry listing directs users to resource handles", {
 })
 
 test_that("clinical imaging workflow requests declare expected runners", {
-  expect_error(dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
+  expect_no_error(dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
     runner = "imaging_qc_metrics", config = list(image_asset = "images"),
     output_asset = "imaging_qc", asset_type = "qc_table",
-    visibility = "global"), "always private", fixed = TRUE)
+    visibility = "global"))
 
   req <- dsImagingClient:::.imaging_asset_job("ds1", "qc_metrics",
     runner = "imaging_qc_metrics",

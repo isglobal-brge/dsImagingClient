@@ -14,7 +14,7 @@ ds.imaging.wsi.tile(
   tissue_threshold = 0.1,
   write_tiles = TRUE,
   output_asset = "wsi_tiles",
-  visibility = "private",
+  visibility = "shared",
   alias = NULL,
   handle = "img"
 )

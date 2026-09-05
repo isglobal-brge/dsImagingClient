@@ -203,7 +203,7 @@ test_that("collection workflow is assigned once and carries no discovery data", 
   expect_equal(result$symbol, "collection_job")
 })
 
-test_that("analytical clients reject global visibility before a server call", {
+test_that("analytical clients reject unsupported visibility before a server call", {
   testthat::local_mocked_bindings(
     datashield.assign.expr = function(...) {
       fail("A global analytical request reached DataSHIELD")
@@ -213,16 +213,17 @@ test_that("analytical clients reject global visibility before a server call", {
   conns <- list(server_1 = list())
 
   expect_error(ds.imaging.radiomics.extract(conns, "lung1",
-    mask_asset = "masks", visibility = "global"),
-    "always private", fixed = TRUE)
+    mask_asset = "masks", visibility = "raw_public"),
+    "shared validated outputs", fixed = TRUE)
   expect_error(ds.imaging.segment(conns, "lung1",
     segmenter = ds.imaging.segmenter.ct_lung_threshold(),
-    visibility = "global"), "always private", fixed = TRUE)
+    visibility = "raw_public"), "shared validated outputs", fixed = TRUE)
   expect_error(ds.imaging.radiomics.process_collection(conns,
     segmenter = ds.imaging.segmenter.existing_mask("masks"),
-    timeout = 0, visibility = "global"), "always private", fixed = TRUE)
-  expect_error(ds.imaging.qc.metrics(conns, "lung1", visibility = "global"),
-    "always private", fixed = TRUE)
+    timeout = 0, visibility = "raw_public"),
+    "shared validated outputs", fixed = TRUE)
+  expect_error(ds.imaging.qc.metrics(conns, "lung1",
+    visibility = "raw_public"), "shared validated outputs", fixed = TRUE)
 })
 
 test_that("collection control aggregates use the workflow symbol", {

@@ -10,7 +10,7 @@ ds.imaging.radiomics.extract(
   image_asset = "images",
   mask_asset,
   profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-  visibility = "private",
+  visibility = "shared",
   alias = NULL,
   symbol = NULL,
   handle = "img"
@@ -28,8 +28,8 @@ derives it from \code{handle} and verifies any supplied value.}
 
 \item{profile}{A radiomics profile from ds.imaging.radiomics.profile.*().}
 
-\item{visibility}{Compatibility argument; analytical workflows only accept
-\code{"private"}. Global publication is administrator-only.}
+\item{visibility}{Compatibility argument. Complete validated outputs are
+shared server-side; this argument cannot alter server publication policy.}
 
 \item{alias}{Character or NULL; alias for the published feature table.}
 

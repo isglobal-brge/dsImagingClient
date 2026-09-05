@@ -2,23 +2,44 @@
 % Please edit documentation in R/analysis_assets.R
 \name{ds.imaging.jobs}
 \alias{ds.imaging.jobs}
-\title{Legacy cross-workflow job listing}
+\title{List shared imaging jobs}
 \usage{
-ds.imaging.jobs(conns)
+ds.imaging.jobs(conns, limit = 100L, cursor = NULL, all = TRUE)
 }
 \arguments{
 \item{conns}{DSI connections object.}
+
+\item{limit}{Integer server page size from 1 through 500. With \code{all = TRUE},
+this does not limit the returned history.}
+
+\item{cursor}{Optional cursor returned by a preceding single-server page.
+Use one server at a time for manual continuation.}
+
+\item{all}{Logical; retrieve the complete imaging history by default. Set to
+\code{FALSE} to return one server page and preserve its continuation cursor.}
 }
 \value{
-This function always errors. Keep the workflow symbol returned by a
-dsImaging submission and use its domain-specific status method instead.
+A validated imaging-only tracking page for a single server, or a
+named list by server. Complete histories have \code{has_more = FALSE}; manual
+pages retain the server's \code{next_cursor} and \code{has_more} values.
 }
 \description{
-Legacy cross-workflow job listing
+Lists the disclosure-safe logical queue exposed by dsHPC. One row represents
+a whole workflow; per-image execution children, exact progress, labels,
+owners, logs, paths, and cohort cardinality are not included. The queue is
+node-wide, but this function returns only roots whose neutral category is
+\code{imaging}; logical jobs submitted by other DataSHIELD domain packages are
+validated and omitted.
 }
 \examples{
 \dontrun{
-# conns <- DSI::datashield.login(...)  # live DataSHIELD session
-ds.imaging.jobs(conns)
+jobs <- ds.imaging.jobs(conns)
+jobs$items
+
+page <- ds.imaging.jobs(conns["site1"], all = FALSE)
+if (page$has_more) {
+  next_page <- ds.imaging.jobs(conns["site1"], cursor = page$next_cursor,
+    all = FALSE)
+}
 }
 }

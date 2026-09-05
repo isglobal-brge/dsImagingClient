@@ -12,8 +12,8 @@
 #' @param image_asset Character; asset_id or alias for images (default "images").
 #' @param mask_asset Character; asset_id or alias for masks.
 #' @param profile A radiomics profile from ds.imaging.radiomics.profile.*().
-#' @param visibility Compatibility argument; analytical workflows only accept
-#'   \code{"private"}. Global publication is administrator-only.
+#' @param visibility Compatibility argument. Complete validated outputs are
+#'   shared server-side; this argument cannot alter server publication policy.
 #' @param alias Character or NULL; alias for the published feature table.
 #' @param symbol Character or NULL; target server-side symbol for the workflow
 #'   handle. If NULL, a temporary symbol is generated.
@@ -22,9 +22,9 @@
 #' @export
 ds.imaging.radiomics.extract <- function(conns, dataset_id = NULL, image_asset = "images",
                                   mask_asset, profile = ds.imaging.radiomics.profile.ibsi_ct_3d(),
-                                  visibility = "private", alias = NULL,
+                                  visibility = "shared", alias = NULL,
                                   symbol = NULL, handle = "img") {
-  .require_private_workflow_visibility(visibility)
+  .require_shared_workflow_visibility(visibility)
   request <- list(handle = handle, dataset_id = dataset_id, image_asset = image_asset,
     mask_asset = mask_asset, profile = profile, alias = alias)
   .assign_domain_workflow(conns, "imagingProcessRadiomicsAssetDS", request,

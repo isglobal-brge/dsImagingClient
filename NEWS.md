@@ -1,3 +1,24 @@
+# dsImagingClient 0.4.0
+
+* Imaging workflow submissions now return their durable public tracking id
+  when immediately available. `ds.imaging.jobs()` retrieves the complete
+  imaging-only logical history across every dsHPC cursor while rejecting
+  cursor replay, duplicate roots, and non-cardinality-free schemas; `limit` is
+  only the server page size. Other valid dsHPC analysis roots are omitted, and
+  `all = FALSE` preserves cursors for manual single-server continuation.
+  Oversized or missing pages, remote attributes, warnings, and messages are
+  rejected or reduced to generic diagnostics at the client boundary.
+* `ds.imaging.load_asset()` and `ds.imaging.feature_view()` accept an
+  `asset_symbol` created by `dsHPCClient::ds.hpc.load_output()`. The opaque
+  reference remains server-side and is passed as an R symbol rather than being
+  serialized into the client request.
+* Analytical workflows default to shared validated outputs. Legacy
+  `visibility` spellings remain source-compatible but cannot alter the server
+  publication policy.
+* `ds.imaging.workflow.recover()` recreates a lost collection workflow symbol
+  from per-server tracking ids after the initialized handle reauthorizes each
+  exact collection.
+
 # dsImagingClient 0.3.6
 
 * `ds.imaging.feature_view()` can now request a patient-keyed join with a normal

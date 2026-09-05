@@ -8,23 +8,25 @@
 ds.imaging.load_asset(
   conns,
   dataset_id = NULL,
-  asset_id,
+  asset_id = NULL,
   symbol = "imaging_features",
   columns = NULL,
   include_metadata = FALSE,
   syntactic_names = FALSE,
-  handle = "img"
+  handle = "img",
+  asset_symbol = NULL
 )
 
 ds.imaging.radiomics.load_features(
   conns,
   dataset_id = NULL,
-  asset_id,
+  asset_id = NULL,
   symbol = "radiomics",
   columns = NULL,
   include_metadata = FALSE,
   syntactic_names = FALSE,
-  handle = "img"
+  handle = "img",
+  asset_symbol = NULL
 )
 }
 \arguments{
@@ -48,6 +50,11 @@ dataset metadata/clinical columns on \code{sample_id}.}
 formula-based DataSHIELD models.}
 
 \item{handle}{Character; initialized imaging handle (default \code{"img"}).}
+
+\item{asset_symbol}{Optional character name of an opaque output previously
+assigned by \code{ds.hpc.load_output()}. Supply exactly one of
+\code{asset_id} and \code{asset_symbol}. The symbol is passed as a server
+expression and is never JSON encoded or returned to the client.}
 }
 \value{
 Invisibly TRUE.

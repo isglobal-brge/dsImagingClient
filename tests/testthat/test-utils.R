@@ -79,6 +79,53 @@ test_that("aggregate failures retain the node but remove remote diagnostics", {
   expect_false(grepl("patient-007", public, fixed = TRUE))
 })
 
+test_that("successful aggregate transport does not reflect remote conditions", {
+  fake_conns <- list(siteX = structure(list(), class = "not_a_connection"))
+  private <- "/srv/private/cohort/patient-007.nii.gz"
+  testthat::local_mocked_bindings(
+    datashield.aggregate = function(...) {
+      warning(private, call. = FALSE)
+      message(private)
+      list(ok = TRUE)
+    },
+    .package = "DSI")
+
+  messages <- character()
+  warnings <- character()
+  result <- withCallingHandlers(
+    dsImagingClient:::.ds_safe_aggregate(fake_conns, quote(anyCallDS())),
+    warning = function(condition) {
+      warnings <<- c(warnings, conditionMessage(condition))
+      invokeRestart("muffleWarning")
+    },
+    message = function(condition) {
+      messages <<- c(messages, conditionMessage(condition))
+      invokeRestart("muffleMessage")
+    })
+  expect_identical(result$siteX, list(ok = TRUE))
+  expect_identical(warnings, "Remote dsImaging request produced a warning.")
+  expect_length(messages, 0L)
+  expect_false(grepl(private, paste(warnings, collapse = "\n"), fixed = TRUE))
+})
+
+test_that("aggregate transport rejects duplicate node entries", {
+  conns <- list(site = list())
+  testthat::local_mocked_bindings(
+    datashield.aggregate = function(...) {
+      structure(list(list(ok = TRUE), list(ok = FALSE)),
+        names = c("site", "site"))
+    },
+    .package = "DSI")
+
+  warnings <- testthat::capture_warnings(
+    result <- dsImagingClient:::.ds_safe_aggregate(conns, quote(anyCallDS())))
+  expect_length(result, 0L)
+  expect_identical(attr(result, "ds_errors"),
+    list(site = "remote aggregate call failed"))
+  expect_identical(warnings,
+    "dsImaging remote aggregate call failed on server 'site'.")
+})
+
 test_that("workflow assignment suppresses and restores DSI diagnostics", {
   conns <- list(siteX = list())
   private <- paste(

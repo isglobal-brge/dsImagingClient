@@ -60,8 +60,27 @@ for (server in names(conns)) {
 `collection_recover()` to explicitly re-run that reconciliation after a crash or
 disconnect. Status, recovery, and publication accept only the opaque workflow
 symbol returned by `process_collection()`; image identifiers and fingerprints
-remain server-side. Status and recovery expose only `state`, `is_done`, and an
-optional `asset_id`; publication is all-or-nothing.
+remain server-side. Status and recovery expose only `state`, `is_done`, an
+optional `asset_id`, and the durable public `tracking_id`; publication is
+all-or-nothing. The public logical queue can be rediscovered without an
+execution bearer:
+
+```r
+jobs <- ds.imaging.jobs(conns)  # complete imaging history only
+ds.imaging.job.status(conns, result$tracking_id)
+
+# Manual paging is available when needed; use one node at a time.
+page <- ds.imaging.jobs(conns["site1"], limit = 100L, all = FALSE)
+if (page$has_more) {
+  next_page <- ds.imaging.jobs(
+    conns["site1"], limit = 100L, cursor = page$next_cursor, all = FALSE)
+}
+
+# Rebind a still-running collection after reconnecting and initializing img.
+recovered <- ds.imaging.workflow.recover(
+  conns, result$tracking_id, handle = "img", symbol = "recovered_collection")
+ds.imaging.radiomics.collection_status(conns, recovered)
+```
 
 When the dataset was published with clinical/sample metadata,
 `include_metadata = TRUE` assigns a single server-side data frame joined on
@@ -86,6 +105,30 @@ ds.imaging.feature_view(
 )
 ```
 
+A validated output can also be recovered in a later DataSHIELD session using
+only its public tracking id. `dsHPCClient` assigns an opaque reference and
+`dsImagingClient` passes that server symbol directly to `dsImaging`:
+
+```r
+dsHPCClient::ds.hpc.load_output(
+  conns, result$tracking_id,
+  output_name = "output_001", symbol = "shared_asset")
+
+ds.imaging.feature_view(
+  conns, asset_symbol = "shared_asset", symbol = "flower_features",
+  handle = "img")
+
+# Or materialize the validated asset through dsImaging for another workflow.
+ds.imaging.load_asset(
+  conns, asset_symbol = "shared_asset", symbol = "radiomics_data",
+  handle = "img")
+```
+
+The opaque reference contains no image bytes, node path, asset id, provider
+reference, credential, or execution-job id. Raw data does not cross the
+client; each consuming DataSHIELD package remains responsible for disclosure
+control in its own registered methods.
+
 The clinical table contract is one row per patient. Linkage is anchored to the
 sealed dsImaging patient roster, never to image sample rows. Missing, duplicate,
 or unknown patient keys do not change success/failure or shrink the image
@@ -97,11 +140,11 @@ Omit `clinical_symbol` and the other clinical arguments to retain the original
 manifest-metadata feature-view workflow. For a numeric outcome, set
 `target_col` and leave `target_levels = NULL`.
 
-`timeout = 0` starts the workflow and returns immediately. The server-side
-dsHPC jobs own durable execution state, but the workflow reference is bound to
-the live DataSHIELD session. Poll, recover, and publish from that same session;
-disconnecting invalidates the client capability even though node-side jobs and
-artifacts remain available to administrators.
+`timeout = 0` starts the workflow and returns immediately. The live workflow
+symbol remains session-bound, while its public tracking id and validated
+server-reusable output are durable. After reconnecting, use
+`ds.imaging.jobs()` or the saved tracking id and the opaque-output flow above.
+Per-image child jobs and their exact cardinality remain hidden.
 
 To use existing manual or model-derived masks from `dsimaging-store`, publish
 them under `source/masks/` and use:

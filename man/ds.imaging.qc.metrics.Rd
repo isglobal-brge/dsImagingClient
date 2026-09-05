@@ -10,7 +10,7 @@ ds.imaging.qc.metrics(
   image_asset = "images",
   mask_asset = NULL,
   output_asset = "imaging_qc",
-  visibility = "private",
+  visibility = "shared",
   alias = NULL,
   handle = "img"
 )

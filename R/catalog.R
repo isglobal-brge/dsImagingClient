@@ -60,6 +60,10 @@ ds.imaging.asset <- function(conns, asset_id, dataset_id = NULL) {
 #' @param syntactic_names Logical; if TRUE, repair server-side column names for
 #'   formula-based DataSHIELD models.
 #' @param handle Character; initialized imaging handle (default \code{"img"}).
+#' @param asset_symbol Optional character name of an opaque output previously
+#'   assigned by \code{ds.hpc.load_output()}. Supply exactly one of
+#'   \code{asset_id} and \code{asset_symbol}. The symbol is passed as a server
+#'   expression and is never JSON encoded or returned to the client.
 #' @return Invisibly TRUE.
 #' @examples
 #' \dontrun{
@@ -69,13 +73,15 @@ ds.imaging.asset <- function(conns, asset_id, dataset_id = NULL) {
 #'   handle = "img")
 #' }
 #' @export
-ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
+ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id = NULL,
                                   symbol = "imaging_features",
                                   columns = NULL,
                                   include_metadata = FALSE,
                                   syntactic_names = FALSE,
-                                  handle = "img") {
-  asset_ids <- .imaging_asset_ids_by_server(conns, asset_id)
+                                  handle = "img",
+                                  asset_symbol = NULL) {
+  asset_args <- .imaging_asset_arguments_by_server(
+    conns, asset_id = asset_id, asset_symbol = asset_symbol)
   columns_arg <- if (is.null(columns)) NULL else .ds_encode(columns)
   .imaging_require_symbol_absent(conns, symbol)
   assigned <- character()
@@ -87,12 +93,12 @@ ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
       }
     }
   }, add = TRUE)
-  for (host in names(asset_ids)) {
+  for (host in names(asset_args)) {
     .imaging_assign_exact(conns[host], "Imaging asset assignment",
       function(success, error) {
         DSI::datashield.assign.expr(
           conns[host], symbol = symbol,
-          expr = call("imagingLoadAssetDS", handle, asset_ids[[host]], columns_arg,
+          expr = call("imagingLoadAssetDS", handle, asset_args[[host]], columns_arg,
                       include_metadata, syntactic_names),
           success = success, error = error, errors.print = FALSE)
       })
@@ -125,17 +131,22 @@ ds.imaging.load_asset <- function(conns, dataset_id = NULL, asset_id,
 #'   column in the external clinical table.
 #' @param target_levels Optional approved vocabulary for a classification
 #'   \code{target_col}; leave NULL for a numeric outcome.
+#' @param asset_symbol Optional character name of an opaque output previously
+#'   assigned by \code{ds.hpc.load_output()}. Supply exactly one of
+#'   \code{asset_id} and \code{asset_symbol}.
 #' @return Invisibly TRUE.
 #' @export
-ds.imaging.feature_view <- function(conns, asset_id,
+ds.imaging.feature_view <- function(conns, asset_id = NULL,
                                     symbol = "imaging_features",
                                     columns = NULL, handle = "img",
                                     clinical_symbol = NULL,
                                     clinical_id_col = "patient_id",
                                     clinical_columns = NULL,
                                     target_col = NULL,
-                                    target_levels = NULL) {
-  asset_ids <- .imaging_asset_ids_by_server(conns, asset_id)
+                                    target_levels = NULL,
+                                    asset_symbol = NULL) {
+  asset_args <- .imaging_asset_arguments_by_server(
+    conns, asset_id = asset_id, asset_symbol = asset_symbol)
   columns_arg <- if (is.null(columns)) NULL else .ds_encode(columns)
   clinical_columns_arg <- if (is.null(clinical_columns)) {
     NULL
@@ -169,15 +180,15 @@ ds.imaging.feature_view <- function(conns, asset_id,
       }
     }
   }, add = TRUE)
-  for (host in names(asset_ids)) {
+  for (host in names(asset_args)) {
     .imaging_assign_exact(conns[host], "Imaging feature-view assignment",
       function(success, error) {
         expr <- if (extended_contract) {
-          call("imagingFeatureViewDS", handle, asset_ids[[host]], columns_arg,
+          call("imagingFeatureViewDS", handle, asset_args[[host]], columns_arg,
             clinical_symbol, clinical_id_col, clinical_columns_arg,
             target_col, target_levels_arg)
         } else {
-          call("imagingFeatureViewDS", handle, asset_ids[[host]], columns_arg)
+          call("imagingFeatureViewDS", handle, asset_args[[host]], columns_arg)
         }
         DSI::datashield.assign.expr(
           conns[host], symbol = symbol,
@@ -207,6 +218,28 @@ ds.imaging.feature_view.destroy <- function(
       call. = FALSE)
   }
   invisible(TRUE)
+}
+
+#' @keywords internal
+.imaging_asset_arguments_by_server <- function(conns, asset_id = NULL,
+                                               asset_symbol = NULL) {
+  if (is.null(asset_id) == is.null(asset_symbol)) {
+    stop("Supply exactly one of asset_id and asset_symbol.", call. = FALSE)
+  }
+  hosts <- names(conns)
+  if (!length(hosts) || anyNA(hosts) || any(!nzchar(hosts)) ||
+      anyDuplicated(hosts)) {
+    stop("DataSHIELD connections require non-empty, unique node names.",
+         call. = FALSE)
+  }
+  if (!is.null(asset_symbol)) {
+    asset_symbol <- .imaging_validate_symbol(asset_symbol)
+    .imaging_require_symbol_present(conns, asset_symbol)
+    return(stats::setNames(
+      rep(list(as.name(asset_symbol)), length(hosts)), hosts))
+  }
+  values <- .imaging_asset_ids_by_server(conns, asset_id)
+  stats::setNames(lapply(unname(values), identity), names(values))
 }
 
 #' @keywords internal
@@ -264,15 +297,17 @@ ds.imaging.feature_view.destroy <- function(
 #' @rdname ds.imaging.load_asset
 #' @export
 ds.imaging.radiomics.load_features <- function(conns, dataset_id = NULL,
-                                               asset_id,
+                                               asset_id = NULL,
                                                symbol = "radiomics",
                                                columns = NULL,
                                                include_metadata = FALSE,
                                                syntactic_names = FALSE,
-                                               handle = "img") {
+                                               handle = "img",
+                                               asset_symbol = NULL) {
   ds.imaging.load_asset(conns, dataset_id = dataset_id, asset_id = asset_id,
     symbol = symbol, columns = columns, include_metadata = include_metadata,
-    syntactic_names = syntactic_names, handle = handle)
+    syntactic_names = syntactic_names, handle = handle,
+    asset_symbol = asset_symbol)
 }
 
 #' Legacy dataset alias listing

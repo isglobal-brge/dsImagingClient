@@ -18,7 +18,7 @@ ds.imaging.mask.operation(
   min_voxels = 1L,
   max_components = 1L,
   output_asset = paste0(mask_asset, "_", operation),
-  visibility = "private",
+  visibility = "shared",
   alias = NULL,
   handle = "img"
 )
