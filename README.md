@@ -222,7 +222,7 @@ ds.imaging.rt.convert(conns, rt_asset = "dicom_seg", dicom_asset = "dicom",
 # Declare public ROI names and voxel values in the mapped labelled mask.
 dose <- ds.imaging.rt.dose(conns, mask_asset = "labelled_masks",
   roi_labels = c("Tumour", "SpinalCord"), mask_labels = c(1L, 2L),
-  output_asset = "roi_dose", handle = "img")
+  output_asset = "roi_dose", alias = "roi_dose", handle = "img")
 # After successful publication on every node, ASSIGN the complete table.
 ds.imaging.load_asset(conns, asset_id = "roi_dose", symbol = "dose",
   handle = "img")
