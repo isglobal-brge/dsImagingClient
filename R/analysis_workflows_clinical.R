@@ -3,10 +3,11 @@
 # Complete validated outputs are shared server-side; the retained visibility
 # arguments are client compatibility controls and never expose raw artifacts.
 
-#' Convert one-file DICOM samples to NIfTI images
+#' Convert admitted DICOM samples to NIfTI images
 #'
 #' Submits a dsHPC-backed SimpleITK conversion job. Each admitted patient
-#' sample must map to one DICOM file; multi-file series fail closed.
+#' sample must map to one DICOM file or one complete, explicitly enumerated
+#' series in the sealed roster. All series files are integrity-checked.
 #'
 #' @param conns DSI connections object.
 #' @param dataset_id Character or NULL; optional dataset identifier. The server
@@ -172,14 +173,19 @@ ds.imaging.qc.metrics <- function(conns, dataset_id = NULL,
   .submit_imaging_job(conns, job)
 }
 
-#' Convert RTSTRUCT or DICOM SEG assets into masks
+#' Convert admitted RTSTRUCT assets into masks
+#'
+#' Each sample's RTSTRUCT and reference DICOM series must have an exact sealed
+#' mapping and matching patient and spatial references. Selected ROIs become
+#' one binary mask per sample. DICOM SEG remains unavailable.
 #'
 #' @param conns DSI connections object.
 #' @param dataset_id Character or NULL; optional dataset identifier. The server
 #'   derives it from \code{handle} and verifies any supplied value.
-#' @param rt_asset Character; RTSTRUCT/DICOM SEG asset or alias.
+#' @param rt_asset Character; RTSTRUCT asset or alias.
 #' @param dicom_asset Character; reference DICOM series asset for RTSTRUCT.
-#' @param reference_asset Character; reference image asset for DICOM SEG geometry.
+#' @param reference_asset Deprecated compatibility argument; must remain
+#'   \code{"images"}. DICOM SEG conversion is unavailable.
 #' @param rois Character vector or NULL; ROI names to convert.
 #' @param output_asset Character; published mask asset name.
 #' @param visibility Character; job visibility label.
@@ -196,11 +202,24 @@ ds.imaging.rt.convert <- function(conns, dataset_id = NULL,
                                   visibility = "shared",
                                   alias = NULL,
                                   handle = "img") {
-  stop("RT conversion is unavailable until an exact patient-sample mapping is implemented.",
-       call. = FALSE)
+  if (!identical(reference_asset, "images")) {
+    stop("reference_asset cannot select a DICOM SEG reference; only RTSTRUCT is admitted.",
+         call. = FALSE)
+  }
+  config <- .compact_list(list(rt_asset = rt_asset, dicom_asset = dicom_asset,
+    rois = if (!is.null(rois)) paste(rois, collapse = ",") else NULL))
+  job <- .imaging_asset_job(dataset_id, label_tag = "rt_convert",
+    runner = "rt_convert", config = config, output_asset = output_asset,
+    asset_type = "mask_root", visibility = visibility, alias = alias,
+    handle = handle)
+  .submit_imaging_job(conns, job)
 }
 
 #' Run RTDOSE and RTPLAN summaries
+#'
+#' The complete per-ROI dose table remains server-side. It can be assigned to
+#' the authorized session with \code{ds.imaging.load_asset()}, under the same
+#' patient admission and downstream disclosure controls as radiomics tables.
 #'
 #' @param conns DSI connections object.
 #' @param dataset_id Character or NULL; optional dataset identifier. The server
@@ -222,20 +241,30 @@ ds.imaging.rt.dose <- function(conns, dataset_id = NULL,
                                visibility = "shared",
                                alias = NULL,
                                handle = "img") {
-  stop("RT dose analysis is unavailable until an exact patient-sample mapping is implemented.",
-       call. = FALSE)
+  config <- .compact_list(list(dose_asset = dose_asset, plan_asset = plan_asset,
+    mask_asset = mask_asset))
+  job <- .imaging_asset_job(dataset_id, label_tag = "rt_dose",
+    runner = "rt_dose_plan", config = config, output_asset = output_asset,
+    asset_type = "dose_table", visibility = visibility, alias = alias,
+    handle = handle)
+  .submit_imaging_job(conns, job)
 }
 
-#' Generate non-disclosive QC thumbnails and overlays
+#' Generate bounded server-side QC thumbnails and overlays
+#'
+#' Thumbnails have pseudonymous file names. Their local CSV manifest retains
+#' sample identifiers and stays server-side alongside the image bodies.
 #'
 #' @param conns DSI connections object.
 #' @param dataset_id Character or NULL; optional dataset identifier. The server
 #'   derives it from \code{handle} and verifies any supplied value.
 #' @param image_asset Character; image asset or alias.
 #' @param mask_asset Character or NULL; optional mask asset.
-#' @param max_size Integer; maximum PNG side length.
-#' @param max_images Deprecated and ignored. The complete admitted collection
-#'   is processed; arbitrary subsets are not supported.
+#' @param max_size Integer; maximum PNG side length (16 through 4096).
+#' @param max_tiles Integer; maximum thumbnails per collection (1 through 1024;
+#'   default 64). All admitted inputs are checked, with omissions represented
+#'   in the complete server-side output mapping.
+#' @param max_images Deprecated and ignored. Use \code{max_tiles}.
 #' @param anonymize_names Logical; must remain TRUE. Output names are always
 #'   pseudonymized server-side.
 #' @param output_asset Character; published QC visual asset name.
@@ -253,17 +282,19 @@ ds.imaging.qc.visuals <- function(conns, dataset_id = NULL,
                                   output_asset = "qc_visuals",
                                   visibility = "shared",
                                   alias = NULL,
-                                  handle = "img") {
+                                  handle = "img",
+                                  max_tiles = 64L) {
   config <- .compact_list(list(
     image_asset = image_asset,
     mask_asset = mask_asset,
-    max_size = as.integer(max_size)
+    max_size = max_size,
+    max_tiles = max_tiles
   ))
   if (!isTRUE(anonymize_names)) {
     stop("QC visual output names must remain pseudonymized.", call. = FALSE)
   }
   if (!missing(max_images)) {
-    warning("max_images is deprecated and ignored; the complete admitted collection is processed.",
+    warning("max_images is deprecated and ignored; use max_tiles for the thumbnail cap.",
             call. = FALSE)
   }
   job <- .imaging_asset_job(dataset_id, label_tag = "qc_visuals",
@@ -319,13 +350,17 @@ ds.imaging.spatial.process <- function(conns, dataset_id = NULL,
 
 #' Tile WSI/pathology images
 #'
+#' Each admitted slide has its own server-side manifest, including slides with
+#' zero tiles. Tile bodies, coordinates and per-slide counts remain on the node;
+#' the analyst receives an opaque asset reference and controlled metadata.
+#'
 #' @param conns DSI connections object.
 #' @param dataset_id Character or NULL; optional dataset identifier. The server
 #'   derives it from \code{handle} and verifies any supplied value.
 #' @param wsi_asset Character; WSI asset or alias.
 #' @param tile_size Integer; tile side length in pixels.
 #' @param stride Integer; tile stride in pixels.
-#' @param max_tiles Integer; maximum tiles per site.
+#' @param max_tiles Integer; maximum tiles per slide.
 #' @param tissue_threshold Numeric; minimum estimated tissue fraction.
 #' @param write_tiles Logical; write PNG tile files.
 #' @param output_asset Character; published tile asset name.
@@ -344,8 +379,14 @@ ds.imaging.wsi.tile <- function(conns, dataset_id = NULL, wsi_asset = "wsi",
                                 visibility = "shared",
                                 alias = NULL,
                                 handle = "img") {
-  stop("WSI tiling is unavailable until an exact patient-sample mapping is implemented.",
-       call. = FALSE)
+  config <- .compact_list(list(wsi_asset = wsi_asset, tile_size = tile_size,
+    stride = stride, max_tiles = max_tiles, tissue_threshold = tissue_threshold,
+    write_tiles = write_tiles))
+  job <- .imaging_asset_job(dataset_id, label_tag = "wsi_tile",
+    runner = "wsi_tile", config = config, output_asset = output_asset,
+    asset_type = "wsi_tile_root", visibility = visibility, alias = alias,
+    handle = handle)
+  .submit_imaging_job(conns, job)
 }
 
 #' Extract image embeddings

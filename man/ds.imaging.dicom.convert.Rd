@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_workflows_clinical.R
 \name{ds.imaging.dicom.convert}
 \alias{ds.imaging.dicom.convert}
-\title{Convert one-file DICOM samples to NIfTI images}
+\title{Convert admitted DICOM samples to NIfTI images}
 \usage{
 ds.imaging.dicom.convert(
   conns,
@@ -38,5 +38,6 @@ A domain-mediated workflow submission handle.
 }
 \description{
 Submits a dsHPC-backed SimpleITK conversion job. Each admitted patient
-sample must map to one DICOM file; multi-file series fail closed.
+sample must map to one DICOM file or one complete, explicitly enumerated
+series in the sealed roster. All series files are integrity-checked.
 }

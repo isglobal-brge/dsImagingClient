@@ -19,6 +19,23 @@ test_that("legacy radiomics aliases are not exported", {
   expect_false("ds.segmenter.lungmask" %in% exports)
 })
 
+test_that("Aerts versions preserve historical and published feature selections", {
+  historical <- ds.imaging.radiomics.profile.aerts_signature()
+  published <- ds.imaging.radiomics.profile.aerts_signature(version = "v2")
+  expect_equal(historical$name, "aerts_signature_v1")
+  expect_equal(historical$selected_features, c("original_firstorder_Energy",
+    "original_shape_Compactness1", "original_glrlm_RunLengthNonUniformity",
+    "wavelet-HLH_glrlm_RunLengthNonUniformity"))
+  expect_equal(published$name, "aerts_signature_v2")
+  expect_equal(published$selected_features, c("original_firstorder_Energy",
+    "original_shape_Compactness2", "original_glrlm_GrayLevelNonUniformity",
+    "wavelet-HLH_glrlm_GrayLevelNonUniformity"))
+  expect_identical(historical[setdiff(names(historical), c("name", "selected_features"))],
+    published[setdiff(names(published), c("name", "selected_features"))])
+  expect_error(ds.imaging.radiomics.profile.aerts_signature(version = "v3"),
+    "arg")
+})
+
 test_that("imaging dataset wrappers default to the canonical handle", {
   wrappers <- list(
     ds.imaging.assets,

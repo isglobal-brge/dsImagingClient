@@ -31,7 +31,7 @@ derives it from \code{handle} and verifies any supplied value.}
 
 \item{stride}{Integer; tile stride in pixels.}
 
-\item{max_tiles}{Integer; maximum tiles per site.}
+\item{max_tiles}{Integer; maximum tiles per slide.}
 
 \item{tissue_threshold}{Numeric; minimum estimated tissue fraction.}
 
@@ -49,5 +49,7 @@ derives it from \code{handle} and verifies any supplied value.}
 A domain-mediated workflow submission handle.
 }
 \description{
-Tile WSI/pathology images
+Each admitted slide has its own server-side manifest, including slides with
+zero tiles. Tile bodies, coordinates and per-slide counts remain on the node;
+the analyst receives an opaque asset reference and controlled metadata.
 }

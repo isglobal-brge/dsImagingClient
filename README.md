@@ -197,7 +197,8 @@ ds.imaging.mask.operation(
 
 ds.imaging.qc.metrics(conns, mask_asset = "lung_masks", handle = "img")
 
-ds.imaging.qc.visuals(conns, mask_asset = "lung_masks", handle = "img")
+ds.imaging.qc.visuals(conns, mask_asset = "lung_masks", max_tiles = 64,
+  max_size = 192, handle = "img")
 ds.imaging.embeddings.extract(conns, handle = "img")
 ds.imaging.spatial.process(
   conns,
@@ -214,7 +215,49 @@ ds.imaging.rt.dose(conns, mask_asset = "rt_masks", handle = "img")
 
 # WSI/pathology studies can publish tile manifests and optional tile PNGs.
 ds.imaging.wsi.tile(conns, tile_size = 512, max_tiles = 1000, handle = "img")
+
+# An administrator-installed MONAI bundle must return one mask per sample.
+ds.imaging.segment(conns,
+  segmenter = ds.imaging.segmenter.monai_bundle("registered_bundle"), handle = "img")
 ```
+
+These routes require exact sample-to-patient associations in the sealed
+collection roster. Each DICOM series enumerates and hashes every instance;
+RTSTRUCT, RTDOSE and RTPLAN assets must match the sample's canonical patient
+identifier and DICOM references. Ambiguous or incomplete inputs fail closed.
+RT conversion produces one combined binary ROI mask per sample. DICOM SEG
+conversion remains unavailable.
+
+The analyst receives opaque workflow and asset references. Masks, slides,
+tiles, per-slide tile counts, local manifests and paths remain server-side.
+WSI `max_tiles` is a per-slide cap. A dose asset is a complete per-ROI table
+that `ds.imaging.load_asset()` can assign in the authorized server session;
+its individual rows never cross through an imaging aggregate method.
+Downstream DataSHIELD methods retain their disclosure controls, and minimum
+cohort sizes count distinct patients rather than tiles or ROI rows.
+
+QC `max_tiles` defaults to 64 (range 1–1024); `max_size` defaults to 192 pixels
+(range 16–4096). All inputs are validated, then thumbnails are rendered in
+stable sample order up to the cap. The complete output mapping records capped
+samples explicitly. PNG names are pseudonymous; the unchanged local CSV lists
+rendered samples and stays server-side. `max_images` remains deprecated and
+ignored.
+
+Use `ds.imaging.radiomics.profile.aerts_signature(version = "v2")` for the
+published four-feature selection: original Energy, Compactness2 (sphericity
+cubed), original GLRLM GrayLevelNonUniformity and wavelet-HLH GLRLM
+GrayLevelNonUniformity. PyRadiomics settings match the historical profile.
+The default `version = "v1"` preserves the Aerts-inspired historical selection
+(Energy, Compactness1 and original/wavelet-HLH RunLengthNonUniformity) and its
+byte-identical YAML. These profiles select features; they do not contain fitted
+prognostic coefficients. The client supplies v1's four-feature filter; a direct
+server v1 request without that filter retains the broader YAML candidate set.
+The server enforces v2's exact four-feature selection.
+[Aerts et al. (2014)](https://doi.org/10.1038/ncomms5006)
+names the signature; its [supplement](https://www.ebi.ac.uk/europepmc/webservices/rest/PMC4059926/supplementaryFiles)
+identifies Compactness2 in Figure 1 and feature 16. The
+[PyRadiomics replication](https://pmc.ncbi.nlm.nih.gov/articles/PMC6805885/)
+documents the equivalent sphericity-cubed definition.
 
 The public client surface is `ds.imaging.*`; the former `ds.radiomics.*` and
 `ds.segmenter.*` compatibility wrappers have been retired before production use.
@@ -224,11 +267,13 @@ The public client surface is `ds.imaging.*`; the former `ds.radiomics.*` and
 A reproducible TCIA NSCLC-Radiomics/LUNG1 federated radiomics study is bundled
 under `inst/demos/lung1_federated_study`. It prepares CT + RTSTRUCT `GTV-1`
 masks, publishes three simulated sites with `dsimaging-admin`, runs
-dsHPC-backed Aerts radiomics through `dsImaging`, and compares the federated
+dsHPC-backed Aerts-inspired v1 radiomics through `dsImaging`, and compares the federated
 DataSHIELD feature summaries with a central PyRadiomics baseline. The historical
 full validation used 422 public LUNG1 patients that passed conversion and is
-aligned with the public Aerts/LUNG1 radiomics workflow rather than with a
-synthetic imaging fixture.
+based on the public Aerts/LUNG1 radiomics workflow. Its historical feature
+selection uses RunLengthNonUniformity and Compactness1; it is not the published
+four-feature selection now available as v2. No historical demonstration was
+rerun for the 0.5.0 admission changes.
 
 The demo also includes `run_lung1_linked_dslite.R`, a one-node engineering
 acceptance that keeps `clinical.csv` as a normal DataSHIELD table, publishes

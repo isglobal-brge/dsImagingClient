@@ -1,3 +1,18 @@
+# dsImagingClient 0.5.0
+
+* RTSTRUCT conversion, RTDOSE/RTPLAN summaries, whole-slide tiling and MONAI
+  bundle segmentation now submit through the dsImaging DataSHIELD workflows.
+  The server requires exact sealed sample/patient mappings; masks, per-ROI
+  rows, tile bodies and per-slide counts remain server-side. DICOM conversion
+  accepts complete explicitly mapped multi-file series; DICOM SEG stays closed.
+* QC thumbnails accept `max_tiles` (default 64, range 1–1024) alongside
+  `max_size`. Pseudonymous thumbnails and the local manifest stay server-side;
+  `max_images` remains deprecated and ignored.
+* `ds.imaging.radiomics.profile.aerts_signature(version = "v2")` selects
+  Energy, Compactness2 and original/wavelet-HLH GLRLM GrayLevelNonUniformity.
+  The default historical v1 profile remains unchanged and is described as
+  Aerts-inspired, using Compactness1 and RunLengthNonUniformity.
+
 # dsImagingClient 0.4.0
 
 * Imaging workflow submissions now return their durable public tracking id

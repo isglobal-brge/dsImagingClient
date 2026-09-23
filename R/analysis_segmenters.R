@@ -59,10 +59,12 @@ ds.imaging.segmenter.nnunet <- function(model_name, fold = "all") {
 }
 
 #' MONAI bundle segmenter
+#'
+#' Uses an administrator-installed bundle. Each admitted sample must produce
+#' exactly one mask with matching image geometry; mask bodies stay server-side.
 #' @param bundle_name Character; registered bundle name.
 #' @return A segmenter spec.
 #' @export
 ds.imaging.segmenter.monai_bundle <- function(bundle_name) {
-  stop("MONAI bundle segmentation is unavailable until an exact per-sample contract is implemented.",
-       call. = FALSE)
+  list(provider = "monai_bundle_infer", bundle_name = bundle_name)
 }

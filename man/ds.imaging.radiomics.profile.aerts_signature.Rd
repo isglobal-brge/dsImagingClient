@@ -2,18 +2,32 @@
 % Please edit documentation in R/analysis_profiles.R
 \name{ds.imaging.radiomics.profile.aerts_signature}
 \alias{ds.imaging.radiomics.profile.aerts_signature}
-\title{Aerts 4-feature CT radiomic signature profile}
+\title{Historical or published Aerts four-feature CT profile}
 \usage{
-ds.imaging.radiomics.profile.aerts_signature(bin_width = 25)
+ds.imaging.radiomics.profile.aerts_signature(
+  bin_width = 25,
+  version = c("v1", "v2")
+)
 }
 \arguments{
 \item{bin_width}{Numeric; histogram bin width (default 25).}
+
+\item{version}{Character; \code{"v1"} (historical default) or \code{"v2"}.}
 }
 \value{
 A radiomics profile spec.
 }
 \description{
-Matches the public LUNG1 / Aerts-signature replication path:
-bin width 25, no normalisation, no resampling, Original + Wavelet
-image types, and the published firstorder/shape/GLRLM feature classes.
+The default \code{v1} preserves the historical Aerts-inspired profile:
+Energy, Compactness1, and original/wavelet-HLH RunLengthNonUniformity.
+Select \code{version = "v2"} for the published feature selection: Energy,
+Compactness2 (sphericity cubed), and original/wavelet-HLH
+GrayLevelNonUniformity. Both retain bin width 25, no normalisation or
+resampling, and the same coif1 wavelet settings. This specifies features,
+not a fitted prognostic model or a reproduction of historical results.
+}
+\references{
+Aerts et al. (2014), doi:10.1038/ncomms5006, Supplementary
+Figure 1 and Methods feature 16 (Compactness2);
+Shi et al. (2019), doi:10.1038/s41597-019-0241-0.
 }

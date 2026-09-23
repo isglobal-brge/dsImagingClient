@@ -30,26 +30,41 @@ ds.imaging.radiomics.profile.demo_ct_firstorder <- function(bin_width = 25) {
        image_types = c("Original"))
 }
 
-#' Aerts 4-feature CT radiomic signature profile
+#' Historical or published Aerts four-feature CT profile
 #'
-#' Matches the public LUNG1 / Aerts-signature replication path:
-#' bin width 25, no normalisation, no resampling, Original + Wavelet
-#' image types, and the published firstorder/shape/GLRLM feature classes.
+#' The default \code{v1} preserves the historical Aerts-inspired profile:
+#' Energy, Compactness1, and original/wavelet-HLH RunLengthNonUniformity.
+#' Select \code{version = "v2"} for the published feature selection: Energy,
+#' Compactness2 (sphericity cubed), and original/wavelet-HLH
+#' GrayLevelNonUniformity. Both retain bin width 25, no normalisation or
+#' resampling, and the same coif1 wavelet settings. This specifies features,
+#' not a fitted prognostic model or a reproduction of historical results.
+#'
+#' @references Aerts et al. (2014), doi:10.1038/ncomms5006, Supplementary
+#'   Figure 1 and Methods feature 16 (Compactness2);
+#'   Shi et al. (2019), doi:10.1038/s41597-019-0241-0.
 #'
 #' @param bin_width Numeric; histogram bin width (default 25).
+#' @param version Character; \code{"v1"} (historical default) or \code{"v2"}.
 #' @return A radiomics profile spec.
 #' @export
-ds.imaging.radiomics.profile.aerts_signature <- function(bin_width = 25) {
-  list(name = "aerts_signature_v1", bin_width = bin_width,
+ds.imaging.radiomics.profile.aerts_signature <- function(bin_width = 25,
+                                                       version = c("v1", "v2")) {
+  version <- match.arg(version)
+  compactness <- if (identical(version, "v1")) "Compactness1" else "Compactness2"
+  nonuniformity <- if (identical(version, "v1")) {
+    "RunLengthNonUniformity"
+  } else "GrayLevelNonUniformity"
+  list(name = paste0("aerts_signature_", version), bin_width = bin_width,
        force2D = FALSE, normalize = FALSE,
        resampled_spacing = NULL,
        feature_classes = c("firstorder", "shape", "glrlm"),
        image_types = c("Original", "Wavelet"),
        selected_features = c(
          "original_firstorder_Energy",
-         "original_shape_Compactness1",
-         "original_glrlm_RunLengthNonUniformity",
-         "wavelet-HLH_glrlm_RunLengthNonUniformity"
+         paste0("original_shape_", compactness),
+         paste0("original_glrlm_", nonuniformity),
+         paste0("wavelet-HLH_glrlm_", nonuniformity)
        ))
 }
 

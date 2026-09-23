@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_workflows_clinical.R
 \name{ds.imaging.rt.convert}
 \alias{ds.imaging.rt.convert}
-\title{Convert RTSTRUCT or DICOM SEG assets into masks}
+\title{Convert admitted RTSTRUCT assets into masks}
 \usage{
 ds.imaging.rt.convert(
   conns,
@@ -23,11 +23,12 @@ ds.imaging.rt.convert(
 \item{dataset_id}{Character or NULL; optional dataset identifier. The server
 derives it from \code{handle} and verifies any supplied value.}
 
-\item{rt_asset}{Character; RTSTRUCT/DICOM SEG asset or alias.}
+\item{rt_asset}{Character; RTSTRUCT asset or alias.}
 
 \item{dicom_asset}{Character; reference DICOM series asset for RTSTRUCT.}
 
-\item{reference_asset}{Character; reference image asset for DICOM SEG geometry.}
+\item{reference_asset}{Deprecated compatibility argument; must remain
+\code{"images"}. DICOM SEG conversion is unavailable.}
 
 \item{rois}{Character vector or NULL; ROI names to convert.}
 
@@ -43,5 +44,7 @@ derives it from \code{handle} and verifies any supplied value.}
 A domain-mediated workflow submission handle.
 }
 \description{
-Convert RTSTRUCT or DICOM SEG assets into masks
+Each sample's RTSTRUCT and reference DICOM series must have an exact sealed
+mapping and matching patient and spatial references. Selected ROIs become
+one binary mask per sample. DICOM SEG remains unavailable.
 }

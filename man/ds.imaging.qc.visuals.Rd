@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_workflows_clinical.R
 \name{ds.imaging.qc.visuals}
 \alias{ds.imaging.qc.visuals}
-\title{Generate non-disclosive QC thumbnails and overlays}
+\title{Generate bounded server-side QC thumbnails and overlays}
 \usage{
 ds.imaging.qc.visuals(
   conns,
@@ -15,7 +15,8 @@ ds.imaging.qc.visuals(
   output_asset = "qc_visuals",
   visibility = "shared",
   alias = NULL,
-  handle = "img"
+  handle = "img",
+  max_tiles = 64L
 )
 }
 \arguments{
@@ -28,10 +29,9 @@ derives it from \code{handle} and verifies any supplied value.}
 
 \item{mask_asset}{Character or NULL; optional mask asset.}
 
-\item{max_size}{Integer; maximum PNG side length.}
+\item{max_size}{Integer; maximum PNG side length (16 through 4096).}
 
-\item{max_images}{Deprecated and ignored. The complete admitted collection
-is processed; arbitrary subsets are not supported.}
+\item{max_images}{Deprecated and ignored. Use \code{max_tiles}.}
 
 \item{anonymize_names}{Logical; must remain TRUE. Output names are always
 pseudonymized server-side.}
@@ -43,10 +43,15 @@ pseudonymized server-side.}
 \item{alias}{Character or NULL; optional asset alias.}
 
 \item{handle}{Character; initialized imaging handle (default \code{"img"}).}
+
+\item{max_tiles}{Integer; maximum thumbnails per collection (1 through 1024;
+default 64). All admitted inputs are checked, with omissions represented
+in the complete server-side output mapping.}
 }
 \value{
 A domain-mediated workflow submission handle.
 }
 \description{
-Generate non-disclosive QC thumbnails and overlays
+Thumbnails have pseudonymous file names. Their local CSV manifest retains
+sample identifiers and stays server-side alongside the image bodies.
 }

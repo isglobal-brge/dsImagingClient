@@ -13,5 +13,6 @@ ds.imaging.segmenter.monai_bundle(bundle_name)
 A segmenter spec.
 }
 \description{
-MONAI bundle segmenter
+Uses an administrator-installed bundle. Each admitted sample must produce
+exactly one mask with matching image geometry; mask bodies stay server-side.
 }

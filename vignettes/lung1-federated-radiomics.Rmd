@@ -46,7 +46,7 @@ feature_label <- function(x) {
 This article documents the full public LUNG1/NSCLC-Radiomics demonstration for
 `dsImagingClient`. The workflow uses CT images and RTSTRUCT `GTV-1` tumour masks
 from TCIA, publishes three simulated DataSHIELD sites through
-`dsimaging-store`, runs Aerts-signature PyRadiomics extraction through
+`dsimaging-store`, runs the historical Aerts-inspired v1 PyRadiomics profile through
 `dsImaging` and `dsHPC`, and compares the federated summaries with a central
 PyRadiomics baseline over the same patients.
 
@@ -56,6 +56,23 @@ than re-estimating the complete prognostic modelling programme of that paper:
 the validation checks that the image-to-mask-to-radiomics path, executed through
 DataSHIELD jobs on separated sites, reproduces the same numerical feature
 summaries obtained by a central PyRadiomics run over the same prepared images.
+
+The historical profile selects Energy, Compactness1 and original/wavelet-HLH
+GLRLM RunLengthNonUniformity. Its YAML and evidence remain unchanged. For new
+analyses, `ds.imaging.radiomics.profile.aerts_signature(version = "v2")` selects
+the published Energy, Compactness2 (sphericity cubed), and original/wavelet-HLH
+GrayLevelNonUniformity with the same PyRadiomics settings. See
+[Aerts et al. (2014)](https://doi.org/10.1038/ncomms5006), its
+[supplement, Figure 1 and feature 16](https://www.ebi.ac.uk/europepmc/webservices/rest/PMC4059926/supplementaryFiles), and the
+[PyRadiomics replication](https://pmc.ncbi.nlm.nih.gov/articles/PMC6805885/).
+The 0.5.0 admission tests use generated fixtures and do not rerun this study.
+
+In 0.5.0 the direct RTSTRUCT, dose, whole-slide and MONAI entry points require
+sealed per-sample mappings to the canonical patient roster. DICOM conversion
+also accepts a complete enumerated series. Those workflows return opaque
+references: masks, per-ROI dose rows, tiles, exact per-slide counts and paths
+stay server-side. QC thumbnails are capped by `max_tiles` (default 64) as well
+as `max_size`; their local manifest stays on the server.
 
 The 422 LUNG1 patients are split reproducibly across three DataSHIELD sites —
 Site A holds 142 patients, Site B 143 and Site C 137 — and published with
@@ -95,8 +112,8 @@ ds.imaging.init(conns, resource = "dsdemo.lung1_study", symbol = "img")
 ds.imaging.validate(conns, "img")
 ```
 
-**3. Extract the Aerts radiomics signature.** Submit one collection workflow over
-the existing tumour masks with the Aerts profile. `dsHPC` schedules the per-image
+**3. Extract the historical Aerts-inspired profile.** Submit one collection workflow over
+the existing tumour masks with the v1 profile. `dsHPC` schedules the per-image
 PyRadiomics jobs at each site; the call returns an opaque workflow symbol.
 
 ```{r collection, eval=FALSE}
@@ -206,7 +223,7 @@ knitr::kable(loaded_dims)
 
 ## Federated Versus Central Radiomics
 
-The published collection parquet schema is constrained by the Aerts signature
+The published collection parquet schema is constrained by the historical v1
 profile to `sample_id` plus four radiomics features. The remaining loaded
 columns are clinical metadata joined by `sample_id`.
 

@@ -120,7 +120,7 @@ test_that("DICOM and QC requests keep their closed collection contracts", {
   ds.imaging.dicom.convert(conns, handle = "study")
   expect_warning(
     ds.imaging.qc.visuals(conns, max_images = 1L, handle = "study"),
-    "complete admitted collection", fixed = TRUE)
+    "use max_tiles", fixed = TRUE)
 
   dicom <- decode_workflow_request(calls[[1L]])
   qc <- decode_workflow_request(calls[[2L]])
@@ -128,6 +128,7 @@ test_that("DICOM and QC requests keep their closed collection contracts", {
   expect_equal(dicom$handle, "study")
   expect_null(qc$config$max_images)
   expect_null(qc$config$anonymize_names)
+  expect_equal(qc$config$max_tiles, 64)
   expect_equal(qc$handle, "study")
 
   before <- length(calls)
@@ -136,19 +137,43 @@ test_that("DICOM and QC requests keep their closed collection contracts", {
   expect_length(calls, before)
 })
 
-test_that("unsupported patient-mapping workflows fail before transport", {
+test_that("admitted RT, WSI and MONAI workflows use the imaging domain surface", {
+  calls <- list()
   testthat::local_mocked_bindings(
-    datashield.assign.expr = function(...) {
-      fail("An unsupported request reached DataSHIELD")
+    datashield.assign.expr = function(conns, symbol, expr, success, ...) {
+      calls[[length(calls) + 1L]] <<- expr
+      for (host in names(conns)) success(host)
+      invisible(TRUE)
     },
+    datashield.symbols = empty_test_symbols,
     .package = "DSI"
   )
   conns <- list(server_1 = list())
-  expect_error(ds.imaging.rt.convert(conns), "exact patient-sample mapping")
-  expect_error(ds.imaging.rt.dose(conns), "exact patient-sample mapping")
-  expect_error(ds.imaging.wsi.tile(conns), "exact patient-sample mapping")
-  expect_error(ds.imaging.segmenter.monai_bundle("bundle"),
-    "exact per-sample contract")
+  ds.imaging.rt.convert(conns, rois = c("GTV", "CTV"), handle = "study")
+  ds.imaging.rt.dose(conns, mask_asset = "rt_masks", handle = "study")
+  ds.imaging.wsi.tile(conns, max_tiles = 12L, write_tiles = FALSE,
+    handle = "study")
+  ds.imaging.segment(conns, segmenter = ds.imaging.segmenter.monai_bundle("bundle"),
+    handle = "study")
+  ds.imaging.qc.visuals(conns, max_tiles = 7L, handle = "study")
+  requests <- lapply(calls, decode_workflow_request)
+  expect_equal(vapply(requests[1:3], `[[`, character(1), "runner"),
+    c("rt_convert", "rt_dose_plan", "wsi_tile"))
+  expect_equal(requests[[1]]$config, list(rt_asset = "rt_struct",
+    dicom_asset = "dicom", rois = "GTV,CTV"))
+  expect_equal(requests[[2]]$config, list(dose_asset = "rt_dose",
+    plan_asset = "rt_plan", mask_asset = "rt_masks"))
+  expect_equal(requests[[3]]$config$max_tiles, 12)
+  expect_false(requests[[3]]$config$write_tiles)
+  expect_equal(requests[[4]]$segmenter, list(provider = "monai_bundle_infer",
+    bundle_name = "bundle"))
+  expect_equal(requests[[5]]$config$max_tiles, 7)
+  expect_true(all(vapply(requests, function(x) identical(x$handle, "study"),
+    logical(1))))
+  expect_true(all(vapply(requests, function(x) is.null(x$visibility), logical(1))))
+  expect_error(ds.imaging.rt.convert(conns, reference_asset = "seg_reference"),
+    "only RTSTRUCT is admitted", fixed = TRUE)
+  expect_length(calls, 5L)
 })
 
 test_that("asset loading is scoped to the initialized handle", {

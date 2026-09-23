@@ -40,5 +40,7 @@ derives it from \code{handle} and verifies any supplied value.}
 A domain-mediated workflow submission handle.
 }
 \description{
-Run RTDOSE and RTPLAN summaries
+The complete per-ROI dose table remains server-side. It can be assigned to
+the authorized session with \code{ds.imaging.load_asset()}, under the same
+patient admission and downstream disclosure controls as radiomics tables.
 }
