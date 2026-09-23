@@ -220,6 +220,8 @@ ds.imaging.rt.convert <- function(conns, dataset_id = NULL,
 #' The complete per-ROI dose table remains server-side. It can be assigned to
 #' the authorized session with \code{ds.imaging.load_asset()}, under the same
 #' patient admission and downstream disclosure controls as radiomics tables.
+#' Supported rows are \code{whole_grid} and one optional \code{mask}, the union
+#' of positive mask voxels. Arbitrary multi-label ROI export is not supported.
 #'
 #' @param conns DSI connections object.
 #' @param dataset_id Character or NULL; optional dataset identifier. The server

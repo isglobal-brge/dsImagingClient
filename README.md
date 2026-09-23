@@ -209,8 +209,10 @@ ds.imaging.spatial.process(
 )
 
 # Radiotherapy assets can become reusable masks/tables.
-ds.imaging.rt.convert(conns, rt_asset = "rt_struct", rois = "GTV-1",
-  handle = "img")
+rt <- ds.imaging.rt.convert(conns, rt_asset = "rt_struct", rois = "GTV-1",
+  alias = "rt_masks", handle = "img")
+ds.imaging.workflow.status(conns, rt)
+# Run dose analysis after successful mask publication on every node.
 ds.imaging.rt.dose(conns, mask_asset = "rt_masks", handle = "img")
 
 # WSI/pathology studies can publish tile manifests and optional tile PNGs.
@@ -232,7 +234,9 @@ The analyst receives opaque workflow and asset references. Masks, slides,
 tiles, per-slide tile counts, local manifests and paths remain server-side.
 WSI `max_tiles` is a per-slide cap. A dose asset is a complete per-ROI table
 that `ds.imaging.load_asset()` can assign in the authorized server session;
-its individual rows never cross through an imaging aggregate method.
+its individual rows never cross through an imaging aggregate method. Supported
+ROI rows are `whole_grid` and one optional `mask` (the union of positive mask
+voxels), not an export of arbitrary multi-label ROIs.
 Downstream DataSHIELD methods retain their disclosure controls, and minimum
 cohort sizes count distinct patients rather than tiles or ROI rows.
 
