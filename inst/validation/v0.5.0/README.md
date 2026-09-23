@@ -88,3 +88,16 @@ The historical `aerts_signature_v1.yaml` is unchanged from `v0.4.0`
 (SHA-256 `1cc5d18d45b885e96641e8dd202d54a80aed7416c7f97d06b44d7d4f051ed623`).
 No historical demonstration artifacts were changed, no tag was created and
 no push was performed.
+
+## Additional SEG and labelled-dose admission, 2026-09-23
+
+Task `DSIMAGING_RAISE2_2026-09-23` extends the earlier admission with DICOM SEG
+selection and analyst-declared labelled-dose ROI requests. The separate
+[admission2 receipt](admission2/README.md) records the final tested client
+source `764a0ad274c7c7f0e3e6486f49c3262228b43ce9`: 75 complete-suite cases,
+479 passed expectations, zero failed expectations, errors, warnings or skips;
+`R CMD check --no-multiarch` reported Status: OK with zero errors, warnings
+and notes. Its installed-package tests independently passed 479 expectations.
+The detached checkout was clean before and after validation. Earlier text,
+logs and CSV results above are retained as evidence of the original admission;
+the route limitations in that original receipt describe its earlier scope.
