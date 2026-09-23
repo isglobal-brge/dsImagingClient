@@ -18,6 +18,34 @@ ds.imaging.capabilities(conns)
 
 ## Segmentation And Radiomics
 
+LungMask, TotalSegmentator, nnU-Net and MONAI use complete model bundles
+registered by each node's administrator. Before choosing a model, inspect its
+`provider`, `task`, `ready` and `manifest_sha256` in `ds.imaging.models(conns)`
+or the `models` field of `ds.imaging.capabilities(conns)`. These digests identify
+administrator-provisioned models, not patient data. A missing bundle, changed
+manifest or mismatched file causes failure before inference. Inference never
+downloads model weights. Analysts select names and never provide model paths.
+Existing masks and CT threshold segmentation require no weight bundle.
+
+```r
+ds.imaging.models(conns)
+segmenter <- ds.imaging.segmenter.lungmask("R231")
+```
+
+An administrator first configures a complete, digest-pinned source recipe on
+each server, then installs through the existing protected endpoint:
+
+```r
+# Administrator session only; admin_key matches the node's dshpc.admin_key.
+ds.imaging.install_model(conns, admin_key, provider = "lungmask", task = "R231")
+```
+
+Installation downloads and verifies every declared file and registers the
+manifest digest only after success. TotalSegmentator bundles must include the
+selected task's complete audited set of task, crop and auxiliary models.
+MONAI configurations and serialized models are trusted administrator material.
+See the server's `DESIGN_MODEL_BUNDLES.md` for recipes and supported profiles.
+
 ```r
 segmenter <- ds.imaging.segmenter.ct_lung_threshold(
   threshold = -320,

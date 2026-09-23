@@ -21,5 +21,7 @@ ds.imaging.segmenter.totalsegmentator(
 A segmenter spec.
 }
 \description{
-TotalSegmentator segmenter
+Requires an administrator-registered, verified bundle for the selected task,
+including its auxiliary models and requested resolution. No weights download
+during inference.
 }

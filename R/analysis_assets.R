@@ -288,7 +288,10 @@ ds.imaging.masks <- function(conns, dataset_id = NULL, handle = "img") {
   ds.imaging.catalog(conns, dataset_id, kind = "mask_root", handle = handle)
 }
 
-#' Get radiomics capabilities from server
+#' Get imaging capabilities from server
+#'
+#' Model listings expose administrator-registered provider/task names,
+#' readiness and manifest SHA-256 digests. Model paths remain server-side.
 #' @param conns DSI connections object.
 #' @return Named list of per-server capabilities.
 #' @export

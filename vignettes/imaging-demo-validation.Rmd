@@ -53,6 +53,14 @@ segmentation followed by radiomics. The jobs are submitted from R through
 `dsImagingClient`; execution and publication are handled by `dsHPC` inside the
 Rock workers.
 
+The existing-mask and threshold workflows use no learned weights. When
+substituting LungMask, TotalSegmentator, nnU-Net or MONAI in 0.6.0, each node's
+administrator must first provision a complete, digest-verified model bundle.
+Inspect `ds.imaging.models(conns)` for `provider`, `task`, `ready` and
+`manifest_sha256`; analysts supply names, never model paths. A missing or
+changed bundle fails closed, with no model download during analysis. The
+historical demonstration below has not been rerun for this release.
+
 The evidence bundled with this vignette records `overall_pass =
 TRUE`: dataset validation passed on all three servers and
 all six workflow families completed with the expected ten local samples per

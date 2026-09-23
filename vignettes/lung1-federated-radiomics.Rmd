@@ -67,6 +67,13 @@ GrayLevelNonUniformity with the same PyRadiomics settings. See
 [PyRadiomics replication](https://pmc.ncbi.nlm.nih.gov/articles/PMC6805885/).
 The 0.5.0 admission tests use generated fixtures and do not rerun this study.
 
+From 0.6.0, learned segmentation providers require administrator-registered
+model bundles whose manifests and every file are checked before inference.
+`ds.imaging.models(conns)` and `ds.imaging.capabilities(conns)` expose readiness
+and manifest SHA-256 digests without model paths. Missing or changed weights
+fail closed and inference never downloads them. This historical study uses
+existing tumour masks, so it needs no model bundle and its evidence is unchanged.
+
 In 0.5.0 the direct RTSTRUCT/SEG, dose, whole-slide and MONAI entry points require
 sealed per-sample mappings to the canonical patient roster. DICOM conversion
 also accepts a complete enumerated series. Those workflows return opaque

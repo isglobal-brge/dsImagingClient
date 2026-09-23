@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_assets.R
 \name{ds.imaging.capabilities}
 \alias{ds.imaging.capabilities}
-\title{Get radiomics capabilities from server}
+\title{Get imaging capabilities from server}
 \usage{
 ds.imaging.capabilities(conns)
 }
@@ -13,5 +13,6 @@ ds.imaging.capabilities(conns)
 Named list of per-server capabilities.
 }
 \description{
-Get radiomics capabilities from server
+Model listings expose administrator-registered provider/task names,
+readiness and manifest SHA-256 digests. Model paths remain server-side.
 }

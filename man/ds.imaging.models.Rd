@@ -10,8 +10,10 @@ ds.imaging.models(conns)
 \item{conns}{DSI connections object.}
 }
 \value{
-Named list with per-server model listings.
+Named list with per-server model listings containing \code{provider},
+\code{task}, \code{ready}, and \code{manifest_sha256}. A false \code{ready} value prevents use.
 }
 \description{
-List installed models on the server
+Lists administrator-registered bundles after server-side integrity checks.
+Analysts select provider/task names and never supply model paths.
 }

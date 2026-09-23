@@ -17,9 +17,11 @@ ds.imaging.install_model(conns, admin_key, provider, task)
 \item{task}{Character; model/task name (e.g. "total", "R231").}
 }
 \value{
-Named list with install status per server.
+Named list with install status and manifest SHA-256 per server.
 }
 \description{
-Downloads model weights to the hospital's server. Requires the admin key to
-be configured with \code{dshpc.admin_key} or \code{DSHPC_ADMIN_KEY}.
+Downloads and verifies a complete model bundle from the administrator's
+server-side source recipe, then registers its manifest digest. Requires the
+admin key configured with \code{dshpc.admin_key} or \code{DSHPC_ADMIN_KEY}. Inference
+never downloads weights; missing or changed bundles fail closed.
 }

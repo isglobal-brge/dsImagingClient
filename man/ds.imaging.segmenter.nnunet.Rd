@@ -7,7 +7,7 @@
 ds.imaging.segmenter.nnunet(model_name, fold = "all")
 }
 \arguments{
-\item{model_name}{Character; registered model name.}
+\item{model_name}{Character; registered nnU-Net bundle task identifier.}
 
 \item{fold}{Character; fold to use (default "all").}
 }
@@ -15,5 +15,6 @@ ds.imaging.segmenter.nnunet(model_name, fold = "all")
 A segmenter spec.
 }
 \description{
-nnU-Net v2 segmenter
+Resolves an administrator-registered, verified model bundle on each server.
+Its selected fold and checkpoint must already be present.
 }

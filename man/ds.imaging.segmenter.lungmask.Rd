@@ -13,5 +13,7 @@ ds.imaging.segmenter.lungmask(model = "R231")
 A segmenter spec.
 }
 \description{
-LungMask segmenter (lung/lobe specific)
+Requires an administrator-registered, verified bundle for the selected model.
+Fused models also require their fill-model weights. No weights download
+during inference.
 }

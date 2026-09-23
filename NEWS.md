@@ -1,3 +1,14 @@
+# dsImagingClient 0.6.0
+
+* Model listings and capabilities expose registered provider/task names,
+  readiness and manifest SHA-256 digests. Administrator installation reports
+  the manifest digest after every required file has been downloaded and
+  verified from a server-owned source recipe.
+* Document the offline segmentation contract: LungMask, TotalSegmentator,
+  nnU-Net and MONAI require complete administrator-registered bundles; absent
+  or changed files fail closed. Analyst requests contain names, never model
+  paths. Existing-mask and threshold workflows need no weight bundle.
+
 # dsImagingClient 0.5.0
 
 * `ds.imaging.rt.convert()` admits mapped binary DICOM SEG on the referenced

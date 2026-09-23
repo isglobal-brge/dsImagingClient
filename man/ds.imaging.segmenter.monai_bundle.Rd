@@ -7,12 +7,14 @@
 ds.imaging.segmenter.monai_bundle(bundle_name)
 }
 \arguments{
-\item{bundle_name}{Character; registered bundle name.}
+\item{bundle_name}{Character; registered MONAI bundle task identifier.}
 }
 \value{
 A segmenter spec.
 }
 \description{
-Uses an administrator-installed bundle. Each admitted sample must produce
+Uses an administrator-registered, digest-verified bundle, including its
+inference configuration and all weights. Inference is offline.
+Each admitted sample must produce
 exactly one mask with matching image geometry; mask bodies stay server-side.
 }

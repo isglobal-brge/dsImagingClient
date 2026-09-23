@@ -3,15 +3,17 @@
 
 #' Install a segmentation model on the server (admin only)
 #'
-#' Downloads model weights to the hospital's server. Requires the admin key to
-#' be configured with `dshpc.admin_key` or `DSHPC_ADMIN_KEY`.
+#' Downloads and verifies a complete model bundle from the administrator's
+#' server-side source recipe, then registers its manifest digest. Requires the
+#' admin key configured with `dshpc.admin_key` or `DSHPC_ADMIN_KEY`. Inference
+#' never downloads weights; missing or changed bundles fail closed.
 #'
 #' @param conns DSI connections object.
 #' @param admin_key Character; the admin key matching `dshpc.admin_key` or
 #'   `DSHPC_ADMIN_KEY` on the server.
 #' @param provider Character; "totalsegmentator", "lungmask", "monai", "nnunetv2".
 #' @param task Character; model/task name (e.g. "total", "R231").
-#' @return Named list with install status per server.
+#' @return Named list with install status and manifest SHA-256 per server.
 #' @export
 ds.imaging.install_model <- function(conns, admin_key, provider, task) {
   key_enc <- .ds_encode(list(.admin_key = admin_key))
@@ -19,18 +21,23 @@ ds.imaging.install_model <- function(conns, admin_key, provider, task) {
     expr = call("imagingInstallModelDS", key_enc, provider, task))
   for (srv in names(results)) {
     r <- results[[srv]]
-    if (identical(r$status, "installed"))
-      cat("  ", srv, ": installed", provider, task, "\n")
-    else
+    if (identical(r$status, "installed")) {
+      cat("  ", srv, ": installed", provider, task,
+          r$manifest_sha256 %||% "", "\n")
+    } else {
       cat("  ", srv, ": FAILED -", r$error %||% "unknown", "\n")
+    }
   }
   invisible(results)
 }
 
 #' List installed models on the server
 #'
+#' Lists administrator-registered bundles after server-side integrity checks.
+#' Analysts select provider/task names and never supply model paths.
 #' @param conns DSI connections object.
-#' @return Named list with per-server model listings.
+#' @return Named list with per-server model listings containing `provider`,
+#'   `task`, `ready`, and `manifest_sha256`. A false `ready` value prevents use.
 #' @export
 ds.imaging.models <- function(conns) {
   .ds_safe_aggregate(conns,

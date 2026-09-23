@@ -9,6 +9,10 @@ ds.imaging.segmenter.existing_mask <- function(mask_asset) {
 }
 
 #' TotalSegmentator segmenter
+#'
+#' Requires an administrator-registered, verified bundle for the selected task,
+#' including its auxiliary models and requested resolution. No weights download
+#' during inference.
 #' @param task Character; segmentation task (default "total").
 #' @param fast Logical; use fast mode (default FALSE).
 #' @param roi_subset Character vector or NULL; specific ROIs.
@@ -21,6 +25,10 @@ ds.imaging.segmenter.totalsegmentator <- function(task = "total", fast = FALSE,
 }
 
 #' LungMask segmenter (lung/lobe specific)
+#'
+#' Requires an administrator-registered, verified bundle for the selected model.
+#' Fused models also require their fill-model weights. No weights download
+#' during inference.
 #' @param model Character; "R231", "LTRCLobes", "LTRCLobes_R231", "R231CovidWeb".
 #' @return A segmenter spec.
 #' @export
@@ -50,7 +58,10 @@ ds.imaging.segmenter.ct_lung_threshold <- function(threshold = -320,
 }
 
 #' nnU-Net v2 segmenter
-#' @param model_name Character; registered model name.
+#'
+#' Resolves an administrator-registered, verified model bundle on each server.
+#' Its selected fold and checkpoint must already be present.
+#' @param model_name Character; registered nnU-Net bundle task identifier.
 #' @param fold Character; fold to use (default "all").
 #' @return A segmenter spec.
 #' @export
@@ -60,9 +71,11 @@ ds.imaging.segmenter.nnunet <- function(model_name, fold = "all") {
 
 #' MONAI bundle segmenter
 #'
-#' Uses an administrator-installed bundle. Each admitted sample must produce
+#' Uses an administrator-registered, digest-verified bundle, including its
+#' inference configuration and all weights. Inference is offline.
+#' Each admitted sample must produce
 #' exactly one mask with matching image geometry; mask bodies stay server-side.
-#' @param bundle_name Character; registered bundle name.
+#' @param bundle_name Character; registered MONAI bundle task identifier.
 #' @return A segmenter spec.
 #' @export
 ds.imaging.segmenter.monai_bundle <- function(bundle_name) {
