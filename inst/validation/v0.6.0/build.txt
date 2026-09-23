@@ -6,4 +6,3 @@
 * checking for LF line-endings in source and make files and shell scripts
 * checking for empty or unneeded directories
 * building ‘dsImagingClient_0.6.0.tar.gz’
-
