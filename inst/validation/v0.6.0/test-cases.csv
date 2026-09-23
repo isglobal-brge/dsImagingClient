@@ -1,0 +1,79 @@
+"file","context","test","nb","failed","skipped","error","warning","user","system","real","passed"
+"test-analysis-constructors.R","analysis-constructors","imaging radiomics profiles and segmenters are built",6,0,FALSE,FALSE,0,0.018,0.003,0.021,6
+"test-analysis-constructors.R","analysis-constructors","legacy radiomics aliases are not exported",2,0,FALSE,FALSE,0,0.006,0.001,0.00700000000000001,2
+"test-analysis-constructors.R","analysis-constructors","Aerts versions preserve historical and published feature selections",6,0,FALSE,FALSE,0,0.012,0.00199999999999999,0.013,6
+"test-analysis-constructors.R","analysis-constructors","imaging dataset wrappers default to the canonical handle",3,0,FALSE,FALSE,0,0.003,0.001,0.004,3
+"test-analysis-constructors.R","analysis-constructors","global dataset registry listing directs users to resource handles",1,0,FALSE,FALSE,0,0.002,0,0.002,1
+"test-analysis-constructors.R","analysis-constructors","clinical imaging workflow requests declare expected runners",34,0,FALSE,FALSE,0,0.029,0.007,0.036,34
+"test-analysis-constructors.R","analysis-constructors","asset loading wrappers expose metadata join option",4,0,FALSE,FALSE,0,0.004,0.001,0.005,4
+"test-analysis-constructors.R","analysis-constructors","advanced imaging workflow functions are exported",6,0,FALSE,FALSE,0,0.006,0.001,0.006,6
+"test-analysis-summary.R","analysis-summary","summary uses handle-scoped metadata and catalog without job listing",4,0,FALSE,FALSE,0,0.01,0.001,0.01,4
+"test-demo-contract.R","demo-contract","validation demo publishes atomically with a patient contract",3,0,FALSE,FALSE,0,0.00399999999999995,0,0.004,3
+"test-demo-contract.R","demo-contract","LUNG1 demo separates publication from secret-free Resource handoff",10,0,FALSE,FALSE,0,0.006,0,0.00700000000000001,10
+"test-demo-contract.R","demo-contract","LUNG1 linked acceptance keeps clinical data outside the store",25,0,FALSE,FALSE,0,0.016,0.002,0.018,25
+"test-domain-workflow-calls.R","domain-workflow-calls","radiomics extraction invokes the dsImaging domain method",8,0,FALSE,FALSE,0,0.00900000000000001,0.002,0.011,8
+"test-domain-workflow-calls.R","domain-workflow-calls","segmentation and clinical workflows do not call dsHPCClient submit",12,0,FALSE,FALSE,0,0.048,0.004,0.0529999999999999,12
+"test-domain-workflow-calls.R","domain-workflow-calls","segment-and-extract uses its dedicated endpoint and image asset",9,0,FALSE,FALSE,0,0.00900000000000001,0.002,0.011,9
+"test-domain-workflow-calls.R","domain-workflow-calls","DICOM and QC requests keep their closed collection contracts",9,0,FALSE,FALSE,0,0.0289999999999999,0.003,0.035,9
+"test-domain-workflow-calls.R","domain-workflow-calls","admitted RT, WSI and MONAI workflows use the imaging domain surface",11,0,FALSE,FALSE,0,0.031,0.003,0.0349999999999999,11
+"test-domain-workflow-calls.R","domain-workflow-calls","SEG selections and public labelled dose schemas use domain ASSIGN",7,0,FALSE,FALSE,0,0.029,0.00299999999999999,0.031,7
+"test-domain-workflow-calls.R","domain-workflow-calls","ambiguous SEG selections are refused before a server call",20,0,FALSE,FALSE,0,0.038,0.001,0.038,20
+"test-domain-workflow-calls.R","domain-workflow-calls","labelled dose schemas reject ambiguous pairs and private discovery",33,0,FALSE,FALSE,0,0.07,0.002,0.072,33
+"test-domain-workflow-calls.R","domain-workflow-calls","multi-row dose tables are assigned without aggregating individual rows",7,0,FALSE,FALSE,0,0.00700000000000001,0.002,0.00900000000000001,7
+"test-domain-workflow-calls.R","domain-workflow-calls","dose ASSIGN refusals suppress private remote diagnostics",3,0,FALSE,FALSE,0,0.024,0.001,0.024,3
+"test-domain-workflow-calls.R","domain-workflow-calls","asset loading is scoped to the initialized handle",5,0,FALSE,FALSE,0,0.006,0.002,0.00700000000000001,5
+"test-domain-workflow-calls.R","domain-workflow-calls","collection workflow is assigned once and carries no discovery data",8,0,FALSE,FALSE,0,0.00900000000000001,0.001,0.011,8
+"test-domain-workflow-calls.R","domain-workflow-calls","analytical clients reject unsupported visibility before a server call",4,0,FALSE,FALSE,0,0.0179999999999999,0,0.019,4
+"test-domain-workflow-calls.R","domain-workflow-calls","collection control aggregates use the workflow symbol",6,0,FALSE,FALSE,0,0.015,0.001,0.016,6
+"test-domain-workflow-calls.R","domain-workflow-calls","collection responses fail closed on invalid public fields",3,0,FALSE,FALSE,0,0.006,0.001,0.006,3
+"test-domain-workflow-calls.R","domain-workflow-calls","collection cancellation uses the opaque workflow symbol",4,0,FALSE,FALSE,0,0.004,0.001,0.005,4
+"test-domain-workflow-calls.R","domain-workflow-calls","retired discovery helpers fail before a server call",5,0,FALSE,FALSE,0,0.011,0,0.0119999999999999,5
+"test-domain-workflow-calls.R","domain-workflow-calls","collection polling needs only sanitized state fields",2,0,FALSE,FALSE,0,0.004,0.001,0.005,2
+"test-domain-workflow-calls.R","domain-workflow-calls","collection polling never publishes when one status call fails",3,0,FALSE,FALSE,0,0.00700000000000001,0,0.00800000000000001,3
+"test-domain-workflow-calls.R","domain-workflow-calls","catalog is scoped to the initialized handle",5,0,FALSE,FALSE,0,0.004,0.001,0.006,5
+"test-domain-workflow-calls.R","domain-workflow-calls","client workflow sources no longer reference dsHPCClient submission helpers",11,0,FALSE,FALSE,0,0.031,0.003,0.0350000000000001,11
+"test-feature-view.R","feature-view","feature_view assigns the opaque server method per node",11,0,FALSE,FALSE,0,0.012,0.002,0.0129999999999999,11
+"test-feature-view.R","feature-view","feature_view encodes an external clinical table contract",13,0,FALSE,FALSE,0,0.0189999999999999,0.003,0.0209999999999999,13
+"test-feature-view.R","feature-view","feature_view destroy uses the registry-aware destroy method",3,0,FALSE,FALSE,0,0.006,0.001,0.0069999999999999,3
+"test-feature-view.R","feature-view","partial feature_view assignment rolls back only successful nodes",4,0,FALSE,FALSE,0,0.026,0.002,0.028,4
+"test-init.R","init","ds.imaging.init assigns a resource and creates only an imaging handle",9,0,FALSE,FALSE,0,0.016,0.00399999999999999,0.018,9
+"test-init.R","init","ds.imaging.init rolls back temporary and partial symbols",4,0,FALSE,FALSE,0,0.018,0.003,0.0209999999999999,4
+"test-init.R","init","ds.imaging.init does not overwrite provider transient symbols",2,0,FALSE,FALSE,0,0.00900000000000012,0.002,0.01,2
+"test-init.R","init","a doubly failed temporary-resource removal remains retryable",8,0,FALSE,FALSE,0,0.0229999999999999,0.004,0.0269999999999999,8
+"test-init.R","init","ds.imaging.init never overwrites an existing symbol",2,0,FALSE,FALSE,0,0.00700000000000012,0.001,0.00800000000000001,2
+"test-init.R","init","ds.imaging.destroy invokes capability-aware server cleanup",5,0,FALSE,FALSE,0,0.00800000000000001,0.00299999999999999,0.0109999999999999,5
+"test-init.R","init","ds.imaging.destroy keeps failed-node symbols retryable",5,0,FALSE,FALSE,0,0.0130000000000001,0.002,0.0170000000000001,5
+"test-init.R","init","ds.imaging.destroy retries after client-side removal failure",5,0,FALSE,FALSE,0,0.0110000000000001,0.002,0.014,5
+"test-init.R","init","symbols hidden from datashield.symbols are rejected",3,0,FALSE,FALSE,0,0.006,0.001,0.00700000000000012,3
+"test-model-bundles.R","model-bundles","model discovery preserves verified manifest identity and readiness",3,0,FALSE,FALSE,0,0.00300000000000011,0,0.00499999999999989,3
+"test-model-bundles.R","model-bundles","administrator installation reports its verified manifest digest",7,0,FALSE,FALSE,0,0.014,0.001,0.016,7
+"test-model-bundles.R","model-bundles","learned segmenter requests select names without model paths",4,0,FALSE,FALSE,0,0.004,0.001,0.00499999999999989,4
+"test-shared-tracking.R","shared-tracking","shared output symbols are passed to dsImaging without serialization",9,0,FALSE,FALSE,0,0.0169999999999999,0.004,0.0219999999999998,9
+"test-shared-tracking.R","shared-tracking","logical job discovery accepts only the cardinality-free root schema",11,0,FALSE,FALSE,0,0.0660000000000001,0.003,0.0680000000000001,11
+"test-shared-tracking.R","shared-tracking","logical job discovery rejects oversized pages and strips cursors",2,0,FALSE,FALSE,0,0.004,0,0.004,2
+"test-shared-tracking.R","shared-tracking","logical tracking schemas reject duplicate field names",3,0,FALSE,FALSE,0,0.006,0.001,0.006,3
+"test-shared-tracking.R","shared-tracking","logical job discovery follows every page beyond one hundred jobs",7,0,FALSE,FALSE,0,0.016,0.001,0.0170000000000001,7
+"test-shared-tracking.R","shared-tracking","manual imaging pages preserve continuation and omit analysis roots",11,0,FALSE,FALSE,0,0.016,0.002,0.0179999999999998,11
+"test-shared-tracking.R","shared-tracking","logical job discovery rejects cursor replay and duplicate rows",3,0,FALSE,FALSE,0,0.0089999999999999,0,0.0089999999999999,3
+"test-shared-tracking.R","shared-tracking","imaging job status uses the exact tracking id for every server",5,0,FALSE,FALSE,0,0.012,0.000999999999999973,0.012,5
+"test-shared-tracking.R","shared-tracking","imaging job status must describe the requested root",1,0,FALSE,FALSE,0,0.004,0,0.00499999999999989,1
+"test-shared-tracking.R","shared-tracking","a node named default is not treated as a scalar connection",2,0,FALSE,FALSE,0,0.00299999999999989,0,0.004,2
+"test-shared-tracking.R","shared-tracking","workflow submission returns its public tracking id when available",1,0,FALSE,FALSE,0,0.012,0.001,0.012,1
+"test-shared-tracking.R","shared-tracking","reserved words are not accepted as server symbols",2,0,FALSE,FALSE,0,0.006,0.001,0.006,2
+"test-shared-tracking.R","shared-tracking","collection workflows recover by per-server tracking id and handle",10,0,FALSE,FALSE,0,0.022,0.003,0.0249999999999999,10
+"test-utils.R","utils","null coalescing operator works",2,0,FALSE,FALSE,0,0.002,0,0.002,2
+"test-utils.R","utils","first result reports DataSHIELD aggregate errors",1,0,FALSE,FALSE,0,0.002,0.001,0.00300000000000011,1
+"test-utils.R","utils","aggregate failures retain the node but remove remote diagnostics",12,0,FALSE,FALSE,0,0.012,0.002,0.014,12
+"test-utils.R","utils","successful aggregate transport does not reflect remote conditions",4,0,FALSE,FALSE,0,0.00299999999999989,0.001,0.004,4
+"test-utils.R","utils","aggregate transport rejects duplicate node entries",3,0,FALSE,FALSE,0,0.00299999999999989,0.001,0.00299999999999989,3
+"test-utils.R","utils","workflow assignment suppresses and restores DSI diagnostics",11,0,FALSE,FALSE,0,0.01,0.002,0.012,11
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow status projects one exact safe response per server",4,0,FALSE,FALSE,0,0.00700000000000012,0.001,0.00800000000000001,4
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow status requires state and terminal flag to agree",2,0,FALSE,FALSE,0,0.00499999999999989,0,0.00500000000000012,2
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow status rejects partial fields and strips attributes",4,0,FALSE,FALSE,0,0.006,0,0.0069999999999999,4
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow status fails closed on one missing server response",2,0,FALSE,FALSE,0,0.00499999999999989,0.001,0.006,2
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow destroy removes only nodes with an exact ACK",2,0,FALSE,FALSE,0,0.00499999999999989,0.001,0.00700000000000012,2
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow destroy skips successful nodes on retry",3,0,FALSE,FALSE,0,0.01,0.001,0.012,3
+"test-workflow-lifecycle.R","workflow-lifecycle","domain assignment requires every node ACK",1,0,FALSE,FALSE,0,0.004,0,0.00500000000000012,1
+"test-workflow-lifecycle.R","workflow-lifecycle","domain assignment reports rollback failures without hiding init",2,0,FALSE,FALSE,0,0.006,0.001,0.00700000000000012,2
+"test-workflow-lifecycle.R","workflow-lifecycle","workflow symbols must remain visible to datashield.symbols",1,0,FALSE,FALSE,0,0.00300000000000011,0.001,0.00300000000000011,1
+"test-workflow-lifecycle.R","workflow-lifecycle","private workflow assets are assigned by their per-server ids",5,0,FALSE,FALSE,0,0.006,0.001,0.00800000000000001,5
