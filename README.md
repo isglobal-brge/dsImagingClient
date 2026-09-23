@@ -215,6 +215,18 @@ ds.imaging.workflow.status(conns, rt)
 # Run dose analysis after successful mask publication on every node.
 ds.imaging.rt.dose(conns, mask_asset = "rt_masks", handle = "img")
 
+# DICOM SEG uses the explicitly mapped source series; selected segments union.
+ds.imaging.rt.convert(conns, rt_asset = "dicom_seg", dicom_asset = "dicom",
+  segment_numbers = c(1L, 2L), output_asset = "seg_masks", handle = "img")
+
+# Declare public ROI names and voxel values in the mapped labelled mask.
+dose <- ds.imaging.rt.dose(conns, mask_asset = "labelled_masks",
+  roi_labels = c("Tumour", "SpinalCord"), mask_labels = c(1L, 2L),
+  output_asset = "roi_dose", handle = "img")
+# After successful publication on every node, ASSIGN the complete table.
+ds.imaging.load_asset(conns, asset_id = "roi_dose", symbol = "dose",
+  handle = "img")
+
 # WSI/pathology studies can publish tile manifests and optional tile PNGs.
 ds.imaging.wsi.tile(conns, tile_size = 512, max_tiles = 1000, handle = "img")
 
@@ -225,18 +237,30 @@ ds.imaging.segment(conns,
 
 These routes require exact sample-to-patient associations in the sealed
 collection roster. Each DICOM series enumerates and hashes every instance;
-RTSTRUCT, RTDOSE and RTPLAN assets must match the sample's canonical patient
+RTSTRUCT, DICOM SEG, RTDOSE and RTPLAN assets must match the sample's canonical patient
 identifier and DICOM references. Ambiguous or incomplete inputs fail closed.
-RT conversion produces one combined binary ROI mask per sample. DICOM SEG
-conversion remains unavailable.
+RT conversion produces one combined binary ROI mask per sample. Binary SEG
+must reference the mapped series, match its patient/study/frame and use the
+referenced source image grid. Select SEG labels with `rois` or numbers with
+`segment_numbers`; select one segment in each separate call for per-segment
+mask assets. Fractional SEG and ambiguous or resampled frame mappings remain
+unavailable.
 
 The analyst receives opaque workflow and asset references. Masks, slides,
 tiles, per-slide tile counts, local manifests and paths remain server-side.
 WSI `max_tiles` is a per-slide cap. A dose asset is a complete per-ROI table
 that `ds.imaging.load_asset()` can assign in the authorized server session;
-its individual rows never cross through an imaging aggregate method. Supported
-ROI rows are `whole_grid` and one optional `mask` (the union of positive mask
-voxels), not an export of arbitrary multi-label ROIs.
+its individual rows never cross through an imaging aggregate method. Supplying
+`roi_labels` and paired positive integer `mask_labels` declares a public schema:
+every sample has one `roi_label` row per declared ROI with `dose_min`, `dose_max`,
+`dose_mean`, `dose_std` and `dose_voxels`. This permits tumour mean dose and
+organ-at-risk maximum dose in the same table. Absent labels produce missing
+measurements and zero voxels; undeclared mask values are ignored. No labels
+are discovered from private masks. For a set of masks, use `mask_assets` with
+one asset per ROI instead of `mask_asset`; for example, `c("tumour", "cord")`
+with `mask_labels = c(1L, 1L)`. Each asset must cover the exact admitted roster.
+Without a declared schema, legacy rows remain `whole_grid` and one optional
+`mask` (the union of positive mask voxels).
 Downstream DataSHIELD methods retain their disclosure controls, and minimum
 cohort sizes count distinct patients rather than tiles or ROI rows.
 

@@ -172,8 +172,144 @@ test_that("admitted RT, WSI and MONAI workflows use the imaging domain surface",
     logical(1))))
   expect_true(all(vapply(requests, function(x) is.null(x$visibility), logical(1))))
   expect_error(ds.imaging.rt.convert(conns, reference_asset = "seg_reference"),
-    "only RTSTRUCT is admitted", fixed = TRUE)
+    "use dicom_asset", fixed = TRUE)
   expect_length(calls, 5L)
+})
+
+test_that("SEG selections and public labelled dose schemas use domain ASSIGN", {
+  calls <- list()
+  testthat::local_mocked_bindings(
+    datashield.assign.expr = function(conns, symbol, expr, success, ...) {
+      calls[[length(calls) + 1L]] <<- expr
+      for (host in names(conns)) success(host)
+      invisible(TRUE)
+    },
+    datashield.symbols = empty_test_symbols,
+    .package = "DSI"
+  )
+  conns <- list(server_1 = list())
+  ds.imaging.rt.convert(conns, rt_asset = "seg", dicom_asset = "ct",
+    segment_numbers = c(1L, 65535L), handle = "study")
+  ds.imaging.rt.convert(conns, rt_asset = "seg", rois = c("Tumour", "Left lung"))
+  ds.imaging.rt.dose(conns, mask_asset = "labels",
+    roi_labels = c("Tumour", "Lung", "Missing"), mask_labels = c(1L, 2L, 9L),
+    handle = "study")
+  ds.imaging.rt.dose(conns, mask_assets = c("tumour", "organs", "organs"),
+    roi_labels = c("Tumour", "Lung", "Heart"), mask_labels = c(1L, 1L, 2L),
+    handle = "study")
+  requests <- lapply(calls, decode_workflow_request)
+  expect_true(all(vapply(calls, function(x)
+    identical(as.character(x[[1L]]), "imagingProcessAssetWorkflowDS"), logical(1))))
+  expect_equal(requests[[1L]]$config, list(rt_asset = "seg", dicom_asset = "ct",
+    segment_numbers = "1,65535"))
+  expect_equal(requests[[1L]]$handle, "study")
+  expect_equal(requests[[2L]]$config$rois, "Tumour,Left lung")
+  expect_equal(requests[[3L]]$config, list(dose_asset = "rt_dose",
+    plan_asset = "rt_plan", mask_asset = "labels",
+    roi_labels = "Tumour,Lung,Missing", mask_labels = "1,2,9"))
+  expect_equal(requests[[4L]]$config, list(dose_asset = "rt_dose",
+    plan_asset = "rt_plan", roi_labels = "Tumour,Lung,Heart",
+    mask_labels = "1,1,2", mask_assets = "tumour,organs,organs"))
+  expect_true(all(vapply(requests, function(x) is.null(x$visibility), logical(1))))
+})
+
+test_that("ambiguous SEG selections are refused before a server call", {
+  testthat::local_mocked_bindings(
+    datashield.assign.expr = function(...) fail("Invalid selection reached DataSHIELD"),
+    .package = "DSI"
+  )
+  conns <- list(server_1 = list())
+  expect_error(ds.imaging.rt.convert(conns, rois = "Tumour", segment_numbers = 1),
+    "only one of rois and segment_numbers", fixed = TRUE)
+  for (numbers in list(integer(), 0, -1, 65536, 1.5, NA_real_, Inf,
+      c(1, 1), seq_len(129), "1", TRUE, matrix(1))) {
+    expect_error(ds.imaging.rt.convert(conns, segment_numbers = numbers),
+      "segment_numbers must contain", fixed = TRUE)
+  }
+  for (labels in list(character(), "", NA_character_, "Tumour,Lung",
+      "Tumour\nLung", c("Tumour", "Tumour"), c("Tumour", " Tumour "))) {
+    expect_error(ds.imaging.rt.convert(conns, rois = labels),
+      "rois must contain", fixed = TRUE)
+  }
+})
+
+test_that("labelled dose schemas reject ambiguous pairs and private discovery", {
+  testthat::local_mocked_bindings(
+    datashield.assign.expr = function(...) fail("Invalid schema reached DataSHIELD"),
+    .package = "DSI"
+  )
+  conns <- list(server_1 = list())
+  for (labels in list(NULL, character(), "", NA_character_, "Tumour,Lung",
+      "Left lung", "1Tumour", c("Tumour", "Tumour"), strrep("a", 65),
+      paste0("roi", seq_len(129)))) {
+    expect_error(ds.imaging.rt.dose(conns, mask_asset = "labels",
+      roi_labels = labels, mask_labels = 1), "public ROI names", fixed = TRUE)
+  }
+  for (values in list(NULL, integer(), 0, -1, 1.5, NA_real_, Inf,
+      2147483648, "1", TRUE, c(1, 2), matrix(1))) {
+    expect_error(ds.imaging.rt.dose(conns, mask_asset = "labels",
+      roi_labels = "Tumour", mask_labels = values), "mask_labels must pair", fixed = TRUE)
+  }
+  expect_error(ds.imaging.rt.dose(conns, roi_labels = "Tumour", mask_labels = 1),
+    "exactly one of mask_asset and mask_assets", fixed = TRUE)
+  expect_error(ds.imaging.rt.dose(conns, mask_asset = "a", mask_assets = "b",
+    roi_labels = "Tumour", mask_labels = 1), "exactly one", fixed = TRUE)
+  for (assets in list(c("a", "b"), "a,b", "/private/mask.nii", "a..b", NA_character_)) {
+    expect_error(ds.imaging.rt.dose(conns, mask_assets = assets,
+      roi_labels = "Tumour", mask_labels = 1), "mask asset name", fixed = TRUE)
+  }
+  expect_error(ds.imaging.rt.dose(conns, mask_asset = "labels",
+    roi_labels = c("Tumour", "Lung"), mask_labels = c(1, 1)),
+    "asset and label pair must be unique", fixed = TRUE)
+  expect_error(ds.imaging.rt.dose(conns, mask_assets = c("labels", "labels"),
+    roi_labels = c("Tumour", "Lung"), mask_labels = c(1, 1)),
+    "asset and label pair must be unique", fixed = TRUE)
+  expect_error(ds.imaging.rt.convert(conns, segment_numbers = 1,
+    visibility = "raw_public"), "shared validated outputs", fixed = TRUE)
+  expect_error(ds.imaging.rt.dose(conns, mask_asset = "labels",
+    roi_labels = "Tumour", mask_labels = 1, visibility = "raw_public"),
+    "shared validated outputs", fixed = TRUE)
+})
+
+test_that("multi-row dose tables are assigned without aggregating individual rows", {
+  calls <- list()
+  testthat::local_mocked_bindings(
+    datashield.assign.expr = function(conns, symbol, expr, success, ...) {
+      calls[[names(conns)[[1L]]]] <<- list(symbol = symbol, expr = expr)
+      success(names(conns)[[1L]])
+      invisible(TRUE)
+    },
+    datashield.aggregate = function(...) fail("Dose rows must not be aggregated"),
+    datashield.symbols = empty_test_symbols,
+    .package = "DSI"
+  )
+  columns <- c("sample_id", "roi_label", "dose_min", "dose_max", "dose_mean",
+    "dose_std", "dose_voxels")
+  result <- withVisible(ds.imaging.load_asset(list(site_a = list(), site_b = list()),
+    asset_id = "roi_dose", symbol = "dose", columns = columns, handle = "study"))
+  expect_true(result$value)
+  expect_false(result$visible)
+  expect_length(calls, 2L)
+  for (call in calls) {
+    expect_identical(call$symbol, "dose")
+    expect_identical(call$expr, call("imagingLoadAssetDS", "study", "roi_dose",
+      dsImagingClient:::.ds_encode(columns), FALSE, FALSE))
+  }
+})
+
+test_that("dose ASSIGN refusals suppress private remote diagnostics", {
+  testthat::local_mocked_bindings(
+    datashield.assign.expr = function(...) {
+      stop("patient-secret ROI-secret /private/dose.csv", call. = FALSE)
+    },
+    datashield.symbols = empty_test_symbols,
+    .package = "DSI"
+  )
+  refusal <- tryCatch(ds.imaging.load_asset(list(site_a = list()),
+    asset_id = "roi_dose", symbol = "dose", handle = "study"), error = identity)
+  expect_s3_class(refusal, "error")
+  expect_match(conditionMessage(refusal), "Imaging asset assignment", fixed = TRUE)
+  expect_false(grepl("patient-secret|ROI-secret|private/dose", conditionMessage(refusal)))
 })
 
 test_that("asset loading is scoped to the initialized handle", {

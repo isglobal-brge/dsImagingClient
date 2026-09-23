@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis_workflows_clinical.R
 \name{ds.imaging.rt.convert}
 \alias{ds.imaging.rt.convert}
-\title{Convert admitted RTSTRUCT assets into masks}
+\title{Convert admitted RTSTRUCT or DICOM SEG assets into masks}
 \usage{
 ds.imaging.rt.convert(
   conns,
@@ -14,7 +14,8 @@ ds.imaging.rt.convert(
   output_asset = "rt_masks",
   visibility = "shared",
   alias = NULL,
-  handle = "img"
+  handle = "img",
+  segment_numbers = NULL
 )
 }
 \arguments{
@@ -23,14 +24,15 @@ ds.imaging.rt.convert(
 \item{dataset_id}{Character or NULL; optional dataset identifier. The server
 derives it from \code{handle} and verifies any supplied value.}
 
-\item{rt_asset}{Character; RTSTRUCT asset or alias.}
+\item{rt_asset}{Character; RTSTRUCT or DICOM SEG asset or alias.}
 
-\item{dicom_asset}{Character; reference DICOM series asset for RTSTRUCT.}
+\item{dicom_asset}{Character; explicitly mapped reference DICOM series asset.}
 
 \item{reference_asset}{Deprecated compatibility argument; must remain
-\code{"images"}. DICOM SEG conversion is unavailable.}
+\code{"images"}. Use \code{dicom_asset} for the reference series.}
 
-\item{rois}{Character vector or NULL; ROI names to convert.}
+\item{rois}{Character vector or NULL; RTSTRUCT ROI names or SEG segment
+labels to convert. Mutually exclusive with \code{segment_numbers}.}
 
 \item{output_asset}{Character; published mask asset name.}
 
@@ -39,12 +41,18 @@ derives it from \code{handle} and verifies any supplied value.}
 \item{alias}{Character or NULL; optional asset alias.}
 
 \item{handle}{Character; initialized imaging handle (default \code{"img"}).}
+
+\item{segment_numbers}{Integer vector or NULL; 1 through 128 unique DICOM
+SEG segment numbers, each between 1 and 65535. When neither selection is
+supplied, all segments are combined.}
 }
 \value{
 A domain-mediated workflow submission handle.
 }
 \description{
-Each sample's RTSTRUCT and reference DICOM series must have an exact sealed
-mapping and matching patient and spatial references. Selected ROIs become
-one binary mask per sample. DICOM SEG remains unavailable.
+Each sample's RTSTRUCT or binary DICOM SEG and reference DICOM series must
+have an exact sealed mapping and matching patient, study, frame and source
+instance references. SEG frames must use the referenced source image grid.
+Selected ROIs or segments become one union binary mask per sample; select
+one segment in each separate call to publish per-segment mask assets.
 }

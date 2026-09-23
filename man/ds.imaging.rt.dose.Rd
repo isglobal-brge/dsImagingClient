@@ -13,7 +13,10 @@ ds.imaging.rt.dose(
   output_asset = "rt_dose_metrics",
   visibility = "shared",
   alias = NULL,
-  handle = "img"
+  handle = "img",
+  roi_labels = NULL,
+  mask_labels = NULL,
+  mask_assets = NULL
 )
 }
 \arguments{
@@ -26,7 +29,9 @@ derives it from \code{handle} and verifies any supplied value.}
 
 \item{plan_asset}{Character; RTPLAN asset or alias.}
 
-\item{mask_asset}{Character or NULL; optional mask asset for dose metrics.}
+\item{mask_asset}{Character or NULL; one mapped mask asset for dose metrics.
+In labelled mode, it supplies every requested label. Mutually exclusive
+with \code{mask_assets}.}
 
 \item{output_asset}{Character; published dose table asset name.}
 
@@ -35,6 +40,17 @@ derives it from \code{handle} and verifies any supplied value.}
 \item{alias}{Character or NULL; optional asset alias.}
 
 \item{handle}{Character; initialized imaging handle (default \code{"img"}).}
+
+\item{roi_labels}{Character vector or NULL; public ROI vocabulary of 1
+through 128 unique names, each beginning with a letter and containing only
+letters, numbers, underscores, dots or hyphens, up to 64 characters.}
+
+\item{mask_labels}{Integer vector or NULL; positive voxel values paired
+with \code{roi_labels}, up to 2147483647.}
+
+\item{mask_assets}{Character vector or NULL; one mapped mask asset per ROI,
+paired with \code{roi_labels} and \code{mask_labels}. Assets may repeat
+when selecting different values; the same asset/value pair cannot repeat.}
 }
 \value{
 A domain-mediated workflow submission handle.
@@ -43,6 +59,11 @@ A domain-mediated workflow submission handle.
 The complete per-ROI dose table remains server-side. It can be assigned to
 the authorized session with \code{ds.imaging.load_asset()}, under the same
 patient admission and downstream disclosure controls as radiomics tables.
-Supported rows are \code{whole_grid} and one optional \code{mask}, the union
-of positive mask voxels. Arbitrary multi-label ROI export is not supported.
+Declare \code{roi_labels} and their corresponding \code{mask_labels} to
+request one row for every sample and public ROI label, with \code{dose_min},
+\code{dose_max}, \code{dose_mean}, \code{dose_std} and \code{dose_voxels}.
+Unmatched labels retain a row with missing measurements and zero voxels;
+undeclared private labels are ignored. No labels are discovered from masks.
+Without this public schema, legacy rows remain \code{whole_grid} and one
+optional \code{mask}, the union of positive mask voxels.
 }

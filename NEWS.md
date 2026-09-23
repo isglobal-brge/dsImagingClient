@@ -1,10 +1,21 @@
 # dsImagingClient 0.5.0
 
+* `ds.imaging.rt.convert()` admits mapped binary DICOM SEG on the referenced
+  source series grid, selected by segment labels or new `segment_numbers`.
+  Selected segments form one union mask per sample; separate calls select
+  individual segments. Exact patient/study/frame/source associations are
+  required and every mapped file is integrity-checked.
+* `ds.imaging.rt.dose()` accepts public `roi_labels` paired with `mask_labels`
+  from one mapped `mask_asset` or a paired `mask_assets` vector. The complete
+  sample-by-ROI table contains minimum, maximum, mean, standard deviation and
+  voxel count. Absent labels retain missing-measurement rows; labels are never
+  discovered from private masks. `ds.imaging.load_asset()` assigns the table
+  under the same patient and disclosure controls as radiomics.
 * RTSTRUCT conversion, RTDOSE/RTPLAN summaries, whole-slide tiling and MONAI
   bundle segmentation now submit through the dsImaging DataSHIELD workflows.
   The server requires exact sealed sample/patient mappings; masks, per-ROI
   rows, tile bodies and per-slide counts remain server-side. DICOM conversion
-  accepts complete explicitly mapped multi-file series; DICOM SEG stays closed.
+  accepts complete explicitly mapped multi-file series.
 * QC thumbnails accept `max_tiles` (default 64, range 1–1024) alongside
   `max_size`. Pseudonymous thumbnails and the local manifest stay server-side;
   `max_images` remains deprecated and ignored.

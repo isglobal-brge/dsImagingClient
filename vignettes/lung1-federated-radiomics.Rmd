@@ -67,12 +67,26 @@ GrayLevelNonUniformity with the same PyRadiomics settings. See
 [PyRadiomics replication](https://pmc.ncbi.nlm.nih.gov/articles/PMC6805885/).
 The 0.5.0 admission tests use generated fixtures and do not rerun this study.
 
-In 0.5.0 the direct RTSTRUCT, dose, whole-slide and MONAI entry points require
+In 0.5.0 the direct RTSTRUCT/SEG, dose, whole-slide and MONAI entry points require
 sealed per-sample mappings to the canonical patient roster. DICOM conversion
 also accepts a complete enumerated series. Those workflows return opaque
 references: masks, per-ROI dose rows, tiles, exact per-slide counts and paths
 stay server-side. QC thumbnails are capped by `max_tiles` (default 64) as well
 as `max_size`; their local manifest stays on the server.
+
+Binary DICOM SEG must agree with its mapped source series on patient, study,
+frame and referenced instances, with frames on that source image grid.
+`ds.imaging.rt.convert()` accepts `rois` (segment labels) or `segment_numbers`,
+combining selections into one mask per sample; separate calls select individual
+segments. For dose, `ds.imaging.rt.dose()` accepts analyst-declared public
+`roi_labels` paired with positive integer `mask_labels`, from one `mask_asset`
+or a vector of `mask_assets`. Each sample has one row per public ROI with dose
+minimum, maximum, mean, standard deviation and voxel count. Absent regions
+retain missing measurements and zero voxels without private label discovery.
+`ds.imaging.load_asset()` assigns this table only inside the authorized server
+session, under radiomics-equivalent controls and distinct-patient cohort limits.
+These additional routes use synthetic admission tests; this historical LUNG1
+study and its evidence have not been rerun.
 
 The 422 LUNG1 patients are split reproducibly across three DataSHIELD sites —
 Site A holds 142 patients, Site B 143 and Site C 137 — and published with

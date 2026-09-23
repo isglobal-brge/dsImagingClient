@@ -75,6 +75,19 @@ programme of that paper: the validation checks that the
 image-to-mask-to-radiomics path, executed through DataSHIELD jobs on
 separated sites, reproduces the same numerical feature summaries
 obtained by a central PyRadiomics run over the same prepared images.</p>
+<p>Binary DICOM SEG must agree with its mapped source series on patient, study,
+frame and referenced instances, with frames on that source image grid.
+<code>ds.imaging.rt.convert()</code> accepts <code>rois</code> (segment labels) or <code>segment_numbers</code>,
+combining selections into one mask per sample; separate calls select individual
+segments. For dose, <code>ds.imaging.rt.dose()</code> accepts analyst-declared public
+<code>roi_labels</code> paired with positive integer <code>mask_labels</code>, from one <code>mask_asset</code>
+or a vector of <code>mask_assets</code>. Each sample has one row per public ROI with dose
+minimum, maximum, mean, standard deviation and voxel count. Absent regions
+retain missing measurements and zero voxels without private label discovery.
+<code>ds.imaging.load_asset()</code> assigns this table only inside the authorized server
+session, under radiomics-equivalent controls and distinct-patient cohort limits.
+These additional routes use synthetic admission tests; this historical LUNG1
+study and its evidence have not been rerun.</p>
 <p>The 422 LUNG1 patients are split reproducibly across three DataSHIELD
 sites — Site A holds 142 patients, Site B 143 and Site C 137 — and
 published with <code>dsimaging-admin</code> into an S3/MinIO-backed

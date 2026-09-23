@@ -16,6 +16,20 @@ path, executed through DataSHIELD jobs on separated sites, reproduces
 the same numerical feature summaries obtained by a central PyRadiomics
 run over the same prepared images.
 
+Binary DICOM SEG must agree with its mapped source series on patient, study,
+frame and referenced instances, with frames on that source image grid.
+`ds.imaging.rt.convert()` accepts `rois` (segment labels) or `segment_numbers`,
+combining selections into one mask per sample; separate calls select individual
+segments. For dose, `ds.imaging.rt.dose()` accepts analyst-declared public
+`roi_labels` paired with positive integer `mask_labels`, from one `mask_asset`
+or a vector of `mask_assets`. Each sample has one row per public ROI with dose
+minimum, maximum, mean, standard deviation and voxel count. Absent regions
+retain missing measurements and zero voxels without private label discovery.
+`ds.imaging.load_asset()` assigns this table only inside the authorized server
+session, under radiomics-equivalent controls and distinct-patient cohort limits.
+These additional routes use synthetic admission tests; this historical LUNG1
+study and its evidence have not been rerun.
+
 The 422 LUNG1 patients are split reproducibly across three DataSHIELD
 sites — Site A holds 142 patients, Site B 143 and Site C 137 — and
 published with `dsimaging-admin` into an S3/MinIO-backed layout that is
